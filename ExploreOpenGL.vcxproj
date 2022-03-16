@@ -73,22 +73,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(IncludePath)</IncludePath>
-    <SourcePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;$(VC_SourcePath);</SourcePath>
+    <SourcePath>$(SolutionDir)src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;$(VC_SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(IncludePath)</IncludePath>
-    <SourcePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;$(VC_SourcePath);</SourcePath>
+    <SourcePath>$(SolutionDir)src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;$(VC_SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(IncludePath)</IncludePath>
-    <SourcePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;$(VC_SourcePath);</SourcePath>
+    <SourcePath>$(SolutionDir)src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;$(VC_SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(IncludePath)</IncludePath>
-    <SourcePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;$(VC_SourcePath);</SourcePath>
+    <SourcePath>$(SolutionDir)src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;$(VC_SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -160,7 +160,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\External Libraries\Glad\src\glad.c" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\utility.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\utility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
