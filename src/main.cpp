@@ -1,15 +1,23 @@
 #include <iostream>
 #include <conio.h>
 
+//External lib
 #include "glad\glad.h"
 #include "GLFW\glfw3.h"
 #include "KHR\khrplatform.h"
+
+//Local lib
+#include "util_console/util_console.h"
+
+//Project files
 #include "utility.h"
 
 // Forward references. Definintions below main.
+//=============================================
 unsigned int createFragmentShader(const char* fShaderSource);
 unsigned int createShaderProgram(const unsigned int vertexShader, const unsigned int fragmentShader);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void printOpenGLAttributes();
 void processInput(GLFWwindow* window);
 
 // Settings
@@ -37,8 +45,11 @@ const char* fragmentShaderSourcePink = "#version 330 core\n"
 "   FragColor = vec4(0.898f, 0.180f, 0.886f, 1.0f);\n"
 "}\n\0";
 
+CursorUtil con;
+
 int main()
 {
+	
 	// We first initialize GLFW
 	glfwInit();
 
@@ -85,6 +96,9 @@ int main()
 		return -1;
 	}
 
+	// OpenGL Attributes
+	printOpenGLAttributes();
+
 	// Create a Viewport
 	// =================
 	// Before we can start rendering we have to tell OpenGL the size of the rendering window 
@@ -104,7 +118,7 @@ int main()
 	// coordinates it processes to coordinates on your screen. For example, a processed point of
 	// location(-0.5, 0.5) would (as its final transformation) be mapped to(200, 450) in screen coords. 
 	// Processed coordinates in OpenGL are between - 1 and 1
-	// We effectively map from the range (-1 to 1) to (0, 800) and (0, 600). (ssuming a viewport of 800,600)
+	// We effectively map from the range (-1 to 1) to (0, 800) and (0, 600). (assuming a viewport of 800,600)
 
 	//Resizing a window
 	//=================
@@ -112,6 +126,7 @@ int main()
 	// We can register a callback function on the window which gets called each time the window
 	// is resized.This resize callback function has the following prototype:
 	//	 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+	// Window resize callback function
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -204,10 +219,14 @@ int main()
 	// For this reason we have to create a render loop that runs until we tell GLFW to stop.
 	// The glfwWindowShouldClose function checks at the start of each loop iteration if GLFW
 	// has been instructed to close.
+	con.cursorTo(2, 0);	
 	std::cout << "Any key to exit...\n";
+	long long loopCtr = 0;
 	while (!glfwWindowShouldClose(window))
 	{
 		// An iteration of the render loop is more commonly called a frame.
+		con.cursorTo(1, 0);
+		std::cout << loopCtr++;
 
 		//Check for user input
 		processInput(window);
@@ -292,11 +311,6 @@ unsigned int createFragmentShader(const char* fShaderSource) {
 	}
 	return fragmentShader;
 }
-// Window resize callback function
-// We do have to tell GLFW we want to call this function on every window resize by registering it:
-// glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-// Note: For retina displays width and height will end up significantly higher than the original 
-// input values.
 
 unsigned int createShaderProgram(const unsigned int vertexShader, const unsigned int fragmentShader) {
 	unsigned int shaderProgram = glCreateProgram();
@@ -320,7 +334,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
 }
-
+void printOpenGLAttributes() {
+	int nrAttributes;
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+	std::cout << "Maximum vertex attributes supported: " << nrAttributes
+		<< std::endl;
+}
 void processInput(GLFWwindow* window)
 {
 	// Check if escape key pressed (if it’s not pressed, glfwGetKey returns GLFW_RELEASE)
