@@ -1,5 +1,6 @@
-#include <iostream>
+#include <chrono>
 #include <conio.h>
+#include <iostream>
 
 //External lib
 #include "glad\glad.h"
@@ -27,9 +28,11 @@ const unsigned int SCR_HEIGHT = 600;
 //Shader program strings
 const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
+"out vec4 vertexColor; // specify a color output to the fragment shader\n"
 "void main()\n"
 "{\n"
 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"	vertexColor = vec4(0.5, 0.0, 0.0, 1.0); // output variable to dark-red\n"
 "}\0";
 const char* fragmentShaderSourceOrange = "#version 330 core\n"
 "out vec4 FragColor;\n"
@@ -40,9 +43,19 @@ const char* fragmentShaderSourceOrange = "#version 330 core\n"
 
 const char* fragmentShaderSourcePink = "#version 330 core\n"
 "out vec4 FragColor;\n"
+"in vec4 vertexColor; // input variable from vertex shader (same name and type)\n"
 "void main()\n"
 "{\n"
 "   FragColor = vec4(0.898f, 0.180f, 0.886f, 1.0f);\n"
+"   FragColor = vertexColor;\n"
+"}\n\0";
+
+const char* fragmentShaderSourceVaryingGreen = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"uniform vec4 ourColor; // we set this variable in ouor render loop.\n"
+"void main()\n"
+"{\n"
+"   FragColor = ourColor;\n"
 "}\n\0";
 
 CursorUtil con;
@@ -144,20 +157,19 @@ int main()
 		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 	// Fragment shaders
-	const unsigned int numFragShaders = 2;
+	const unsigned int numFragShaders = 3;
 	unsigned int fragmentShader[numFragShaders];
 	fragmentShader[0] = createFragmentShader(fragmentShaderSourceOrange);
 	fragmentShader[1] = createFragmentShader(fragmentShaderSourcePink);
+	fragmentShader[2] = createFragmentShader(fragmentShaderSourceVaryingGreen);
 
 	// link shaders
 	unsigned int shaderProgram[numFragShaders];
 	for (auto i = 0; i < numFragShaders; i++) {
 		shaderProgram[i] = createShaderProgram(vertexShader, fragmentShader[i]);
+		glDeleteShader(fragmentShader[i]);
 	}
-	
 	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader[0]);
-	glDeleteShader(fragmentShader[1]);
 
 	// Set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -169,14 +181,17 @@ int main()
 		-1.0f,  0.0f, 0.0f, // left triangle bottom left
 		 0.5f,  0.5f, 0.0f, // right triangle top
 		 1.0f,  0.0f, 0.0f, // right triangle bottom right
-		 0.0f,  0.0f, 0.0f  // right triangle bottom left
+		 0.0f,  0.0f, 0.0f, // right triangle bottom left
+		 0.0f,  1.0f, 0.0f, // upper triangle top
+		-0.5f,  0.5f, 0.0f, // upper triangle bottom right
+		 0.5f,  0.5f, 0.0f  // upper triangle bottom left
 	};
 	unsigned int indices[] = { // note that we start from 0!
 		0, 1, 3, // first triangle
 		1, 2, 3 // second triangle
 	};
 
-	const unsigned int numTriangles = 2;
+	const unsigned int numTriangles = 3;
 	unsigned int VAO[numTriangles], VBO[numTriangles];
 	glGenVertexArrays(numTriangles, VAO);
 	glGenBuffers(numTriangles, VBO);
@@ -222,11 +237,20 @@ int main()
 	con.cursorTo(2, 0);	
 	std::cout << "Any key to exit...\n";
 	long long loopCtr = 0;
+
+
+	auto t_start = std::chrono::high_resolution_clock::now();
+	// the work...
+	auto t_end = std::chrono::high_resolution_clock::now();
+	double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
 	while (!glfwWindowShouldClose(window))
 	{
 		// An iteration of the render loop is more commonly called a frame.
 		con.cursorTo(1, 0);
-		std::cout << loopCtr++;
+		t_end = std::chrono::high_resolution_clock::now();
+		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+		t_start = t_end;
+		std::cout << loopCtr++ << " " << 1000/elapsed_time_ms; 
 
 		//Check for user input
 		processInput(window);
@@ -247,10 +271,16 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		
-		// draw our first triangle
+		// draw triangles
 		
 		for (auto i = 0; i < numTriangles; i++) {
 			glUseProgram(shaderProgram[i]);
+			if (i == 2) {
+				float timeValue = glfwGetTime();
+				float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+				int vertexColorLocation = glGetUniformLocation(shaderProgram[2], "ourColor");
+				glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+			}
 			glBindVertexArray(VAO[i]); 
 
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
