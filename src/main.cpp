@@ -7,6 +7,8 @@
 #include "utility.h"
 
 // Forward references. Definintions below main.
+unsigned int createFragmentShader(const char* fShaderSource);
+unsigned int createShaderProgram(const unsigned int vertexShader, const unsigned int fragmentShader);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
@@ -21,11 +23,18 @@ const char* vertexShaderSource = "#version 330 core\n"
 "{\n"
 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
 "}\0";
-const char* fragmentShaderSource = "#version 330 core\n"
+const char* fragmentShaderSourceOrange = "#version 330 core\n"
 "out vec4 FragColor;\n"
 "void main()\n"
 "{\n"
 "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"}\n\0";
+
+const char* fragmentShaderSourcePink = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"void main()\n"
+"{\n"
+"   FragColor = vec4(0.898f, 0.180f, 0.886f, 1.0f);\n"
 "}\n\0";
 
 int main()
@@ -119,30 +128,21 @@ int main()
 		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
-	// fragment shader
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-	// check for shader compile errors
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
+	// Fragment shaders
+	const unsigned int numFragShaders = 2;
+	unsigned int fragmentShader[numFragShaders];
+	fragmentShader[0] = createFragmentShader(fragmentShaderSourceOrange);
+	fragmentShader[1] = createFragmentShader(fragmentShaderSourcePink);
+
 	// link shaders
-	unsigned int shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-	// check for linking errors
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	unsigned int shaderProgram[numFragShaders];
+	for (auto i = 0; i < numFragShaders; i++) {
+		shaderProgram[i] = createShaderProgram(vertexShader, fragmentShader[i]);
 	}
+	
 	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	glDeleteShader(fragmentShader[0]);
+	glDeleteShader(fragmentShader[1]);
 
 	// Set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -161,26 +161,28 @@ int main()
 		1, 2, 3 // second triangle
 	};
 
-	unsigned int VAO, VBO, EBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
+	const unsigned int numTriangles = 2;
+	unsigned int VAO[numTriangles], VBO[numTriangles];
+	glGenVertexArrays(numTriangles, VAO);
+	glGenBuffers(numTriangles, VBO);
 	//glGenBuffers(1, &EBO);
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-	glBindVertexArray(VAO);
+	// 
+	for (auto i = 0; i < numTriangles; i++) {
+		// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+		glBindVertexArray(VAO[i]);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9, vertices+i*9, GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	// Set attribute pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
+		// Set attribute pointers
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+	}
 	// The call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex 
 	// buffer object so afterwards we can safely unbind.
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, 
 	// // but this rarely happens. Modifying other VAOs requires a call to glBindVertexArray 
@@ -227,12 +229,14 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 		
 		// draw our first triangle
-		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO); // Only have a single VAO so there's no need to bind it every time,
-								// but we'll do so to keep things a bit more organized
 		
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glDrawArrays(GL_TRIANGLES, 0, 6); //Not needed if using Element Buffer Object
+		for (auto i = 0; i < numTriangles; i++) {
+			glUseProgram(shaderProgram[i]);
+			glBindVertexArray(VAO[i]); 
+
+			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			glDrawArrays(GL_TRIANGLES, 0, 3); //Not needed if using Element Buffer Object
+		}
 		glBindVertexArray(0); // Dont have to unbind it every time, esp when only one object to draw
 
 		//Check for glErrors
@@ -273,11 +277,43 @@ int main()
 	return 0;
 }
 
+unsigned int createFragmentShader(const char* fShaderSource) {
+	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fShaderSource, NULL);
+	glCompileShader(fragmentShader);
+	// check for shader compile errors
+	int success;
+	char infoLog[512];
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+	return fragmentShader;
+}
 // Window resize callback function
 // We do have to tell GLFW we want to call this function on every window resize by registering it:
 // glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 // Note: For retina displays width and height will end up significantly higher than the original 
 // input values.
+
+unsigned int createShaderProgram(const unsigned int vertexShader, const unsigned int fragmentShader) {
+	unsigned int shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+	// check for linking errors
+	int success;
+	char infoLog[512];
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+	return shaderProgram;
+}
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	// This callback makes sure the viewport matches the new window dimensions; note that width and 
