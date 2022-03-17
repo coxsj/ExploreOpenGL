@@ -93,9 +93,9 @@ int main()
 	// ------------------------
 	// Behind the scenes, OpenGL uses the data specified via glViewport to transform the 2D
 	// coordinates it processes to coordinates on your screen. For example, a processed point of
-	// location(-0.5, 0.5) would (as its final transformation) be mapped to(200, 450) in screen
-	// coordinates. Note that processed coordinates in OpenGL are between - 1 and 1 so we
-	// effectively map from the range(-1 to 1) to(0, 800) and (0, 600). (ssuming a viewport of 800,600)
+	// location(-0.5, 0.5) would (as its final transformation) be mapped to(200, 450) in screen coords. 
+	// Processed coordinates in OpenGL are between - 1 and 1
+	// We effectively map from the range (-1 to 1) to (0, 800) and (0, 600). (ssuming a viewport of 800,600)
 
 	//Resizing a window
 	//=================
@@ -149,10 +149,12 @@ int main()
 	//Vertex Array
 	//============
 	float vertices[] = {
-		 0.5f,  0.5f, 0.0f, // top right
-		 0.5f, -0.5f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f, // bottom left
-		-0.5f,  0.5f, 0.0f // top left
+		-0.5f,  0.5f, 0.0f, // left triangle top
+		 0.0f,  0.0f, 0.0f, // left triangle bottom right
+		-1.0f,  0.0f, 0.0f, // left triangle bottom left
+		 0.5f,  0.5f, 0.0f, // right triangle top
+		 1.0f,  0.0f, 0.0f, // right triangle bottom right
+		 0.0f,  0.0f, 0.0f  // right triangle bottom left
 	};
 	unsigned int indices[] = { // note that we start from 0!
 		0, 1, 3, // first triangle
@@ -162,15 +164,15 @@ int main()
 	unsigned int VAO, VBO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
+	//glGenBuffers(1, &EBO);
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// Set attribute pointers
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -188,7 +190,8 @@ int main()
 	glCheckError();
 
 	// uncomment this call to draw in wireframe polygons.
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// Render Loop (Basic)
 	// ==================
@@ -228,8 +231,8 @@ int main()
 		glBindVertexArray(VAO); // Only have a single VAO so there's no need to bind it every time,
 								// but we'll do so to keep things a bit more organized
 		
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		// glDrawArrays(GL_TRIANGLES, 0, 3); //Not needed if using Element Buffer Object
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 6); //Not needed if using Element Buffer Object
 		glBindVertexArray(0); // Dont have to unbind it every time, esp when only one object to draw
 
 		//Check for glErrors
