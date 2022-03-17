@@ -10,10 +10,11 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
-// settings
+// Settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+//Shader program strings
 const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "void main()\n"
@@ -63,15 +64,8 @@ int main()
 	// Make the context of our window the main context on the current thread
 	glfwMakeContextCurrent(window);
 
-	//Resizing a window
-	//=================
-	// The moment a user resizes the window the viewport should be adjusted as well.
-	// We can register a callback function on the window which gets called each time the window
-	// is resized.This resize callback function has the following prototype:
-	//	 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
+	// Prepare to call OpenGL functions
+	// ================================
 	// Initialize GLAD (load GLFW function pointers) before we call any OpenGL functions
 	// We pass GLAD the function to load the address of the OpenGL function pointers which is
 	// OS - specific. GLFW gives us glfwGetProcAddress that defines the correct function based on
@@ -81,6 +75,36 @@ int main()
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
+
+	// Create a Viewport
+	// =================
+	// Before we can start rendering we have to tell OpenGL the size of the rendering window 
+	// so OpenGL knows how we want to display the data and coordinates with respect to the window.
+	// We can set those dimensions via the glViewport function.
+	// The first two parameters of glViewport set the location of the lower left corner of the window.
+	// The third and fourth parameter set the widthand height of the rendering window in pixels,
+	// which we set equal to GLFW’s window size.
+	// We could actually set the viewport dimensions at values smaller than GLFW’s dimensions. Then
+	// all the OpenGL rendering would be displayed in a smaller window and we could, for example,
+	// display other elements outside the OpenGL viewport.
+	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+
+	// Additional Viewport info
+	// ------------------------
+	// Behind the scenes, OpenGL uses the data specified via glViewport to transform the 2D
+	// coordinates it processes to coordinates on your screen. For example, a processed point of
+	// location(-0.5, 0.5) would (as its final transformation) be mapped to(200, 450) in screen
+	// coordinates. Note that processed coordinates in OpenGL are between - 1 and 1 so we
+	// effectively map from the range(-1 to 1) to(0, 800) and (0, 600). (ssuming a viewport of 800,600)
+
+	//Resizing a window
+	//=================
+	// The moment a user resizes the window the viewport should be adjusted as well.
+	// We can register a callback function on the window which gets called each time the window
+	// is resized.This resize callback function has the following prototype:
+	//	 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	//Build and compile Shader Program
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -123,7 +147,7 @@ int main()
 	// Set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 	//Vertex Array
-//============
+	//============
 	float vertices[] = {
 		 0.5f,  0.5f, 0.0f, // top right
 		 0.5f, -0.5f, 0.0f, // bottom right
@@ -161,30 +185,10 @@ int main()
 	// anyway, so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	glBindVertexArray(0);
 
+	glCheckError();
+
 	// uncomment this call to draw in wireframe polygons.
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	// Create a Viewport
-	// =================
-	// Before we can start rendering we have to do one last thing
-	// We have to tell OpenGL the size of the rendering window so OpenGL knows how we want 
-	// to display the data and coordinates with respect to the window.
-	// We can set those dimensions via the glViewport function.
-	// The first two parameters of glViewport set the location of the lower left corner of the window.
-	// The third and fourth parameter set the widthand height of the rendering window in pixels,
-	// which we set equal to GLFW’s window size.
-	// We could actually set the viewport dimensions at values smaller than GLFW’s dimensions. Then
-	// all the OpenGL rendering would be displayed in a smaller window and we could, for example,
-	// display other elements outside the OpenGL viewport.
-	glViewport(0, 0, 800, 600);
-
-	// Additional Viewport info
-	// ------------------------
-	// Behind the scenes, OpenGL uses the data specified via glViewport to transform the 2D
-	// coordinates it processes to coordinates on your screen. For example, a processed point of
-	// location(-0.5, 0.5) would(as its final transformation) be mapped to(200, 450) in screen
-	// coordinates. Note that processed coordinates in OpenGL are between - 1 and 1 so we
-	// effectively map from the range(-1 to 1) to(0, 800) and (0, 600).
 
 	// Render Loop (Basic)
 	// ==================
