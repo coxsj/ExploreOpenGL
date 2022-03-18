@@ -1,6 +1,7 @@
 #include <chrono>
 #include <conio.h>
 #include <iostream>
+#include <vector>
 
 //External lib
 #include "glad\glad.h"
@@ -34,23 +35,34 @@ const char* vertexShaderSource = "#version 330 core\n"
 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
 "	vertexColor = vec4(0.5, 0.0, 0.0, 1.0); // output variable to dark-red\n"
 "}\0";
-const char* fragmentShaderSourceOrange = "#version 330 core\n"
+
+const char* vertexShaderWithColor = "#version 330 core\n"
+"layout (location = 0) in vec3 aPos;\n"
+"layout (location = 1) in vec3 aColor;\n"
+"out vec4 vertexColor; // specify a color output to the fragment shader\n"
+"void main()\n"
+"{\n"
+"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"	vertexColor = vec4(aColor, 1.0);\n"
+"}\0";
+
+
+const char* fragmentShaderColorFromFS = "#version 330 core\n"
 "out vec4 FragColor;\n"
 "void main()\n"
 "{\n"
 "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
 
-const char* fragmentShaderSourcePink = "#version 330 core\n"
+const char* fragmentShaderColorFromVS = "#version 330 core\n"
 "out vec4 FragColor;\n"
 "in vec4 vertexColor; // input variable from vertex shader (same name and type)\n"
 "void main()\n"
 "{\n"
-"   FragColor = vec4(0.898f, 0.180f, 0.886f, 1.0f);\n"
 "   FragColor = vertexColor;\n"
 "}\n\0";
 
-const char* fragmentShaderSourceVaryingGreen = "#version 330 core\n"
+const char* fragmentShaderColorFromUniform = "#version 330 core\n"
 "out vec4 FragColor;\n"
 "uniform vec4 ourColor; // we set this variable in ouor render loop.\n"
 "void main()\n"
@@ -145,7 +157,7 @@ int main()
 
 	//Build and compile Shader Program
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glShaderSource(vertexShader, 1, &vertexShaderWithColor, NULL);
 	glCompileShader(vertexShader);
 	// check for shader compile errors
 	int success;
@@ -159,9 +171,9 @@ int main()
 	// Fragment shaders
 	const unsigned int numFragShaders = 3;
 	unsigned int fragmentShader[numFragShaders];
-	fragmentShader[0] = createFragmentShader(fragmentShaderSourceOrange);
-	fragmentShader[1] = createFragmentShader(fragmentShaderSourcePink);
-	fragmentShader[2] = createFragmentShader(fragmentShaderSourceVaryingGreen);
+	fragmentShader[0] = createFragmentShader(fragmentShaderColorFromFS);
+	fragmentShader[1] = createFragmentShader(fragmentShaderColorFromVS);
+	fragmentShader[2] = createFragmentShader(fragmentShaderColorFromUniform);
 
 	// link shaders
 	unsigned int shaderProgram[numFragShaders];
@@ -175,17 +187,21 @@ int main()
 	// ------------------------------------------------------------------
 	//Vertex Array
 	//============
-	float vertices[] = {
-		-0.5f,  0.5f, 0.0f, // left triangle top
-		 0.0f,  0.0f, 0.0f, // left triangle bottom right
-		-1.0f,  0.0f, 0.0f, // left triangle bottom left
-		 0.5f,  0.5f, 0.0f, // right triangle top
-		 1.0f,  0.0f, 0.0f, // right triangle bottom right
-		 0.0f,  0.0f, 0.0f, // right triangle bottom left
-		 0.0f,  1.0f, 0.0f, // upper triangle top
-		-0.5f,  0.5f, 0.0f, // upper triangle bottom right
-		 0.5f,  0.5f, 0.0f  // upper triangle bottom left
+	std::vector<float> vertices = {
+		//Vertex data			Color data
+		-0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	// left triangle top
+		 0.0f,  0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	// left triangle bottom right
+		-1.0f,  0.0f, 0.0f,		0.0f, 0.0f, 1.0f,	// left triangle bottom left
+		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	// right triangle top
+		 1.0f,  0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	// right triangle bottom right
+		 0.0f,  0.0f, 0.0f,		0.0f, 0.0f, 1.0f,	// right triangle bottom left
+		 0.0f,  1.0f, 0.0f,		1.0f, 0.0f, 0.0f,	// upper triangle top
+		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	// upper triangle bottom right
+		 0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 1.0f	// upper triangle bottom left
 	};
+	const unsigned int posElementsPerAttribute = 3;
+	const unsigned int colorElementsPerAttribute = 3;
+	const unsigned int numArrayElementsPerVertex = posElementsPerAttribute + colorElementsPerAttribute;
 	unsigned int indices[] = { // note that we start from 0!
 		0, 1, 3, // first triangle
 		1, 2, 3 // second triangle
@@ -201,14 +217,20 @@ int main()
 		// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 		glBindVertexArray(VAO[i]);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9, vertices+i*9, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, numTriangles * numArrayElementsPerVertex * sizeof(float), 
+			&vertices[i * numTriangles * numArrayElementsPerVertex], GL_STATIC_DRAW);
 
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-		// Set attribute pointers
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		// Set position attribute pointer
+		glVertexAttribPointer(0, posElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
+
+		// Set color attribute pointer
+		glVertexAttribPointer(1, colorElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float),
+			(void*)(posElementsPerAttribute * sizeof(float)));
+		glEnableVertexAttribArray(1);
 	}
 	// The call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex 
 	// buffer object so afterwards we can safely unbind.
