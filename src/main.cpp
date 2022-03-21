@@ -12,176 +12,32 @@
 #include "util_console/util_console.h"
 
 //Project files
+#include "shader.h"
+#include "settings.h"
 #include "utility.h"
 
 // Forward references. Definintions below main.
 //=============================================
-unsigned int createFragmentShader(const char* fShaderSource);
-unsigned int createShaderProgram(const unsigned int vertexShader, const unsigned int fragmentShader);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void printOpenGLAttributes();
 void processInput(GLFWwindow* window);
-
-// Settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
-
-//Shader program strings
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"out vec4 vertexColor; // specify a color output to the fragment shader\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"	vertexColor = vec4(0.5, 0.0, 0.0, 1.0); // output variable to dark-red\n"
-"}\0";
-
-const char* vertexShaderWithColor = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"layout (location = 1) in vec3 aColor;\n"
-"out vec4 vertexColor; // specify a color output to the fragment shader\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"	vertexColor = vec4(aColor, 1.0);\n"
-"}\0";
-
-
-const char* fragmentShaderColorFromFS = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\n\0";
-
-const char* fragmentShaderColorFromVS = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"in vec4 vertexColor; // input variable from vertex shader (same name and type)\n"
-"void main()\n"
-"{\n"
-"   FragColor = vertexColor;\n"
-"}\n\0";
-
-const char* fragmentShaderColorFromUniform = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"uniform vec4 ourColor; // we set this variable in ouor render loop.\n"
-"void main()\n"
-"{\n"
-"   FragColor = ourColor;\n"
-"}\n\0";
 
 CursorUtil con;
 
 int main()
 {
-	
-	// We first initialize GLFW
-	glfwInit();
-
-	// Tell GLFW that 3.3 is the OpenGL version we want to use.
-	// GLFW uses this info to make the proper arrangements when creating
-	// the OpenGL context.
-	// This ensures that when a user does not have the proper OpenGL version GLFW fails to run.
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
-	// Use the core-profile so we’ll get access to a smaller subset of OpenGL features
-	// without backwards - compatible features we no longer need.
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	// glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // needed for apple
-#ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-	// Create a window object
-	// ======================
-	// If it gives a lot of undefined reference errors, it means you didn’t
-	// successfully link the GLFW library.
-
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-	if (window == NULL)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	// Make the context of our window the main context on the current thread
-	glfwMakeContextCurrent(window);
-
-	// Prepare to call OpenGL functions
-	// ================================
-	// Initialize GLAD (load GLFW function pointers) before we call any OpenGL functions
-	// We pass GLAD the function to load the address of the OpenGL function pointers which is
-	// OS - specific. GLFW gives us glfwGetProcAddress that defines the correct function based on
-	// which OS we’re compiling for.
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return -1;
-	}
-
-	// OpenGL Attributes
+	initializeOpenGL();
+	GLFWwindow* window = createWindowObject();
+	if(window == NULL) return -1;
+	if(!loadGLFWFunctionPointers()) return -1;
 	printOpenGLAttributes();
+	createViewPort(window, framebuffer_size_callback);
 
-	// Create a Viewport
-	// =================
-	// Before we can start rendering we have to tell OpenGL the size of the rendering window 
-	// so OpenGL knows how we want to display the data and coordinates with respect to the window.
-	// We can set those dimensions via the glViewport function.
-	// The first two parameters of glViewport set the location of the lower left corner of the window.
-	// The third and fourth parameter set the widthand height of the rendering window in pixels,
-	// which we set equal to GLFW’s window size.
-	// We could actually set the viewport dimensions at values smaller than GLFW’s dimensions. Then
-	// all the OpenGL rendering would be displayed in a smaller window and we could, for example,
-	// display other elements outside the OpenGL viewport.
-	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-
-	// Additional Viewport info
-	// ------------------------
-	// Behind the scenes, OpenGL uses the data specified via glViewport to transform the 2D
-	// coordinates it processes to coordinates on your screen. For example, a processed point of
-	// location(-0.5, 0.5) would (as its final transformation) be mapped to(200, 450) in screen coords. 
-	// Processed coordinates in OpenGL are between - 1 and 1
-	// We effectively map from the range (-1 to 1) to (0, 800) and (0, 600). (assuming a viewport of 800,600)
-
-	//Resizing a window
-	//=================
-	// The moment a user resizes the window the viewport should be adjusted as well.
-	// We can register a callback function on the window which gets called each time the window
-	// is resized.This resize callback function has the following prototype:
-	//	 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-	// Window resize callback function
-
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-	//Build and compile Shader Program
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderWithColor, NULL);
-	glCompileShader(vertexShader);
-	// check for shader compile errors
-	int success;
-	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-	// Fragment shaders
-	const unsigned int numFragShaders = 3;
-	unsigned int fragmentShader[numFragShaders];
-	fragmentShader[0] = createFragmentShader(fragmentShaderColorFromFS);
-	fragmentShader[1] = createFragmentShader(fragmentShaderColorFromVS);
-	fragmentShader[2] = createFragmentShader(fragmentShaderColorFromUniform);
-
-	// link shaders
-	unsigned int shaderProgram[numFragShaders];
-	for (auto i = 0; i < numFragShaders; i++) {
-		shaderProgram[i] = createShaderProgram(vertexShader, fragmentShader[i]);
-		glDeleteShader(fragmentShader[i]);
-	}
-	glDeleteShader(vertexShader);
+	//Build and compile Shader Programs
+	constexpr unsigned int numShaderPrograms = 3;
+	Shader myShader[numShaderPrograms]{
+		Shader(workingDir + "standardPosColor.vs", workingDir + "colorFromVS.fs"),
+		Shader(workingDir + "standardPosColor.vs", workingDir + "colorFromFS.fs"),
+		Shader(workingDir + "standardPosColor.vs", workingDir + "colorFromUniform.fs") };
 
 	// Set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -247,8 +103,8 @@ int main()
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	// Render Loop (Basic)
-	// ==================
+	// Render Loop
+	// ===========
 	// We don’t want the application to draw a single image and then immediately quit and close the
 	// window.
 	// We want the application to keep drawing images and handling user input until the program has
@@ -260,9 +116,7 @@ int main()
 	std::cout << "Any key to exit...\n";
 	long long loopCtr = 0;
 
-
 	auto t_start = std::chrono::high_resolution_clock::now();
-	// the work...
 	auto t_end = std::chrono::high_resolution_clock::now();
 	double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
 	while (!glfwWindowShouldClose(window))
@@ -293,15 +147,13 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		
-		// draw triangles
-		
-		for (auto i = 0; i < numTriangles; i++) {
-			glUseProgram(shaderProgram[i]);
+		// Draw triangles
+		for (auto i = 0; i < numShaderPrograms; i++) {
+			myShader[i].use();
 			if (i == 2) {
 				float timeValue = glfwGetTime();
 				float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-				int vertexColorLocation = glGetUniformLocation(shaderProgram[2], "ourColor");
-				glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+				myShader[2].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
 			}
 			glBindVertexArray(VAO[i]); 
 
@@ -348,49 +200,11 @@ int main()
 	return 0;
 }
 
-unsigned int createFragmentShader(const char* fShaderSource) {
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fShaderSource, NULL);
-	glCompileShader(fragmentShader);
-	// check for shader compile errors
-	int success;
-	char infoLog[512];
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-	return fragmentShader;
-}
-
-unsigned int createShaderProgram(const unsigned int vertexShader, const unsigned int fragmentShader) {
-	unsigned int shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-	// check for linking errors
-	int success;
-	char infoLog[512];
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-	}
-	return shaderProgram;
-}
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	// This callback makes sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
-}
-void printOpenGLAttributes() {
-	int nrAttributes;
-	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-	std::cout << "Maximum vertex attributes supported: " << nrAttributes
-		<< std::endl;
 }
 void processInput(GLFWwindow* window)
 {

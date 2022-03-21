@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{3c0581cc-d000-455c-af11-3f20d5bd855a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\External Libraries\Glad\src\glad.c">
@@ -24,6 +27,9 @@
     <ClCompile Include="src\utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\utility.h">
@@ -32,5 +38,24 @@
     <ClInclude Include="dependencies\include\util_console\util_console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\standardPosColor.vs">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\colorFromUniform.fs">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\standardPosOnly.vs">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\colorFromFS.fs" />
+    <None Include="shaders\colorFromVS.fs" />
   </ItemGroup>
 </Project>
