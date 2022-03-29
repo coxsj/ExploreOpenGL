@@ -33,11 +33,11 @@ int main()
 	createViewPort(window, framebuffer_size_callback);
 
 	//Build and compile Shader Programs
-	constexpr unsigned int numShaderPrograms = 3;
-	Shader myShader[numShaderPrograms]{
+	std::vector<Shader> myShader {
 		Shader(workingDir + "standardPosColor.vs", workingDir + "colorFromVS.fs"),
 		Shader(workingDir + "standardPosColor.vs", workingDir + "colorFromFS.fs"),
-		Shader(workingDir + "standardPosColor.vs", workingDir + "colorFromUniform.fs") };
+		Shader(workingDir + "standardPosColor.vs", workingDir + "colorFromUniform.fs") 
+	};
 
 	// Set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -148,7 +148,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 		
 		// Draw triangles
-		for (auto i = 0; i < numShaderPrograms; i++) {
+		for (auto i = 0; i < myShader.size(); i++) {
 			myShader[i].use();
 			if (i == 2) {
 				float timeValue = glfwGetTime();
