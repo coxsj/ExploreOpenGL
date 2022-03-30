@@ -26,10 +26,13 @@ CursorUtil con;
 int main()
 {
 	initializeOpenGL();
+
 	GLFWwindow* window = createWindowObject();
 	if(window == NULL) return -1;
+
 	if(!loadGLFWFunctionPointers()) return -1;
 	printOpenGLAttributes();
+
 	createViewPort(window, framebuffer_size_callback);
 
 	//Build and compile Shader Programs
@@ -43,7 +46,7 @@ int main()
 	// ------------------------------------------------------------------
 	//Vertex Array
 	//============
-	std::vector<float> vertices = {
+	std::vector<float> vertices {
 		//Vertex data			Color data
 		-0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	// left triangle top
 		 0.0f,  0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	// left triangle bottom right
@@ -55,10 +58,10 @@ int main()
 		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	// upper triangle bottom right
 		 0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 1.0f	// upper triangle bottom left
 	};
-	const unsigned int posElementsPerAttribute = 3;
-	const unsigned int colorElementsPerAttribute = 3;
-	const unsigned int numArrayElementsPerVertex = posElementsPerAttribute + colorElementsPerAttribute;
-	unsigned int indices[] = { // note that we start from 0!
+	constexpr unsigned int posElementsPerAttribute = 3;
+	constexpr unsigned int colorElementsPerAttribute = 3;
+	constexpr unsigned int numArrayElementsPerVertex = posElementsPerAttribute + colorElementsPerAttribute;
+	unsigned int indices[] { // note that we start from 0!
 		0, 1, 3, // first triangle
 		1, 2, 3 // second triangle
 	};
@@ -68,7 +71,8 @@ int main()
 	glGenVertexArrays(numTriangles, VAO);
 	glGenBuffers(numTriangles, VBO);
 	//glGenBuffers(1, &EBO);
-	// 
+	
+	//Create Vertex Buffer and Vertex Array objects
 	for (auto i = 0; i < numTriangles; i++) {
 		// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 		glBindVertexArray(VAO[i]);
@@ -93,13 +97,13 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, 
-	// // but this rarely happens. Modifying other VAOs requires a call to glBindVertexArray 
+	// but this rarely happens. Modifying other VAOs requires a call to glBindVertexArray 
 	// anyway, so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	glBindVertexArray(0);
 
 	glCheckError();
 
-	// uncomment this call to draw in wireframe polygons.
+	// Uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 

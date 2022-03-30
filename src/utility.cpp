@@ -98,7 +98,6 @@ void initializeOpenGL() {
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-
 }
 bool loadGLFWFunctionPointers(){
 	// Prepare to call OpenGL functions

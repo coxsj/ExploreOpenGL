@@ -55,7 +55,11 @@
     <None Include="shaders\standardPosOnly.vs">
       <Filter>shaders</Filter>
     </None>
-    <None Include="shaders\colorFromFS.fs" />
-    <None Include="shaders\colorFromVS.fs" />
+    <None Include="shaders\colorFromVS.fs">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\colorFromFS.fs">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
