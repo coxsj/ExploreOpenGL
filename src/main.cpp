@@ -154,7 +154,12 @@ int main()
 		// Draw triangles
 		for (auto i = 0; i < myShader.size(); i++) {
 			myShader[i].use();
-			if (i == 2) {
+			myShader[i].setFloat("offset", 0.0f);
+			if (i == 1) {
+				//Send offset value via uniform to Vertex shader
+				myShader[i].setFloat("offset", 0.5f);
+			}
+			else if (i == 2) {
 				float timeValue = glfwGetTime();
 				float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 				myShader[2].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
