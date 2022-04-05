@@ -44,6 +44,9 @@
     <ClInclude Include="src\settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\External Libraries\stb_image\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\standardPosColor.vs">
@@ -61,5 +64,16 @@
     <None Include="shaders\colorFromFS.fs">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\colorTextureFromVS.fs">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\posColorTexture.vs">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\container.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

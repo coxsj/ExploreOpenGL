@@ -7,6 +7,8 @@
 #include "glad\glad.h"
 #include "GLFW\glfw3.h"
 #include "KHR\khrplatform.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 //Local lib
 #include "util_console/util_console.h"
@@ -37,36 +39,77 @@ int main()
 
 	//Build and compile Shader Programs
 	std::vector<Shader> myShader {
-		Shader(workingDir + "standardPosColor.vs", workingDir + "colorFromVS.fs"),
-		Shader(workingDir + "standardPosColor.vs", workingDir + "colorFromFS.fs"),
-		Shader(workingDir + "standardPosColor.vs", workingDir + "colorFromUniform.fs") 
+		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromVS.fs"),
+		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromFS.fs"),
+		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromUniform.fs"),
+		Shader(shaderDir + "posColorTexture.vs", shaderDir + "colorTextureFromVS.fs"),
+		Shader(shaderDir + "posColorTexture.vs", shaderDir + "colorTextureFromVS.fs")
 	};
+
+	//Set up texture data
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	//glActiveTexture(GL_TEXTURE0); // Activate texture unit first. Note that GL_TEXTURE) is always active
+									// If you glActiveateTexture without binding a texture unit
+									// it will be bound to GL_TEXTURE) by default
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// set the texture wrapping/filtering options (on currently bound texture)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load and generate the texture
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load((resourceDir + "container.jpg").c_str(), &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
 
 	// Set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 	//Vertex Array
 	//============
 	std::vector<float> vertices {
-		//Vertex data			Color data
-		-0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	// left triangle top
-		 0.0f,  0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	// left triangle bottom right
-		-1.0f,  0.0f, 0.0f,		0.0f, 0.0f, 1.0f,	// left triangle bottom left
-		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	// right triangle top
-		 1.0f,  0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	// right triangle bottom right
-		 0.0f,  0.0f, 0.0f,		0.0f, 0.0f, 1.0f,	// right triangle bottom left
-		 0.0f,  1.0f, 0.0f,		1.0f, 0.0f, 0.0f,	// upper triangle top
-		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	// upper triangle bottom right
-		 0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 1.0f	// upper triangle bottom left
+		//Vertex data			Color data			//Texture coords 2D
+		-0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // left triangle top
+		 0.0f,  0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // left triangle bottom right
+		-1.0f,  0.0f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // left triangle bottom left
+
+		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // right triangle top
+		 1.0f,  0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // right triangle bottom right
+		 0.0f,  0.0f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // right triangle bottom left
+
+		 0.0f,  1.0f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // upper triangle top
+		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // upper triangle bottom right
+		 0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // upper triangle bottom left
+		 //Rectangle for texture example
+		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f, // top right
+		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f, // bottom right
+		-0.5f,  0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,	// top left
+
+		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f, // bottom right
+		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // bottom left
+		-0.5f,  0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f	// top left
 	};
+	constexpr unsigned int verticesPerTriangle = 3;
 	constexpr unsigned int posElementsPerAttribute = 3;
 	constexpr unsigned int colorElementsPerAttribute = 3;
-	constexpr unsigned int numArrayElementsPerVertex = posElementsPerAttribute + colorElementsPerAttribute;
+	constexpr unsigned int textureElementsPerAttribute = 2;
+	constexpr unsigned int numArrayElementsPerVertex = posElementsPerAttribute 
+														+ colorElementsPerAttribute
+														+ textureElementsPerAttribute;
 	unsigned int indices[] { // note that we start from 0!
-		0, 1, 3, // first triangle
-		1, 2, 3 // second triangle
+		9, 10, 12, // first triangle
+		10, 11, 12 // second triangle
 	};
 
-	const unsigned int numTriangles = 3;
+	const unsigned int numTriangles = 5;
 	unsigned int VAO[numTriangles], VBO[numTriangles];
 	glGenVertexArrays(numTriangles, VAO);
 	glGenBuffers(numTriangles, VBO);
@@ -77,8 +120,8 @@ int main()
 		// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 		glBindVertexArray(VAO[i]);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
-		glBufferData(GL_ARRAY_BUFFER, numTriangles * numArrayElementsPerVertex * sizeof(float), 
-			&vertices[i * numTriangles * numArrayElementsPerVertex], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, verticesPerTriangle * numArrayElementsPerVertex * sizeof(float),
+			&vertices[i * verticesPerTriangle * numArrayElementsPerVertex], GL_STATIC_DRAW);
 
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -91,6 +134,11 @@ int main()
 		glVertexAttribPointer(1, colorElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float),
 			(void*)(posElementsPerAttribute * sizeof(float)));
 		glEnableVertexAttribArray(1);
+
+		// Set texture attribute pointer
+		glVertexAttribPointer(2, textureElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float),
+			(void*)((posElementsPerAttribute + colorElementsPerAttribute)* sizeof(float)));
+		glEnableVertexAttribArray(2);
 	}
 	// The call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex 
 	// buffer object so afterwards we can safely unbind.
@@ -162,7 +210,8 @@ int main()
 			glBindVertexArray(VAO[i]); 
 
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-			glDrawArrays(GL_TRIANGLES, 0, 3); //Not needed if using Element Buffer Object
+			// glDrawArrays(GL_TRIANGLES, 0, 3); //Not needed if using Element Buffer Object
+			glDrawArrays(GL_TRIANGLES, 0, 3);
 		}
 		glBindVertexArray(0); // Dont have to unbind it every time, esp when only one object to draw
 
