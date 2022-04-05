@@ -49,8 +49,9 @@ int main()
 	};
 
 	//Set up texture data
-	unsigned int texture;
-	createTextures(resourceDir + "container.jpg", &texture);
+	unsigned int texture0, texture1;
+	createTextures(resourceDir + "container.jpg", &texture0, false, GL_TEXTURE0, GL_RGB);
+	createTextures(resourceDir + "awesomeface.png", &texture1, true, GL_TEXTURE1, GL_RGBA);
 
 	// Set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -189,6 +190,11 @@ int main()
 				myShader[2].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
 			}
 			glBindVertexArray(VAO[i]); 
+
+			if (i > 2) {
+				myShader[i].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
+				myShader[i].setInt("texture1", 1);
+			}
 
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			// glDrawArrays(GL_TRIANGLES, 0, 3); //Not needed if using Element Buffer Object

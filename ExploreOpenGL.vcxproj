@@ -181,6 +181,7 @@
     <None Include="shaders\standardPosOnly.vs" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="resources\awesomeface.png" />
     <Image Include="resources\container.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
