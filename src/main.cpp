@@ -189,8 +189,8 @@ int main()
 		// Draw triangles
 		for (auto i = 0; i < myShader.size(); i++) {
 			myShader[i].use();
+			float timeValue = glfwGetTime();
 			if (i == 2) {
-				float timeValue = glfwGetTime();
 				float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 				myShader[2].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
 			}
@@ -198,14 +198,18 @@ int main()
 
 			if (i > 2) {
 				//Currently the rectangle with textures is handled by the shaders at index 3 & 4
+
+				//Generate transformation matrix
 				glm::mat4 trans = glm::mat4(1.0f);//unit matrix
 				trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f)); //translate to 0.5, -0.5
-				trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f)); //rotate with time
-
+				trans = glm::rotate(trans, timeValue, glm::vec3(1.0f, 1.0f, 1.0f)); //rotate with time
+				trans = glm::scale(trans, glm::vec3(1.5, 1.5, 0.5)); //Scale by 0.5 in x, y, & z.
+				
 
 				//glm::mat4 trans = glm::mat4(1.0f); //unit matrix
 				//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));//Rotate 90deg around z axis
-				//trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5)); //Scale by 0.5 in x, y, & z.
+				
+				//Transfer transformation matrix to the vertex shader
 				myShader[i].setMat4("transform", trans); //Transfer the rotation & scale matrix to the vertex shader uniform
 				myShader[i].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
 				myShader[i].setInt("texture1", 1);
