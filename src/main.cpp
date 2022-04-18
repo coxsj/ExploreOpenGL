@@ -90,7 +90,7 @@ int main()
 														+ colorElementsPerAttribute
 														+ textureElementsPerAttribute;
 	const unsigned int numTriangles = 5;
-	unsigned int indices[] { // note that we start from 0!
+	unsigned int indices[] { // note that we start from 0
 		9, 10, 12, // first triangle
 		10, 11, 12 // second triangle
 	};
@@ -200,17 +200,29 @@ int main()
 				//Currently the rectangle with textures is handled by the shaders at index 3 & 4
 
 				//Generate transformation matrix
-				glm::mat4 trans = glm::mat4(1.0f);//unit matrix
-				trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f)); //translate to 0.5, -0.5
-				trans = glm::rotate(trans, timeValue, glm::vec3(1.0f, 1.0f, 1.0f)); //rotate with time
-				trans = glm::scale(trans, glm::vec3(1.5, 1.5, 0.5)); //Scale by 0.5 in x, y, & z.
+				glm::mat4 model = glm::mat4(1.0f);
+				model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+				glm::mat4 view = glm::mat4(1.0f);
+				// note that we’re translating the scene in the reverse direction while the camera stays stationary
+				view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+				glm::mat4 projection;
+				projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
+				//glm::mat4 trans = glm::mat4(1.0f);//unit matrix
+				//trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f)); //translate to 0.5, -0.5
+				//trans = glm::rotate(trans, timeValue, glm::vec3(1.0f, 1.0f, 1.0f)); //rotate with time
+				//trans = glm::scale(trans, glm::vec3(1.5, 1.5, 0.5)); //Scale by 0.5 in x, y, & z.
 				
 
 				//glm::mat4 trans = glm::mat4(1.0f); //unit matrix
 				//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));//Rotate 90deg around z axis
 				
 				//Transfer transformation matrix to the vertex shader
-				myShader[i].setMat4("transform", trans); //Transfer the rotation & scale matrix to the vertex shader uniform
+				//myShader[i].setMat4("transform", trans); //Transfer the rotation & scale matrix to the vertex shader uniform
+				myShader[i].setMat4("model", model);
+				myShader[i].setMat4("view", view);
+				myShader[i].setMat4("projection", projection);
+				
 				myShader[i].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
 				myShader[i].setInt("texture1", 1);
 			}
