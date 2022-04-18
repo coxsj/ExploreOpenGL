@@ -8,6 +8,9 @@
 #include "glad\glad.h"
 #include "GLFW\glfw3.h"
 #include "KHR\khrplatform.h"
+#include "glm\glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -28,7 +31,7 @@ void processInput(GLFWwindow* window);
 CursorUtil con;
 
 int main()
-{
+{	
 	initializeOpenGL();
 
 	GLFWwindow* window = createWindowObject();
@@ -57,8 +60,8 @@ int main()
 	// ------------------------------------------------------------------
 	//Vertex Array
 	//============
-	std::vector<float> vertices {
-		//Vertex data			Color data			//Texture coords 2D
+	std::vector<float> vertices = {
+		//Vertex data			Color data			Texture coords 2D
 		-0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // left triangle top
 		 0.0f,  0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // left triangle bottom right
 		-1.0f,  0.0f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // left triangle bottom left
@@ -70,7 +73,7 @@ int main()
 		 0.0f,  1.0f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // upper triangle top
 		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // upper triangle bottom right
 		 0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // upper triangle bottom left
-		 //Rectangle for texture example
+		 //Rectangle made of two triangles used for texture mapping example
 		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f, // top right
 		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f, // bottom right
 		-0.5f,  0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,	// top left
@@ -86,12 +89,11 @@ int main()
 	constexpr unsigned int numArrayElementsPerVertex = posElementsPerAttribute 
 														+ colorElementsPerAttribute
 														+ textureElementsPerAttribute;
+	const unsigned int numTriangles = 5;
 	unsigned int indices[] { // note that we start from 0!
 		9, 10, 12, // first triangle
 		10, 11, 12 // second triangle
 	};
-
-	const unsigned int numTriangles = 5;
 	unsigned int VAO[numTriangles], VBO[numTriangles];
 	glGenVertexArrays(numTriangles, VAO);
 	glGenBuffers(numTriangles, VBO);
@@ -100,7 +102,7 @@ int main()
 	//Create Vertex Buffer and Vertex Array objects
 	for (auto i = 0; i < numTriangles; i++) {
 		// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-		glBindVertexArray(VAO[i]);
+		glBindVertexArray(VAO[i]);	//each call to glBindVertexArray updates VAO[i] with the reference use by OpenGL for this VAO
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
 		glBufferData(GL_ARRAY_BUFFER, verticesPerTriangle * numArrayElementsPerVertex * sizeof(float),
 			&vertices[i * verticesPerTriangle * numArrayElementsPerVertex], GL_STATIC_DRAW);
@@ -108,19 +110,22 @@ int main()
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+		GLuint location0{ 0 };
+		GLuint location1{ 1 };
+		GLuint location2{ 2 };
 		// Set position attribute pointer
-		glVertexAttribPointer(0, posElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(location0, posElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(location0); //relates to the locations declared in the vertex shader
 
 		// Set color attribute pointer
-		glVertexAttribPointer(1, colorElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float),
+		glVertexAttribPointer(location1, colorElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float),
 			(void*)(posElementsPerAttribute * sizeof(float)));
-		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(location1); //relates to the locations declared in the vertex shader
 
 		// Set texture attribute pointer
-		glVertexAttribPointer(2, textureElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float),
+		glVertexAttribPointer(location2, textureElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float),
 			(void*)((posElementsPerAttribute + colorElementsPerAttribute)* sizeof(float)));
-		glEnableVertexAttribArray(2);
+		glEnableVertexAttribArray(location2); //relates to the locations declared in the vertex shader
 	}
 	// The call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex 
 	// buffer object so afterwards we can safely unbind.
@@ -192,6 +197,16 @@ int main()
 			glBindVertexArray(VAO[i]); 
 
 			if (i > 2) {
+				//Currently the rectangle with textures is handled by the shaders at index 3 & 4
+				glm::mat4 trans = glm::mat4(1.0f);//unit matrix
+				trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f)); //translate to 0.5, -0.5
+				trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f)); //rotate with time
+
+
+				//glm::mat4 trans = glm::mat4(1.0f); //unit matrix
+				//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));//Rotate 90deg around z axis
+				//trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5)); //Scale by 0.5 in x, y, & z.
+				myShader[i].setMat4("transform", trans); //Transfer the rotation & scale matrix to the vertex shader uniform
 				myShader[i].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
 				myShader[i].setInt("texture1", 1);
 			}
