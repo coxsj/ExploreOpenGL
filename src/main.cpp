@@ -48,7 +48,6 @@ int main()
 		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromFS.fs"),
 		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromUniform.fs"),
 		Shader(shaderDir + "posColorTexture.vs", shaderDir + "colorTextureFromVS.fs"),
-		Shader(shaderDir + "posColorTexture.vs", shaderDir + "colorTextureFromVS.fs")
 	};
 
 	//Set up texture data
@@ -62,14 +61,15 @@ int main()
 	//============
 	std::vector<float> vertices = {
 		//Vertex data			Color data			Texture coords 2D
-		-0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // left triangle top
-		 0.0f,  0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // left triangle bottom right
-		-1.0f,  0.0f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // left triangle bottom left
-
+		//Triangle 1
+		-0.5f,  0.5f, -1.0f,	1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // left triangle top
+		 0.0f,  0.0f, -1.0f,	0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // left triangle bottom right
+		-1.0f,  0.0f, -1.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // left triangle bottom left
+		//Triangle 2
 		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // right triangle top
 		 1.0f,  0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // right triangle bottom right
 		 0.0f,  0.0f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // right triangle bottom left
-
+		 //Triangle 3
 		 0.0f,  1.0f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // upper triangle top
 		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // upper triangle bottom right
 		 0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // upper triangle bottom left
@@ -80,7 +80,49 @@ int main()
 
 		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f, // bottom right
 		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // bottom left
-		-0.5f,  0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f	// top left
+		-0.5f,  0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,	// top left
+		//Cube vertices (36 triangles)
+		- 0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+
+		 0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f
 	};
 	constexpr unsigned int verticesPerTriangle = 3;
 	constexpr unsigned int posElementsPerAttribute = 3;
@@ -89,24 +131,29 @@ int main()
 	constexpr unsigned int numArrayElementsPerVertex = posElementsPerAttribute 
 														+ colorElementsPerAttribute
 														+ textureElementsPerAttribute;
-	const unsigned int numTriangles = 5;
+	std::vector<unsigned int> trianglesPerObject{1,1,1,2,12};
+	const unsigned int numObjects = trianglesPerObject.size();
+	
 	unsigned int indices[] { // note that we start from 0
 		9, 10, 12, // first triangle
 		10, 11, 12 // second triangle
 	};
-	unsigned int VAO[numTriangles], VBO[numTriangles];
-	glGenVertexArrays(numTriangles, VAO);
-	glGenBuffers(numTriangles, VBO);
+	std::vector<unsigned int> VAO(numObjects);
+	std::vector<unsigned int> VBO(numObjects);
+	glGenVertexArrays(numObjects, &VAO[0]);
+	glGenBuffers(numObjects, &VBO[0]);
 	//glGenBuffers(1, &EBO);
 	
 	//Create Vertex Buffer and Vertex Array objects
-	for (auto i = 0; i < numTriangles; i++) {
+	unsigned int triangleCount{ 0 };
+	for (auto i = 0; i < numObjects; i++) {
 		// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 		glBindVertexArray(VAO[i]);	//each call to glBindVertexArray updates VAO[i] with the reference use by OpenGL for this VAO
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
-		glBufferData(GL_ARRAY_BUFFER, verticesPerTriangle * numArrayElementsPerVertex * sizeof(float),
-			&vertices[i * verticesPerTriangle * numArrayElementsPerVertex], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, trianglesPerObject[i] * verticesPerTriangle * numArrayElementsPerVertex * sizeof(float),
+			&vertices[triangleCount * verticesPerTriangle * numArrayElementsPerVertex], GL_STATIC_DRAW);
 
+		triangleCount += trianglesPerObject[i];
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
@@ -184,54 +231,54 @@ int main()
 		// glClearColor is a state-setting function
 		// glClear is a state-using function
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		// Draw triangles
-		for (auto i = 0; i < myShader.size(); i++) {
-			myShader[i].use();
+		// Draw objects
+		unsigned int lastShaderIndex = myShader.size() - 1;
+		for (auto i = 0; i < numObjects; i++) {
+			if(i < myShader.size() - 1) myShader[i].use(); //First three triangles have different shaders
+			else myShader[lastShaderIndex].use();
+
 			float timeValue = glfwGetTime();
 			if (i == 2) {
+				//Set the color of the third triangle using a uniform value
 				float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 				myShader[2].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
 			}
 			glBindVertexArray(VAO[i]); 
 
-			if (i > 2) {
-				//Currently the rectangle with textures is handled by the shaders at index 3 & 4
-
-				//Generate transformation matrix
+			if(i > 2){
 				glm::mat4 model = glm::mat4(1.0f);
-				model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 				glm::mat4 view = glm::mat4(1.0f);
-				// note that we’re translating the scene in the reverse direction while the camera stays stationary
-				view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 				glm::mat4 projection;
-				projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+				if (i == 3) {
+					//Rectangle
+					//Generate transformation matrix
+					model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+					// note that we’re translating the scene in the reverse direction while the camera stays stationary
+					view = glm::translate(view, glm::vec3(1.2f, 0.0f, -3.0f));
+					projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+				}
+				else if (i == 4) {
+					//Cube
+					glEnable(GL_DEPTH_TEST);
+					//Generate transformation matrix
+					model = glm::rotate(model, timeValue * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+					view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+					projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+				}
+				myShader[lastShaderIndex].setMat4("model", model);
+				myShader[lastShaderIndex].setMat4("view", view);
+				myShader[lastShaderIndex].setMat4("projection", projection);
 
-				//glm::mat4 trans = glm::mat4(1.0f);//unit matrix
-				//trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f)); //translate to 0.5, -0.5
-				//trans = glm::rotate(trans, timeValue, glm::vec3(1.0f, 1.0f, 1.0f)); //rotate with time
-				//trans = glm::scale(trans, glm::vec3(1.5, 1.5, 0.5)); //Scale by 0.5 in x, y, & z.
-				
-
-				//glm::mat4 trans = glm::mat4(1.0f); //unit matrix
-				//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));//Rotate 90deg around z axis
-				
-				//Transfer transformation matrix to the vertex shader
-				//myShader[i].setMat4("transform", trans); //Transfer the rotation & scale matrix to the vertex shader uniform
-				myShader[i].setMat4("model", model);
-				myShader[i].setMat4("view", view);
-				myShader[i].setMat4("projection", projection);
-				
-				myShader[i].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
-				myShader[i].setInt("texture1", 1);
+				myShader[lastShaderIndex].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
+				myShader[lastShaderIndex].setInt("texture1", 1);
 			}
 
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-			// glDrawArrays(GL_TRIANGLES, 0, 3); //Not needed if using Element Buffer Object
-			glDrawArrays(GL_TRIANGLES, 0, 3);
+			glDrawArrays(GL_TRIANGLES, 0, verticesPerTriangle * trianglesPerObject[i]);
 		}
-		glBindVertexArray(0); // Dont have to unbind it every time, esp when only one object to draw
+		glBindVertexArray(0);
 
 		//Check for glErrors
 		glCheckError();
