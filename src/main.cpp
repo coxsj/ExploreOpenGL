@@ -350,7 +350,7 @@ void processInput(GLFWwindow* window)
 		cameraSpeed;
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) *
-		cameraSpeed;
+		cameraSpeed; 
 }
 void updateDeltaTime() {
 	float currentFrame = static_cast<float>(glfwGetTime());
