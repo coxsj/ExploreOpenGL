@@ -28,7 +28,10 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
-
+//Camera variables
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 int main()
 {	
@@ -238,17 +241,17 @@ int main()
 			
 			float timeValue = static_cast<float>(glfwGetTime());
 			
-			//Reset model and view matrices
+			//Model and view matrices
 			glm::mat4 model = glm::mat4(1.0f);
 			glm::mat4 view = glm::mat4(1.0f);
 			glm::mat4 projection;
 
-			if (i == 2) {
-				//Set the color of the third triangle using a uniform value
-				float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-				myShader[currentShader].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
-			}
 			if (i < 3) {
+				if (i == 2) {
+					//Set the color of the third triangle using a uniform value
+					float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+					myShader[currentShader].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
+				}
 				model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
 			}
 			else {
@@ -265,14 +268,13 @@ int main()
 				myShader[currentShader].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
 				myShader[currentShader].setInt("texture1", 1);
 			}
-			//Update look at matrix
+			//Update Look At matrix
 			const float radius = 5.0f;
 			float camX = sin(timeValue) * radius;
 			float camY = sin(timeValue) * radius;
 			float camZ = cos(timeValue) * radius;
 			//lookAt takes a position, target and up vector as parameters
-			view = glm::lookAt(glm::vec3(camX, camY, camZ), glm::vec3(0.0, 0.0, 0.0),
-				glm::vec3(0.0, 1.0, 0.0));
+			view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 			projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 			myShader[currentShader].setMat4("model", model);
 			myShader[currentShader].setMat4("view", view);
@@ -332,4 +334,15 @@ void processInput(GLFWwindow* window)
 	// Check if escape key pressed (if it’s not pressed, glfwGetKey returns GLFW_RELEASE)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	const float cameraSpeed = 0.05f; // adjust accordingly
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		cameraPos += cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cameraPos -= cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) *
+		cameraSpeed;
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) *
+		cameraSpeed;
 }
