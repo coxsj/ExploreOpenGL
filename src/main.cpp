@@ -1,6 +1,7 @@
 
 #include <conio.h>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -19,6 +20,7 @@
 #include "util_console/util_console.h"
 
 //Project files
+#include "camera.h"
 #include "shader.h"
 #include "settings.h"
 #include "utility.h"
@@ -34,12 +36,8 @@ void updateDeltaTime();
 
 //GLOBALS!!
 //=========
-//Camera variables
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
-float zoom{ 45.0f };
+std::unique_ptr<Camera> cam = std::make_unique<Camera>();
+std::unique_ptr<CursorUtil> con = std::make_unique<CursorUtil>();
 
 //Mouse control
 bool mouseControlActive{ false };
@@ -220,8 +218,7 @@ int main()
 	// For this reason we have to create a render loop that runs until we tell GLFW to stop.
 	// The glfwWindowShouldClose function checks at the start of each loop iteration if GLFW
 	// has been instructed to close.
-	CursorUtil con; 
-	con.cursorTo(2, 0);
+	con->cursorTo(2, 0);
 	std::cout << "Any key to exit...\n";
 
 	while (!glfwWindowShouldClose(window))
@@ -286,15 +283,10 @@ int main()
 				//Set textures in rectangle and cube
 				myShader[currentShader].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
 				myShader[currentShader].setInt("texture1", 1);
-			}
-			//Update Look At matrix
-			const float radius = 5.0f;
-			float camX = sin(timeValue) * radius;
-			float camY = sin(timeValue) * radius;
-			float camZ = cos(timeValue) * radius;
-			//lookAt takes a position, target and up vector as parameters
-			view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-			projection = glm::perspective(glm::radians(zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+			}			
+			view = cam->lookAt();
+			projection = cam->perspective(SCR_WIDTH, SCR_HEIGHT, 0.1f, 100.0f);
+
 			myShader[currentShader].setMat4("model", model);
 			myShader[currentShader].setMat4("view", view);
 			myShader[currentShader].setMat4("projection", projection);
@@ -342,16 +334,13 @@ int main()
 	return 0;
 }
 
-void cursor_enter_callback(GLFWwindow* window, int entered)
-{
-	if (entered)
-	{
+void cursor_enter_callback(GLFWwindow* window, int entered){
+	if (entered){
 		// The cursor entered the content area of the window
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		mouseControlActive = true;
 	}
-	else
-	{
+	else{
 		// The cursor left the content area of the window
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		mouseControlActive = false;
@@ -370,61 +359,32 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 	static bool firstMouse{ true };
 	if (firstMouse) // Sidesteps mouse jump on entry
 	{
-		lastX = xpos;
-		lastY = ypos;
+		lastX = static_cast<float>(xpos);
+		lastY = static_cast<float>(ypos);
 		firstMouse = false;
 	}
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos; // reversed: y ranges bottom to top
-	lastX = xpos;
-	lastY = ypos;
-	const float sensitivity = 0.1f;
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
+	float xoffset = static_cast<float>(xpos - lastX);
+	float yoffset = static_cast<float>(lastY - ypos); // reversed: y ranges bottom to top
+	lastX = static_cast<float>(xpos);
+	lastY = static_cast<float>(ypos);
 
-	//Update pitch and yaw based on mouse changes
-	static float pitch{ 0 }, yaw{ -90.0f };
-	yaw += xoffset;
-	pitch += yoffset;
-
-	//Aply limits to prevent camera flip
-	if (pitch > 89.0f) pitch = 89.0f;
-	if (pitch < -89.0f) pitch = -89.0f;
-
-	//Calculate the new camera direction (Look At) vector
-	glm::vec3 direction;
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.y = sin(glm::radians(pitch));
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-
-	//Update the global camera vector
-	cameraFront = glm::normalize(direction);
-
+	cam->updateDirectionFromMouse(xoffset, yoffset);
 }
 void processInput(GLFWwindow* window)
 {
 	// Check if escape key pressed (if it’s not pressed, glfwGetKey returns GLFW_RELEASE)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cameraPos += cameraSpeed * cameraFront;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cameraPos -= cameraSpeed * cameraFront;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) *
-		cameraSpeed;
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) *
-		cameraSpeed;
+
+	//Check for keyboard camera control input
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) cam->keyInput(GLFW_KEY_W, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) cam->keyInput(GLFW_KEY_S, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) cam->keyInput(GLFW_KEY_A, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) cam->keyInput(GLFW_KEY_D, deltaTime);
 }
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
 	if (!mouseControlActive) return; 
-	zoom -= (float)yoffset;
-	if (zoom < 1.0f)
-		zoom = 1.0f;
-	if (zoom > 45.0f)
-		zoom = 45.0f;
+	cam->newZoom(static_cast<float>(yoffset));
 }
 void updateDeltaTime() {
 	float currentFrame = static_cast<float>(glfwGetTime());
