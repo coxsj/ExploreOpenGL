@@ -1,4 +1,4 @@
-#include <chrono>
+
 #include <conio.h>
 #include <iostream>
 #include <string>
@@ -28,7 +28,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
-CursorUtil con;
+
 
 int main()
 {	
@@ -49,6 +49,7 @@ int main()
 		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromUniform.fs"),
 		Shader(shaderDir + "posColorTexture.vs", shaderDir + "colorTextureFromVS.fs"),
 	};
+	const unsigned int lastShaderIndex = static_cast<const unsigned int>(myShader.size() - 1);
 
 	//Set up texture data
 	unsigned int texture0, texture1;
@@ -124,6 +125,7 @@ int main()
 		-0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f
 	};
+	std::vector<unsigned int> trianglesPerObject{1,1,1,2,12};
 	constexpr unsigned int verticesPerTriangle = 3;
 	constexpr unsigned int posElementsPerAttribute = 3;
 	constexpr unsigned int colorElementsPerAttribute = 3;
@@ -131,8 +133,7 @@ int main()
 	constexpr unsigned int numArrayElementsPerVertex = posElementsPerAttribute 
 														+ colorElementsPerAttribute
 														+ textureElementsPerAttribute;
-	std::vector<unsigned int> trianglesPerObject{1,1,1,2,12};
-	const unsigned int numObjects = trianglesPerObject.size();
+	const unsigned int numObjects = static_cast<const unsigned int>(trianglesPerObject.size());
 	
 	unsigned int indices[] { // note that we start from 0
 		9, 10, 12, // first triangle
@@ -146,7 +147,7 @@ int main()
 	
 	//Create Vertex Buffer and Vertex Array objects
 	unsigned int triangleCount{ 0 };
-	for (auto i = 0; i < numObjects; i++) {
+	for (unsigned int i = 0; i < numObjects; i++) {
 		// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 		glBindVertexArray(VAO[i]);	//each call to glBindVertexArray updates VAO[i] with the reference use by OpenGL for this VAO
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
@@ -198,22 +199,15 @@ int main()
 	// For this reason we have to create a render loop that runs until we tell GLFW to stop.
 	// The glfwWindowShouldClose function checks at the start of each loop iteration if GLFW
 	// has been instructed to close.
-	con.cursorTo(2, 0);	
+	CursorUtil con; 
+	con.cursorTo(2, 0);
 	std::cout << "Any key to exit...\n";
-	long long loopCtr = 0;
-
-	auto t_start = std::chrono::high_resolution_clock::now();
-	auto t_end = std::chrono::high_resolution_clock::now();
-	double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+	
 	while (!glfwWindowShouldClose(window))
 	{
 		// An iteration of the render loop is more commonly called a frame.
-		con.cursorTo(1, 0);
-		t_end = std::chrono::high_resolution_clock::now();
-		elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
-		t_start = t_end;
-		std::cout << loopCtr++ << " " << 1000/elapsed_time_ms; 
-
+		printFrameRate();
+		
 		//Check for user input
 		processInput(window);
 		
@@ -234,19 +228,17 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// Draw objects
-		unsigned int lastShaderIndex = myShader.size() - 1;
-		for (auto i = 0; i < numObjects; i++) {
-			if(i < myShader.size() - 1) myShader[i].use(); //First three triangles have different shaders
-			else myShader[lastShaderIndex].use();
+		for (unsigned int i = 0; i < numObjects; i++) {
+			glBindVertexArray(VAO[i]); 
 
-			float timeValue = glfwGetTime();
+			//First three triangles have different shaders
+			i < myShader.size() - 1 ? myShader[i].use(): myShader[lastShaderIndex].use();
+			float timeValue = static_cast<float>(glfwGetTime());
 			if (i == 2) {
 				//Set the color of the third triangle using a uniform value
 				float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 				myShader[2].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
 			}
-			glBindVertexArray(VAO[i]); 
-
 			if(i > 2){
 				glm::mat4 model = glm::mat4(1.0f);
 				glm::mat4 view = glm::mat4(1.0f);
@@ -274,7 +266,6 @@ int main()
 				myShader[lastShaderIndex].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
 				myShader[lastShaderIndex].setInt("texture1", 1);
 			}
-
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			glDrawArrays(GL_TRIANGLES, 0, verticesPerTriangle * trianglesPerObject[i]);
 		}

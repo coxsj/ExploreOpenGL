@@ -1,5 +1,7 @@
 
-
+//#define NDEBUG
+#include <assert.h>
+#include <chrono>
 #include <iostream>
 #include <string>
 
@@ -7,6 +9,9 @@
 #include "glad\glad.h"
 #include "GLFW\glfw3.h"
 #include "stb_image.h"
+
+//Local lib
+#include "util_console/util_console.h"
 
 #include "settings.h"
 #include "utility.h"
@@ -94,12 +99,12 @@ GLenum glCheckError_(const char* file, int line) {
 		std::string error;
 		switch (errorCode)
 		{
-		case GL_INVALID_ENUM: error = "INVALID_ENUM"; break;
-		case GL_INVALID_VALUE: error = "INVALID_VALUE"; break;
-		case GL_INVALID_OPERATION: error = "INVALID_OPERATION"; break;
-		case GL_STACK_OVERFLOW: error = "STACK_OVERFLOW"; break;
-		case GL_STACK_UNDERFLOW: error = "STACK_UNDERFLOW"; break;
-		case GL_OUT_OF_MEMORY: error = "OUT_OF_MEMORY"; break;
+		case GL_INVALID_ENUM:		error = "INVALID_ENUM";		break;
+		case GL_INVALID_VALUE:		error = "INVALID_VALUE";	break;
+		case GL_INVALID_OPERATION:	error = "INVALID_OPERATION";break;
+		case GL_STACK_OVERFLOW:		error = "STACK_OVERFLOW";	break;
+		case GL_STACK_UNDERFLOW:	error = "STACK_UNDERFLOW";	break;
+		case GL_OUT_OF_MEMORY:		error = "OUT_OF_MEMORY";	break;
 		//case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
 		}
 		std::cout << error << " | " << file << " (" << line << ")" << std::endl;
@@ -107,12 +112,11 @@ GLenum glCheckError_(const char* file, int line) {
 	return errorCode;
 }
 void initializeOpenGL() {
-	// We first initialize GLFW
-	glfwInit();
+	// First initialize GLFW
+	assert(glfwInit() != GLFW_FALSE);
 
 	// Tell GLFW that 3.3 is the OpenGL version we want to use.
-	// GLFW uses this info to make the proper arrangements when creating
-	// the OpenGL context.
+	// GLFW uses this info to make the proper arrangements when creating the OpenGL context.
 	// This ensures that when a user does not have the proper OpenGL version GLFW fails to run.
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -121,7 +125,7 @@ void initializeOpenGL() {
 	// without backwards - compatible features we no longer need.
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // needed for apple
+	// needed for apple
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
@@ -139,6 +143,19 @@ bool loadGLFWFunctionPointers(){
 		return false;
 	}
 	return true;
+}
+void printFrameRate() {
+	static long long loopCtr{ 0 };
+
+	static auto t_start{ std::chrono::high_resolution_clock::now() };
+	static auto t_end{ std::chrono::high_resolution_clock::now() };
+	static double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+	CursorUtil con; 
+	con.cursorTo(1, 0);
+	t_end = std::chrono::high_resolution_clock::now();
+	elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+	t_start = t_end;
+	std::cout << loopCtr++ << " " << 1000 / elapsed_time_ms;
 }
 void printOpenGLAttributes() {
 	int nrAttributes;
