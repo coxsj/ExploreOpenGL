@@ -27,11 +27,16 @@
 //=============================================
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
+void updateDeltaTime();
 
 //Camera variables
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+//Delta time variables
+float deltaTime = 0.0f; // Time between current frame and last frame
+float lastFrame = 0.0f; // Time of last frame
 
 int main()
 {	
@@ -209,6 +214,7 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// An iteration of the render loop is more commonly called a frame.
+		updateDeltaTime();
 		printFrameRate();
 		
 		//Check for user input
@@ -334,7 +340,7 @@ void processInput(GLFWwindow* window)
 	// Check if escape key pressed (if it’s not pressed, glfwGetKey returns GLFW_RELEASE)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	const float cameraSpeed = 0.05f; // adjust accordingly
+	const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		cameraPos += cameraSpeed * cameraFront;
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -345,4 +351,9 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) *
 		cameraSpeed;
+}
+void updateDeltaTime() {
+	float currentFrame = static_cast<float>(glfwGetTime());
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
 }
