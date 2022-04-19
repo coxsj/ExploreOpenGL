@@ -25,14 +25,24 @@
 
 // Forward references. Definintions below main.
 //=============================================
+void cursor_enter_callback(GLFWwindow* window, int entered);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow* window);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void updateDeltaTime();
 
+//GLOBALS!!
+//=========
 //Camera variables
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+float zoom{ 45.0f };
+
+//Mouse control
+bool mouseControlActive{ false };
 
 //Delta time variables
 float deltaTime = 0.0f; // Time between current frame and last frame
@@ -49,6 +59,9 @@ int main()
 	printOpenGLAttributes();
 
 	createViewPort(window, framebuffer_size_callback);
+	glfwSetCursorEnterCallback(window, cursor_enter_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 
 	//Build and compile Shader Programs
 	std::vector<Shader> myShader {
@@ -210,7 +223,7 @@ int main()
 	CursorUtil con; 
 	con.cursorTo(2, 0);
 	std::cout << "Any key to exit...\n";
-	
+
 	while (!glfwWindowShouldClose(window))
 	{
 		// An iteration of the render loop is more commonly called a frame.
@@ -281,7 +294,7 @@ int main()
 			float camZ = cos(timeValue) * radius;
 			//lookAt takes a position, target and up vector as parameters
 			view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-			projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+			projection = glm::perspective(glm::radians(zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 			myShader[currentShader].setMat4("model", model);
 			myShader[currentShader].setMat4("view", view);
 			myShader[currentShader].setMat4("projection", projection);
@@ -329,11 +342,64 @@ int main()
 	return 0;
 }
 
+void cursor_enter_callback(GLFWwindow* window, int entered)
+{
+	if (entered)
+	{
+		// The cursor entered the content area of the window
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		mouseControlActive = true;
+	}
+	else
+	{
+		// The cursor left the content area of the window
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		mouseControlActive = false;
+	}
+}
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	// This callback makes sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
+}
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+	if (!mouseControlActive) return;
+	// Mouse variables
+	static float lastX, lastY;
+	static bool firstMouse{ true };
+	if (firstMouse) // Sidesteps mouse jump on entry
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos; // reversed: y ranges bottom to top
+	lastX = xpos;
+	lastY = ypos;
+	const float sensitivity = 0.1f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	//Update pitch and yaw based on mouse changes
+	static float pitch{ 0 }, yaw{ -90.0f };
+	yaw += xoffset;
+	pitch += yoffset;
+
+	//Aply limits to prevent camera flip
+	if (pitch > 89.0f) pitch = 89.0f;
+	if (pitch < -89.0f) pitch = -89.0f;
+
+	//Calculate the new camera direction (Look At) vector
+	glm::vec3 direction;
+	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	direction.y = sin(glm::radians(pitch));
+	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+
+	//Update the global camera vector
+	cameraFront = glm::normalize(direction);
+
 }
 void processInput(GLFWwindow* window)
 {
@@ -350,7 +416,15 @@ void processInput(GLFWwindow* window)
 		cameraSpeed;
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) *
-		cameraSpeed; 
+		cameraSpeed;
+}
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
+	if (!mouseControlActive) return; 
+	zoom -= (float)yoffset;
+	if (zoom < 1.0f)
+		zoom = 1.0f;
+	if (zoom > 45.0f)
+		zoom = 45.0f;
 }
 void updateDeltaTime() {
 	float currentFrame = static_cast<float>(glfwGetTime());
