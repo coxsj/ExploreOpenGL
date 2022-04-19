@@ -63,9 +63,9 @@ int main()
 	std::vector<float> vertices = {
 		//Vertex data			Color data			Texture coords 2D
 		//Triangle 1
-		-0.5f,  0.5f, -1.0f,	1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // left triangle top
-		 0.0f,  0.0f, -1.0f,	0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // left triangle bottom right
-		-1.0f,  0.0f, -1.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // left triangle bottom left
+		-0.5f,  0.5f,  0.0f,	1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // left triangle top
+		 0.0f,  0.0f,  0.0f,	0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // left triangle bottom right
+		-1.0f,  0.0f,  0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // left triangle bottom left
 		//Triangle 2
 		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // right triangle top
 		 1.0f,  0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // right triangle bottom right
@@ -189,7 +189,7 @@ int main()
 	// Uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+	glEnable(GL_DEPTH_TEST);
 	// Render Loop
 	// ===========
 	// We don’t want the application to draw a single image and then immediately quit and close the
@@ -228,44 +228,56 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// Draw objects
+		//=============
 		for (unsigned int i = 0; i < numObjects; i++) {
 			glBindVertexArray(VAO[i]); 
 
 			//First three triangles have different shaders
-			i < myShader.size() - 1 ? myShader[i].use(): myShader[lastShaderIndex].use();
+			unsigned int currentShader = (i < myShader.size() - 1) ? i : lastShaderIndex;
+			myShader[currentShader].use();
+			
 			float timeValue = static_cast<float>(glfwGetTime());
+			
+			//Reset model and view matrices
+			glm::mat4 model = glm::mat4(1.0f);
+			glm::mat4 view = glm::mat4(1.0f);
+			glm::mat4 projection;
+
 			if (i == 2) {
 				//Set the color of the third triangle using a uniform value
 				float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-				myShader[2].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
+				myShader[currentShader].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
 			}
-			if(i > 2){
-				glm::mat4 model = glm::mat4(1.0f);
-				glm::mat4 view = glm::mat4(1.0f);
-				glm::mat4 projection;
+			if (i < 3) {
+				model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
+			}
+			else {
 				if (i == 3) {
 					//Rectangle
-					//Generate transformation matrix
+					model = glm::translate(model, glm::vec3(-1.5f, 0.0f, 0.0f));
 					model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-					// note that we’re translating the scene in the reverse direction while the camera stays stationary
-					view = glm::translate(view, glm::vec3(1.2f, 0.0f, -3.0f));
-					projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 				}
 				else if (i == 4) {
 					//Cube
-					glEnable(GL_DEPTH_TEST);
-					//Generate transformation matrix
 					model = glm::rotate(model, timeValue * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-					view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-					projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 				}
-				myShader[lastShaderIndex].setMat4("model", model);
-				myShader[lastShaderIndex].setMat4("view", view);
-				myShader[lastShaderIndex].setMat4("projection", projection);
-
-				myShader[lastShaderIndex].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
-				myShader[lastShaderIndex].setInt("texture1", 1);
+				//Set textures in rectangle and cube
+				myShader[currentShader].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
+				myShader[currentShader].setInt("texture1", 1);
 			}
+			//Update look at matrix
+			const float radius = 5.0f;
+			float camX = sin(timeValue) * radius;
+			float camY = sin(timeValue) * radius;
+			float camZ = cos(timeValue) * radius;
+			//lookAt takes a position, target and up vector as parameters
+			view = glm::lookAt(glm::vec3(camX, camY, camZ), glm::vec3(0.0, 0.0, 0.0),
+				glm::vec3(0.0, 1.0, 0.0));
+			projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+			myShader[currentShader].setMat4("model", model);
+			myShader[currentShader].setMat4("view", view);
+			myShader[currentShader].setMat4("projection", projection);
+
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			glDrawArrays(GL_TRIANGLES, 0, verticesPerTriangle * trianglesPerObject[i]);
 		}
