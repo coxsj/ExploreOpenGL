@@ -124,6 +124,21 @@ int main()
 		-0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f
 	};
+
+	//Cube translations in world space for each cube
+	std::vector<glm::vec3> cubePositions = {
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(2.0f, 5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f, 3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f, 2.0f, -2.5f),
+		glm::vec3(1.5f, 0.2f, -1.5f),
+		glm::vec3(-1.3f, 1.0f, -1.5f)
+	};
+
 	constexpr unsigned int verticesPerTriangle = 3;
 	constexpr unsigned int posElementsPerAttribute = 3;
 	constexpr unsigned int colorElementsPerAttribute = 3;
@@ -235,48 +250,35 @@ int main()
 		
 		// Draw objects
 		unsigned int lastShaderIndex = myShader.size() - 1;
-		for (auto i = 0; i < numObjects; i++) {
-			if(i < myShader.size() - 1) myShader[i].use(); //First three triangles have different shaders
-			else myShader[lastShaderIndex].use();
+		glEnable(GL_DEPTH_TEST);
+		myShader[lastShaderIndex].use();
+		myShader[lastShaderIndex].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
+		myShader[lastShaderIndex].setInt("texture1", 1);
 
+		glBindVertexArray(VAO[4]); 
+		
+		for (auto i = 0; i < cubePositions.size(); i++) {
 			float timeValue = glfwGetTime();
-			if (i == 2) {
-				//Set the color of the third triangle using a uniform value
-				float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-				myShader[2].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
-			}
-			glBindVertexArray(VAO[i]); 
 
-			if(i > 2){
-				glm::mat4 model = glm::mat4(1.0f);
-				glm::mat4 view = glm::mat4(1.0f);
-				glm::mat4 projection;
-				if (i == 3) {
-					//Rectangle
-					//Generate transformation matrix
-					model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-					// note that we’re translating the scene in the reverse direction while the camera stays stationary
-					view = glm::translate(view, glm::vec3(1.2f, 0.0f, -3.0f));
-					projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-				}
-				else if (i == 4) {
-					//Cube
-					glEnable(GL_DEPTH_TEST);
-					//Generate transformation matrix
-					model = glm::rotate(model, timeValue * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-					view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-					projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-				}
-				myShader[lastShaderIndex].setMat4("model", model);
-				myShader[lastShaderIndex].setMat4("view", view);
-				myShader[lastShaderIndex].setMat4("projection", projection);
-
-				myShader[lastShaderIndex].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
-				myShader[lastShaderIndex].setInt("texture1", 1);
-			}
+			//Cube
+			//Generate transformation matrices
+			glm::mat4 model = glm::mat4(1.0f);
+			glm::mat4 view = glm::mat4(1.0f);
+			glm::mat4 projection = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			model = glm::rotate(model, timeValue * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+			view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
+			projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+			
+			// pass transformation matrices to the shader
+			myShader[lastShaderIndex].setMat4("model", model);
+			myShader[lastShaderIndex].setMat4("view", view);
+			myShader[lastShaderIndex].setMat4("projection", projection);
 
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-			glDrawArrays(GL_TRIANGLES, 0, verticesPerTriangle * trianglesPerObject[i]);
+			glDrawArrays(GL_TRIANGLES, 0, verticesPerTriangle * trianglesPerObject[4]);
 		}
 		glBindVertexArray(0);
 
