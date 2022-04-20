@@ -28,6 +28,7 @@
 // Forward references. Definintions below main.
 //=============================================
 void cb_cursor_enter_callback(GLFWwindow* window, int entered);
+void cb_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void cb_mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void cb_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
@@ -39,7 +40,9 @@ std::unique_ptr<Camera> cam = std::make_unique<Camera>();
 std::unique_ptr<CursorUtil> con = std::make_unique<CursorUtil>();
 
 //Mouse control
-bool mouseControlActive{ false };
+bool mouseHover{ false };
+bool mouseLeftDrag{ false };
+bool mouseRightDrag{ false };
 
 //Delta time variables
 float deltaTime = 0.0f; // Time between current frame and last frame
@@ -50,6 +53,7 @@ int main()
 	Window win(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL");
 	if (!win.init()) return -1;
 
+	glfwSetMouseButtonCallback(win.window(), cb_mouse_button_callback);
 	glfwSetCursorEnterCallback(win.window(), cb_cursor_enter_callback);
 	glfwSetCursorPosCallback(win.window(), cb_mouse_callback);
 	glfwSetScrollCallback(win.window(), cb_scroll_callback);
@@ -329,20 +333,43 @@ int main()
 void cb_cursor_enter_callback(GLFWwindow* window, int entered) {
 	if (entered) {
 		// The cursor entered the content area of the window
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-		mouseControlActive = true;
+		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		mouseHover = true;
 	}
 	else {
 		// The cursor left the content area of the window
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		mouseControlActive = false;
+		mouseHover = false;
+	}
+}
+void cb_mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+	if (!mouseHover) return;
+	if (button == GLFW_MOUSE_BUTTON_LEFT ){
+		if (action == GLFW_PRESS) {
+			if (!mouseLeftDrag) mouseLeftDrag = true;
+		}
+		if (action == GLFW_RELEASE) {
+			if (mouseLeftDrag) mouseLeftDrag = false;
+		}
+	}
+	if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+		if (action == GLFW_PRESS) {
+			if (!mouseRightDrag) mouseRightDrag = true;
+		}
+		if (action == GLFW_RELEASE) {
+			if (mouseRightDrag) mouseRightDrag = false;
+		}
 	}
 }
 void cb_mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-	if (!mouseControlActive) return;
 	// Mouse variables
 	static float lastX, lastY;
 	static bool firstMouse{ true };
+	if (!mouseHover) return;
+	if (!mouseLeftDrag) {
+		firstMouse = true;
+		return;
+	}
 	if (firstMouse) // Sidesteps mouse jump on entry
 	{
 		lastX = static_cast<float>(xpos);
@@ -357,7 +384,7 @@ void cb_mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 	cam->updateDirectionFromMouse(xoffset, yoffset);
 }
 void cb_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-	if (!mouseControlActive) return;
+	if (!mouseHover) return;
 	cam->newZoom(static_cast<float>(yoffset));
 }
 void processInput(GLFWwindow* window)
