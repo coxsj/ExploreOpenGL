@@ -32,6 +32,7 @@ void cb_mouse_button_callback(GLFWwindow* window, int button, int action, int mo
 void cb_mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void cb_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
+void registerWindowCallbacks(GLFWwindow* window);
 void updateDeltaTime();
 
 //GLOBALS!!
@@ -53,10 +54,7 @@ int main()
 	Window win(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL");
 	if (!win.init()) return -1;
 
-	glfwSetMouseButtonCallback(win.window(), cb_mouse_button_callback);
-	glfwSetCursorEnterCallback(win.window(), cb_cursor_enter_callback);
-	glfwSetCursorPosCallback(win.window(), cb_mouse_callback);
-	glfwSetScrollCallback(win.window(), cb_scroll_callback);
+	registerWindowCallbacks(win.window());
 
 	//Build and compile Shader Programs
 	std::vector<Shader> myShader {
@@ -387,8 +385,7 @@ void cb_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 	if (!mouseHover) return;
 	cam->newZoom(static_cast<float>(yoffset));
 }
-void processInput(GLFWwindow* window)
-{
+void processInput(GLFWwindow* window){
 	// Check if escape key pressed (if it’s not pressed, glfwGetKey returns GLFW_RELEASE)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
@@ -398,6 +395,16 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) cam->keyInput(GLFW_KEY_S, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) cam->keyInput(GLFW_KEY_A, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) cam->keyInput(GLFW_KEY_D, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) cam->keyInput(GLFW_KEY_UP, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) cam->keyInput(GLFW_KEY_DOWN, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) cam->keyInput(GLFW_KEY_LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) cam->keyInput(GLFW_KEY_RIGHT, deltaTime);
+}
+void registerWindowCallbacks(GLFWwindow* window) {
+	glfwSetMouseButtonCallback(window, cb_mouse_button_callback);
+	glfwSetCursorEnterCallback(window, cb_cursor_enter_callback);
+	glfwSetCursorPosCallback(window, cb_mouse_callback);
+	glfwSetScrollCallback(window, cb_scroll_callback);
 }
 void updateDeltaTime() {
 	float currentFrame = static_cast<float>(glfwGetTime());
