@@ -74,79 +74,83 @@ int main()
 	// ------------------------------------------------------------------
 	//Vertex Array
 	//============
-	std::vector<float> vertices = {
+	struct Vertex {
+		glm::vec3 pos;
+		glm::vec3 color;
+		glm::vec2 texture;
+	};
+	struct triangle {
+		Vertex a;
+		Vertex b;
+		Vertex c;
+	};
+	std::vector<Vertex> vertices = {
 		//Vertex data			Color data			Texture coords 2D
 		//Triangle 1
-		-0.5f,  0.5f,  0.0f,	1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // left triangle top
-		 0.0f,  0.0f,  0.0f,	0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // left triangle bottom right
-		-1.0f,  0.0f,  0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // left triangle bottom left
+		{glm::vec3(-0.5f,  0.5f,  0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)}, // left triangle top
+		{glm::vec3( 0.0f,  0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)}, // left triangle bottom right
+		{glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)}, // left triangle bottom left
 		//Triangle 2
-		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // right triangle top
-		 1.0f,  0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // right triangle bottom right
-		 0.0f,  0.0f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // right triangle bottom left
+		{glm::vec3( 0.5f,  0.5f,  0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)}, // right triangle top
+		{glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)}, // right triangle bottom right
+		{glm::vec3( 0.0f,  0.0f,  0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)}, // right triangle bottom left
 		 //Triangle 3
-		 0.0f,  1.0f, 0.0f,		1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // upper triangle top
-		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, // upper triangle bottom right
-		 0.5f,  0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // upper triangle bottom left
+		{glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)}, // upper triangle top
+		{glm::vec3(-0.5f,  0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)}, // upper triangle bottom right
+		{glm::vec3( 0.5f,  0.5f,  0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)}, // upper triangle bottom left
 		 //Rectangle made of two triangles used for texture mapping example
-		 0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f, // top right
-		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f, // bottom right
-		-0.5f,  0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,	// top left
+		{glm::vec3(0.5f,   0.5f,  0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)}, // top right
+		{glm::vec3(0.5f,  -0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)}, // bottom right
+		{glm::vec3(-0.5f,  0.5f,  0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 1.0f)},	// top left
 
-		 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // bottom left
-		-0.5f,  0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,	// top left
+		{glm::vec3(0.5f,  -0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)}, // bottom right
+		{glm::vec3(-0.5f, -0.5f,  0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)}, // bottom left
+		{glm::vec3(-0.5f,  0.5f,  0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 1.0f)},	// top left
 		//Cube vertices (36 triangles)
-		- 0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
+		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(0.5f,  -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0),  glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(0.5f,   0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
+		{glm::vec3(0.5f,   0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
+		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
+		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
 
-		-0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
+		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(0.5f,  -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(0.5f,   0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
+		{glm::vec3(0.5f,   0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
+		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
+		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
 
-		-0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
+		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
+		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
+		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
 
-		 0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+		{glm::vec3(0.5f,   0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(0.5f,   0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
+		{glm::vec3(0.5f,  -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
+		{glm::vec3(0.5f,  -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
+		{glm::vec3(0.5f,  -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(0.5f,   0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f) },
 
-		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
+		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
+		{glm::vec3(0.5f,  -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f) },
+		{glm::vec3(0.5f,  -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f) },
+		{glm::vec3(0.5f,  -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f) },
 
-		-0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f
+		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f) },
+		{glm::vec3(0.5f,   0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f) },
+		{glm::vec3(0.5f,   0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f) },
+		{glm::vec3(0.5f,   0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f) },
+		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f) },
+		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f) }
 	};
 	std::vector<unsigned int> trianglesPerObject{1,1,1,2,12};
 	constexpr unsigned int verticesPerTriangle = 3;
-	constexpr unsigned int posElementsPerAttribute = 3;
-	constexpr unsigned int colorElementsPerAttribute = 3;
-	constexpr unsigned int textureElementsPerAttribute = 2;
-	constexpr unsigned int numArrayElementsPerVertex = posElementsPerAttribute 
-														+ colorElementsPerAttribute
-														+ textureElementsPerAttribute;
 	const unsigned int numObjects = static_cast<const unsigned int>(trianglesPerObject.size());
 	
 	unsigned int indices[] { // note that we start from 0
@@ -162,11 +166,13 @@ int main()
 	//Create Vertex Buffer and Vertex Array objects
 	unsigned int triangleCount{ 0 };
 	for (unsigned int i = 0; i < numObjects; i++) {
-		// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+		// Bind the Vertex Array Object first, then bind vertex buffer(s),
+		// and then configure vertex attributes(s).
 		glBindVertexArray(VAO[i]);	//each call to glBindVertexArray updates VAO[i] with the reference use by OpenGL for this VAO
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
-		glBufferData(GL_ARRAY_BUFFER, trianglesPerObject[i] * verticesPerTriangle * numArrayElementsPerVertex * sizeof(float),
-			&vertices[triangleCount * verticesPerTriangle * numArrayElementsPerVertex], GL_STATIC_DRAW);
+		//glBufferData(GL_ARRAY_BUFFER, sizeofmydata, myData, usage);
+		glBufferData(GL_ARRAY_BUFFER, trianglesPerObject[i] * verticesPerTriangle * sizeof(Vertex),
+			&vertices[triangleCount * verticesPerTriangle], GL_STATIC_DRAW);
 
 		triangleCount += trianglesPerObject[i];
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -176,17 +182,17 @@ int main()
 		GLuint location1{ 1 };
 		GLuint location2{ 2 };
 		// Set position attribute pointer
-		glVertexAttribPointer(location0, posElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float), (void*)0);
+		// glVertexAttribPointer(location, elements per attribute, type of data, bool, sizeof vertex, pointer to first data element)
+		//glVertexAttribPointer(location0, posElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float), (void*)0);
+		glVertexAttribPointer(location0, vertices[0].pos.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
 		glEnableVertexAttribArray(location0); //relates to the locations declared in the vertex shader
 
 		// Set color attribute pointer
-		glVertexAttribPointer(location1, colorElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float),
-			(void*)(posElementsPerAttribute * sizeof(float)));
+		glVertexAttribPointer(location1, vertices[0].color.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
 		glEnableVertexAttribArray(location1); //relates to the locations declared in the vertex shader
 
 		// Set texture attribute pointer
-		glVertexAttribPointer(location2, textureElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float),
-			(void*)((posElementsPerAttribute + colorElementsPerAttribute)* sizeof(float)));
+		glVertexAttribPointer(location2, vertices[0].texture.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texture));
 		glEnableVertexAttribArray(location2); //relates to the locations declared in the vertex shader
 	}
 	// The call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex 
