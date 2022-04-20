@@ -10,6 +10,15 @@ void Camera::keyInput(int GLFW_key, float deltaTime) {
 		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 	if (GLFW_key == GLFW_KEY_D) 
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	//FPV camera controls
+	if (GLFW_key == GLFW_KEY_UP)	cameraPos += cameraSpeed * cameraFront;
+	if (GLFW_key == GLFW_KEY_DOWN)	cameraPos -= cameraSpeed * cameraFront;
+	if (GLFW_key == GLFW_KEY_LEFT)
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (GLFW_key == GLFW_KEY_RIGHT)
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	// make sure the user stays at the ground level
+	cameraPos.y = 0.0f; // <-- this one-liner keeps the user at the ground level (xz plane)
 }
 void Camera::newZoom(float yoffset) {
 	zoom -= yoffset;
