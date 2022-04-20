@@ -1,4 +1,3 @@
-
 #include <conio.h>
 #include <iostream>
 #include <memory>
@@ -24,14 +23,14 @@
 #include "shader.h"
 #include "settings.h"
 #include "utility.h"
+#include "window.h"
 
 // Forward references. Definintions below main.
 //=============================================
-void cursor_enter_callback(GLFWwindow* window, int entered);
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void cb_cursor_enter_callback(GLFWwindow* window, int entered);
+void cb_mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void cb_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void updateDeltaTime();
 
 //GLOBALS!!
@@ -48,18 +47,12 @@ float lastFrame = 0.0f; // Time of last frame
 
 int main()
 {	
-	initializeOpenGL();
+	Window win(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL");
+	if (!win.init()) return -1;
 
-	GLFWwindow* window = createWindowObject();
-	if(window == NULL) return -1;
-
-	if(!loadGLFWFunctionPointers()) return -1;
-	printOpenGLAttributes();
-
-	createViewPort(window, framebuffer_size_callback);
-	glfwSetCursorEnterCallback(window, cursor_enter_callback);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetCursorEnterCallback(win.window(), cb_cursor_enter_callback);
+	glfwSetCursorPosCallback(win.window(), cb_mouse_callback);
+	glfwSetScrollCallback(win.window(), cb_scroll_callback);
 
 	//Build and compile Shader Programs
 	std::vector<Shader> myShader {
@@ -221,14 +214,14 @@ int main()
 	con->cursorTo(2, 0);
 	std::cout << "Any key to exit...\n";
 
-	while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(win.window()))
 	{
 		// An iteration of the render loop is more commonly called a frame.
 		updateDeltaTime();
 		printFrameRate();
 		
 		//Check for user input
-		processInput(window);
+		processInput(win.window());
 		
 		// Render Commands
 		// ===============
@@ -304,7 +297,7 @@ int main()
 		// glfwSwapBuffers swaps the color buffer (a large 2D buffer that contains color values 
 		// for each pixel in GLFW’s window) that is used to render to during this render 
 		// iteration and show it as output to the screen.
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(win.window());
 
 		// Additional Swap Buffer info
 		// ===========================
@@ -333,26 +326,19 @@ int main()
 	char z = _getch();
 	return 0;
 }
-
-void cursor_enter_callback(GLFWwindow* window, int entered){
-	if (entered){
+void cb_cursor_enter_callback(GLFWwindow* window, int entered) {
+	if (entered) {
 		// The cursor entered the content area of the window
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		mouseControlActive = true;
 	}
-	else{
+	else {
 		// The cursor left the content area of the window
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		mouseControlActive = false;
 	}
 }
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	// This callback makes sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
-	glViewport(0, 0, width, height);
-}
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+void cb_mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 	if (!mouseControlActive) return;
 	// Mouse variables
 	static float lastX, lastY;
@@ -370,6 +356,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
 	cam->updateDirectionFromMouse(xoffset, yoffset);
 }
+void cb_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+	if (!mouseControlActive) return;
+	cam->newZoom(static_cast<float>(yoffset));
+}
 void processInput(GLFWwindow* window)
 {
 	// Check if escape key pressed (if it’s not pressed, glfwGetKey returns GLFW_RELEASE)
@@ -381,10 +371,6 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) cam->keyInput(GLFW_KEY_S, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) cam->keyInput(GLFW_KEY_A, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) cam->keyInput(GLFW_KEY_D, deltaTime);
-}
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
-	if (!mouseControlActive) return; 
-	cam->newZoom(static_cast<float>(yoffset));
 }
 void updateDeltaTime() {
 	float currentFrame = static_cast<float>(glfwGetTime());
