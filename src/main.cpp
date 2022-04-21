@@ -50,14 +50,14 @@ float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 
 int main()
-{	
+{
 	Window win(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL");
 	if (!win.init()) return -1;
 
 	registerWindowCallbacks(win.window());
 
 	//Build and compile Shader Programs
-	std::vector<Shader> myShader {
+	std::vector<Shader> myShader{
 		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromVS.fs"),
 		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromFS.fs"),
 		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromUniform.fs"),
@@ -72,115 +72,183 @@ int main()
 
 	// Set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
-	//Vertex Array
-	//============
+	//Points
+	//======
+	glm::vec3 pa{ -0.5f,  0.5f,  0.0f };
+	glm::vec3 pb{ 0.0f,  0.0f,  0.0f };
+	glm::vec3 pc{ -1.0f,  0.0f,  0.0f };
+	glm::vec3 pd{ 0.5f,  0.5f,  0.0f };
+	glm::vec3 pe{ 1.0f,  0.0f,  0.0f };
+	glm::vec3 pf{ 0.0f,  1.0f,  0.0f };
+	glm::vec3 pg{ 0.5f, -0.5f,  0.0f };
+	glm::vec3 ph{ -0.5f, -0.5f,  0.0f };
+
+	glm::vec3 pi{ -0.5f, -0.5f, -0.5f };
+	glm::vec3 pj{ -0.5f, -0.5f,  0.5f };
+	glm::vec3 pk{ -0.5f,  0.5f, -0.5f };
+	glm::vec3 pl{ -0.5f,  0.5f,  0.5f };
+	glm::vec3 pm{ 0.5f, -0.5f, -0.5f };
+	glm::vec3 pn{ 0.5f, -0.5f,  0.5f };
+	glm::vec3 po{ 0.5f,  0.5f, -0.5f };
+	glm::vec3 pp{ 0.5f,  0.5f,  0.5f };
+
+	//Colors
+	//======
+	glm::vec3 ca{ 1.0f, 0.0f, 0.0f };
+	glm::vec3 cb{ 0.0f, 1.0f, 0.0f };
+	glm::vec3 cc{ 0.0f, 0.0f, 1.0f };
+	glm::vec3 cd{ 1.0f, 1.0f, 0.0f };
+	glm::vec3 ce{ 0.0f, 0.0f, 0.0f };
+
+	//Texture coords
+	//==============
+	glm::vec2 txa{ 0.0f, 0.0f };
+	glm::vec2 txb{ 0.0f, 1.0f };
+	glm::vec2 txc{ 1.0f, 0.0f };
+	glm::vec2 txd{ 1.0f, 1.0f };
+
+	//Vertices
+	//========
 	struct Vertex {
 		glm::vec3 pos;
-		glm::vec3 color;
+		glm::vec3 colorRGB;
 		glm::vec2 texture;
+		inline bool operator==(const Vertex& rhs) {
+			return pos == rhs.pos && colorRGB == rhs.colorRGB && texture == rhs.texture;
+		}
 	};
-	struct Triangle {
-		Vertex a;
-		Vertex b;
-		Vertex c;
-	};
-	Triangle ta{
-		Vertex{glm::vec3(-0.5f,  0.5f,  0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)}, // left triangle top
-		Vertex{glm::vec3( 0.0f,  0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)}, // left triangle bottom right
-		Vertex{glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)}};// left triangle bottom left
-	Triangle tb{
-		Vertex{glm::vec3(0.5f,  0.5f,  0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)}, // right triangle top
-		Vertex{glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)}, // right triangle bottom right
-		Vertex{glm::vec3(0.0f,  0.0f,  0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)}};// right triangle bottom left
-	Triangle tc{
-		Vertex{glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)}, // upper triangle top
-		Vertex{glm::vec3(-0.5f,  0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)}, // upper triangle bottom right
-		Vertex{glm::vec3(0.5f,  0.5f,  0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)}};  // upper triangle bottom left
-	Triangle td{
-		//Rectangle made of 2 triangles used for texture mapping example
-		Vertex{glm::vec3(0.5f,   0.5f,  0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)}, // top right
-		Vertex{glm::vec3(0.5f,  -0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)}, // bottom right
-		Vertex{glm::vec3(-0.5f,  0.5f,  0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 1.0f)}}; // top left
-	Triangle te{
-		Vertex{glm::vec3(0.5f,  -0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)}, // bottom right
-		Vertex{glm::vec3(-0.5f, -0.5f,  0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)}, // bottom left
-		Vertex{glm::vec3(-0.5f,  0.5f,  0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 1.0f)}};// top left
-	Triangle tf{
-		//Cube vertices (12 triangles)
-		Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
-		Vertex{glm::vec3(0.5f,  -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0),  glm::vec2(1.0f, 0.0f)},
-		Vertex{glm::vec3(0.5f,   0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)}};
-	Triangle tg{
-		Vertex{glm::vec3(0.5f,   0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
-		Vertex{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-		Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)}};
-	Triangle th{
-		Vertex{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
-		Vertex{glm::vec3(0.5f,  -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
-		Vertex{glm::vec3(0.5f,   0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)} };
-	Triangle ti{
-		Vertex{glm::vec3(0.5f,   0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
-		Vertex{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-		Vertex{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)} };
-	Triangle tj{
-		Vertex{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
-		Vertex{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
-		Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)} };
-	Triangle tk{
-		Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-		Vertex{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
-		Vertex{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)} };
-	Triangle tl{
-		Vertex{glm::vec3(0.5f,   0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
-		Vertex{glm::vec3(0.5f,   0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
-		Vertex{glm::vec3(0.5f,  -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)} };
-	Triangle tm{
-		Vertex{glm::vec3(0.5f,  -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-		Vertex{glm::vec3(0.5f,  -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
-		Vertex{glm::vec3(0.5f,   0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f) } };
-	Triangle tn{
-		Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-		Vertex{glm::vec3(0.5f,  -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f) },
-		Vertex{glm::vec3(0.5f,  -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f) } };
-	Triangle to{
-		Vertex{glm::vec3(0.5f,  -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
-		Vertex{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
-		Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f) } };
-	Triangle tp{
-		Vertex{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f) },
-		Vertex{glm::vec3(0.5f,   0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f) },
-		Vertex{glm::vec3(0.5f,   0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f) } };
-	Triangle tq{
-		Vertex{glm::vec3(0.5f,   0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f) },
-		Vertex{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f) },
-		Vertex{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f) } };
-	std::vector<Triangle> triangles{ta,tb,tc,td,te,tf,tg,th,ti,tj,tk,tl,tm,tn,to,tp,tq};
-	std::vector<unsigned int> trianglesPerObject{1,1,1,2,12};
-	const unsigned int numObjects = static_cast<const unsigned int>(trianglesPerObject.size());
 
-	unsigned int indices[] { // note that we start from 0
-		9, 10, 12, // first triangle
-		10, 11, 12 // second triangle
-	};
+	Vertex va{ pa, ca, txa };
+	Vertex vb{ pb, cb, txa };
+	Vertex vc{ pc, cc, txa };
+	Vertex vd{ pd, ca, txa };
+	Vertex ve{ pe, cc, txa };
+	Vertex vf{ pf, ca, txa };
+	Vertex vg{ pd, ca, txd };
+	Vertex vh{ pg, cb, txc };
+	Vertex vi{ pa, cd, txb };
+	Vertex vj{ ph, cc, txa };
+	Vertex vk{ pi, ce, txa };
+	Vertex vl{ pi, ce, txb };
+	Vertex vm{ pj, ce, txa };
+	Vertex vn{ pk, ce, txb };
+	Vertex vo{ pk, ce, txd };
+	Vertex vp{ pl, ce, txa };
+	Vertex vq{ pl, ce, txb };
+	Vertex vr{ pl, ce, txc };
+	Vertex vs{ pm, ce, txb };
+	Vertex vt{ pm, ce, txc };
+	Vertex vu{ pm, ce, txd };
+	Vertex vv{ pn, ce, txa };
+	Vertex vw{ pn, ce, txc };
+	Vertex vx{ po, ce, txd };
+	Vertex vy{ pp, ce, txc };
+	Vertex vz{ pp, ce, txd };
+	std::vector<Vertex> vertices{ va,vb,vc,vd,ve,vf,vg,vh,vi,vj,vk,vl,vm,
+		vn,vo,vp,vq,vr,vs,vt,vu,vv,vw,vx,vy,vz };
+
+	//Triangles
+	//=========
+	typedef std::vector<Vertex> Triangle;
+
+	Triangle ta{ va, vb, vc };
+	Triangle tb{ vd, ve, vb };
+	Triangle tc{ vf, va, vd };
+	//Rectangle: 2 triangles
+	Triangle td{ vg, vh, vi };
+	Triangle te{ vh, vj, vi };
+	//Cube: 12 triangles
+	Triangle tf{ vk,vt,vx };
+	Triangle tg{ vx,vn,vk };
+	Triangle th{ vm,vw,vz };
+	Triangle ti{ vz,vq,vm };
+	Triangle tj{ vr,vo,vl };
+	Triangle tk{ vl,vm,vr };
+	Triangle tl{ vy,vx,vs };
+	Triangle tm{ vs,vv,vy };
+	Triangle tn{ vl,vu,vw };
+	Triangle to{ vw,vm,vl };
+	Triangle tp{ vn,vx,vy };
+	Triangle tq{ vy,vp,vn };
+	std::vector<Triangle> triangles{ ta,tb,tc,td,te,tf,tg,th,ti,tj,tk,tl,tm,tn,to,tp,tq };
+
+	//Shapes
+	//======
+	typedef  std::vector<Triangle> Shape;
+	Shape triangle0{ ta };
+	Shape triangle1{ tb };
+	Shape triangle2{ tc };
+	Shape rectangle0{ td, te };
+	Shape cube0{ tf,tg,th,ti,tj,tk,tl,tm,tn,to,tp,tq };
+	std::vector<Shape> shapes{ triangle0, triangle1, triangle2, rectangle0, cube0 };
+
+	//Vertex data ranges, indices and offsets
+	const unsigned int numObjects = static_cast<const unsigned int>(shapes.size());
+	std::vector<unsigned int> trianglesPerShape;
+	for (unsigned int i = 0; i < shapes.size(); i++) {
+		trianglesPerShape.push_back(static_cast<unsigned int>(shapes[i].size())); 
+	}
+	const unsigned int verticesPerTriangle = triangles[0].size();
+	std::vector<float>rawVertices;
+	std::vector<unsigned int> indices;
+	for (auto& s : shapes) {
+		for (unsigned int i = 0; i < s.size(); i++) {
+			//loop through triangles in shape
+			for (unsigned int j = 0; j < s[i].size(); j++) {
+				//loop through vertices in each triangle
+				//Add vertex data to rawVertices
+				rawVertices.push_back(s[i][j].pos.x);
+				rawVertices.push_back(s[i][j].pos.y);
+				rawVertices.push_back(s[i][j].pos.z);
+				rawVertices.push_back(s[i][j].colorRGB.x);
+				rawVertices.push_back(s[i][j].colorRGB.y);
+				rawVertices.push_back(s[i][j].colorRGB.z);
+				rawVertices.push_back(s[i][j].texture.x);
+				rawVertices.push_back(s[i][j].texture.y);
+				
+				bool found = false;
+				for (unsigned int k = 0; k < vertices.size(); k++) {
+					//Loop through vertices and capture the index of this vertex
+					if (s[i][j] == vertices[k]) {
+						indices.push_back(k);
+						found = true;
+						break;
+					}
+				}
+				assert(found);
+			}
+		}
+	}
+	//Print out rawVertices
+	unsigned int ctr{ 0 };
+	for (auto a : rawVertices) {
+		std::cout << a << ",";
+		if (++ctr >= sizeof(Vertex)/sizeof(float)) {
+			std::cout << "\n";
+			ctr = 0;
+		}
+	}
+
+	//Print out indices
+	for (auto i : indices) std::cout << i << ", ";
 	std::vector<unsigned int> VAO(numObjects);
 	std::vector<unsigned int> VBO(numObjects);
-	std::vector<unsigned int> EBO(numObjects);
+	//unsigned int EBO;
 	glGenVertexArrays(numObjects, &VAO[0]);
 	glGenBuffers(numObjects, &VBO[0]);
-	glGenBuffers(numObjects, &EBO[0]);
+	//glGenBuffers(1, &EBO);
 	
 	//Create Vertex Buffer and Vertex Array objects
-	unsigned int triangleCount{ 0 };
-	for (unsigned int i = 0; i < numObjects; i++) {
+	unsigned int dataOffset{ 0 };
+	for(unsigned int i = 0; i < numObjects; i++) {
 		// Bind the Vertex Array Object first, then bind vertex buffer(s),
 		// and then configure vertex attributes(s).
-		glBindVertexArray(VAO[i]);	//each call to glBindVertexArray updates VAO[i] with the reference use by OpenGL for this VAO
+		glBindVertexArray(VAO[i]);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
 		//glBufferData(GL_ARRAY_BUFFER, sizeofmydata, myData, usage);
-		glBufferData(GL_ARRAY_BUFFER, trianglesPerObject[i] * sizeof(Triangle), 
-			&triangles[triangleCount], GL_STATIC_DRAW);
-
-		triangleCount += trianglesPerObject[i];
+		unsigned int dataSize = trianglesPerShape[i] * verticesPerTriangle * sizeof(Vertex);
+		glBufferData(GL_ARRAY_BUFFER, dataSize, &rawVertices[dataOffset], GL_STATIC_DRAW);
+		dataOffset += dataSize/sizeof(float);
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
@@ -190,15 +258,18 @@ int main()
 		// Set position attribute pointer
 		// glVertexAttribPointer(location, elements per attribute, type of data, bool, sizeof vertex, pointer to first data element)
 		//glVertexAttribPointer(location0, posElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float), (void*)0);
-		glVertexAttribPointer(location0, triangles[0].a.pos.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
+		glVertexAttribPointer(location0, va.pos.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+			(void*)offsetof(Vertex, pos));
 		glEnableVertexAttribArray(location0); //relates to the locations declared in the vertex shader
 
 		// Set color attribute pointer
-		glVertexAttribPointer(location1, triangles[0].a.color.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+		glVertexAttribPointer(location1, va.colorRGB.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+			(void*)offsetof(Vertex, colorRGB));
 		glEnableVertexAttribArray(location1); //relates to the locations declared in the vertex shader
 
 		// Set texture attribute pointer
-		glVertexAttribPointer(location2, triangles[0].a.texture.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texture));
+		glVertexAttribPointer(location2, va.texture.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+			(void*)offsetof(Vertex, texture));
 		glEnableVertexAttribArray(location2); //relates to the locations declared in the vertex shader
 	}
 	// The call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex 
@@ -299,7 +370,7 @@ int main()
 			myShader[currentShader].setMat4("projection", projection);
 
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-			glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_TRIANGLE * trianglesPerObject[i]);
+			glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_TRIANGLE * trianglesPerShape[i]);
 		}
 		glBindVertexArray(0);
 
