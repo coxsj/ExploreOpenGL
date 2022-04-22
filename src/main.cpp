@@ -56,15 +56,6 @@ int main()
 
 	registerWindowCallbacks(win.window());
 
-	//Build and compile Shader Programs
-	std::vector<Shader> myShader{
-		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromVS.fs"),
-		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromFS.fs"),
-		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromUniform.fs"),
-		Shader(shaderDir + "posColorTexture.vs", shaderDir + "colorTextureFromVS.fs"),
-	};
-	const unsigned int lastShaderIndex = static_cast<const unsigned int>(myShader.size() - 1);
-
 	//Set up texture data
 	unsigned int texture0, texture1;
 	createTextures(resourceDir + "container.jpg", &texture0, false, GL_TEXTURE0, GL_RGB);
@@ -112,9 +103,9 @@ int main()
 	struct Vertex {
 		glm::vec3 pos;
 		glm::vec3 colorRGB;
-		glm::vec2 texture;
+		glm::vec2 textureCoords;
 		inline bool operator==(const Vertex& rhs) {
-			return pos == rhs.pos && colorRGB == rhs.colorRGB && texture == rhs.texture;
+			return pos == rhs.pos && colorRGB == rhs.colorRGB && textureCoords == rhs.textureCoords;
 		}
 	};
 
@@ -174,42 +165,64 @@ int main()
 
 	//Shapes
 	//======
-	typedef  std::vector<Triangle> Shape;
+	typedef std::vector<Triangle> Shape;
 	Shape triangle0{ ta };
 	Shape triangle1{ tb };
 	Shape triangle2{ tc };
 	Shape rectangle0{ td, te };
 	Shape cube0{ tf,tg,th,ti,tj,tk,tl,tm,tn,to,tp,tq };
-	std::vector<Shape> shapes{ triangle0, triangle1, triangle2, rectangle0, cube0 };
+	Shape cube1{ tf,tg,th,ti,tj,tk,tl,tm,tn,to,tp,tq };
+
+	//Build and compile Shader Programs
+	std::vector<Shader> myShader{
+		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromVS.fs"),
+		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromFS.fs"),
+		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromUniform.fs"),
+		Shader(shaderDir + "posColorTexture.vs", shaderDir + "colorTextureFromVS.fs"),
+	};
+	const unsigned int lastShaderIndex = static_cast<const unsigned int>(myShader.size() - 1);
+
+	struct RenderObj {
+		Shape& shape;
+		unsigned int shaderIndex;
+	};
+
+	std::vector<RenderObj> renderObjs{ 
+		{triangle0, 0}, 
+		{triangle1, 1},
+		{triangle2, 2},
+		{rectangle0, 3},
+		{cube0, 3},
+		{cube1, 3}};
 
 	//Vertex data ranges, indices and offsets
-	const unsigned int numObjects = static_cast<const unsigned int>(shapes.size());
+	const unsigned int numObjects = static_cast<const unsigned int>(renderObjs.size());
 	std::vector<unsigned int> trianglesPerShape;
-	for (unsigned int i = 0; i < shapes.size(); i++) {
-		trianglesPerShape.push_back(static_cast<unsigned int>(shapes[i].size())); 
+	for (unsigned int i = 0; i < renderObjs.size(); i++) {
+		trianglesPerShape.push_back(static_cast<unsigned int>(renderObjs[i].shape.size()));
 	}
-	const unsigned int verticesPerTriangle = triangles[0].size();
+	const unsigned int verticesPerTriangle = static_cast<unsigned int>(triangles[0].size());
 	std::vector<float>rawVertices;
 	std::vector<unsigned int> indices;
-	for (auto& s : shapes) {
-		for (unsigned int i = 0; i < s.size(); i++) {
+	for (auto& s : renderObjs) {
+		for (unsigned int i = 0; i < s.shape.size(); i++) {
 			//loop through triangles in shape
-			for (unsigned int j = 0; j < s[i].size(); j++) {
+			for (unsigned int j = 0; j < s.shape[i].size(); j++) {
 				//loop through vertices in each triangle
 				//Add vertex data to rawVertices
-				rawVertices.push_back(s[i][j].pos.x);
-				rawVertices.push_back(s[i][j].pos.y);
-				rawVertices.push_back(s[i][j].pos.z);
-				rawVertices.push_back(s[i][j].colorRGB.x);
-				rawVertices.push_back(s[i][j].colorRGB.y);
-				rawVertices.push_back(s[i][j].colorRGB.z);
-				rawVertices.push_back(s[i][j].texture.x);
-				rawVertices.push_back(s[i][j].texture.y);
+				rawVertices.push_back(s.shape[i][j].pos.x);
+				rawVertices.push_back(s.shape[i][j].pos.y);
+				rawVertices.push_back(s.shape[i][j].pos.z);
+				rawVertices.push_back(s.shape[i][j].colorRGB.x);
+				rawVertices.push_back(s.shape[i][j].colorRGB.y);
+				rawVertices.push_back(s.shape[i][j].colorRGB.z);
+				rawVertices.push_back(s.shape[i][j].textureCoords.x);
+				rawVertices.push_back(s.shape[i][j].textureCoords.y);
 				
 				bool found = false;
 				for (unsigned int k = 0; k < vertices.size(); k++) {
 					//Loop through vertices and capture the index of this vertex
-					if (s[i][j] == vertices[k]) {
+					if (s.shape[i][j] == vertices[k]) {
 						indices.push_back(k);
 						found = true;
 						break;
@@ -222,15 +235,17 @@ int main()
 	//Print out rawVertices
 	unsigned int ctr{ 0 };
 	for (auto a : rawVertices) {
-		std::cout << a << ",";
+		//std::cout << a << ",";
 		if (++ctr >= sizeof(Vertex)/sizeof(float)) {
-			std::cout << "\n";
+			//std::cout << "\n";
 			ctr = 0;
 		}
 	}
 
 	//Print out indices
-	for (auto i : indices) std::cout << i << ", ";
+	//for (auto i : indices) std::cout << i << ", ";
+
+	//Vertex Buffers
 	std::vector<unsigned int> VAO(numObjects);
 	std::vector<unsigned int> VBO(numObjects);
 	//unsigned int EBO;
@@ -268,8 +283,8 @@ int main()
 		glEnableVertexAttribArray(location1); //relates to the locations declared in the vertex shader
 
 		// Set texture attribute pointer
-		glVertexAttribPointer(location2, va.texture.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
-			(void*)offsetof(Vertex, texture));
+		glVertexAttribPointer(location2, va.textureCoords.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+			(void*)offsetof(Vertex, textureCoords));
 		glEnableVertexAttribArray(location2); //relates to the locations declared in the vertex shader
 	}
 	// The call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex 
@@ -326,20 +341,22 @@ int main()
 		
 		// Draw objects
 		//=============
-		for (unsigned int i = 0; i < numObjects; i++) {
-			glBindVertexArray(VAO[i]); 
-
-			//First three triangles have different shaders
-			unsigned int currentShader = (i < myShader.size() - 1) ? i : lastShaderIndex;
+		for (unsigned int i = 0; i < renderObjs.size(); i++) {
+			//Select and activate shader program
+			unsigned int currentShader = renderObjs[i].shaderIndex;
 			myShader[currentShader].use();
+
+			//Bind VAO for this shape
+			glBindVertexArray(VAO[i]);
 			
-			float timeValue = static_cast<float>(glfwGetTime());
 			
 			//Model and view matrices
 			glm::mat4 model = glm::mat4(1.0f);
 			glm::mat4 view = glm::mat4(1.0f);
-			glm::mat4 projection;
-
+			glm::mat4 projection = glm::mat4(1.0f);
+			
+			//Update model matrix
+			float timeValue = static_cast<float>(glfwGetTime());
 			if (i < 3) {
 				if (i == 2) {
 					//Set the color of the third triangle using a uniform value
@@ -349,33 +366,40 @@ int main()
 				model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
 			}
 			else {
-				if (i == 3) {
-					//Rectangle
-					model = glm::translate(model, glm::vec3(-1.5f, 0.0f, 0.0f));
-					model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+				if (i < 5) {
+					if (i == 3) {
+						//Rectangle
+						model = glm::translate(model, glm::vec3(-1.5f, 0.0f, 0.0f));
+						model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+					}
+					else if (i == 4) {
+						//Cube
+						model = glm::rotate(model, timeValue * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+					}
+					//Set textures in rectangle and cube
+					myShader[currentShader].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
+					myShader[currentShader].setInt("texture1", 1);
 				}
-				else if (i == 4) {
+				else {
 					//Cube
-					model = glm::rotate(model, timeValue * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+					model = glm::translate(model, glm::vec3(1.5f, 0.0f, 0.0f));
+					model = glm::rotate(model, -timeValue * glm::radians(17.0f), glm::vec3(-0.5f, 1.0f, 0.0f));
 				}
-				//Set textures in rectangle and cube
-				myShader[currentShader].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
-				myShader[currentShader].setInt("texture1", 1);
-			}			
+			}
+			//Update camera view
 			view = cam->lookAt();
 			projection = cam->perspective(SCR_WIDTH, SCR_HEIGHT, 0.1f, 100.0f);
-
+			
+			//Apply current transformation matrices to shader uniforms
 			myShader[currentShader].setMat4("model", model);
 			myShader[currentShader].setMat4("view", view);
 			myShader[currentShader].setMat4("projection", projection);
 
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-			glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_TRIANGLE * trianglesPerShape[i]);
+			glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_TRIANGLE * trianglesPerShape[i]);	
+			glCheckError();
 		}
 		glBindVertexArray(0);
-
-		//Check for glErrors
-		glCheckError();
 		
 		// Swap Buffers
 		// ============
