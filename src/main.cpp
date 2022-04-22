@@ -184,7 +184,12 @@ int main()
 
 	struct RenderObj {
 		Shape& shape;
+		unsigned int trianglesPerShape;
 		unsigned int shaderIndex;
+		RenderObj(Shape& newShape, unsigned int NewShaderIndex, unsigned int newTrianglesPerShape=1)
+			: shape(newShape), shaderIndex(NewShaderIndex) { 
+			trianglesPerShape = static_cast<unsigned int>(shape.size());
+		}
 	};
 
 	std::vector<RenderObj> renderObjs{ 
@@ -197,11 +202,6 @@ int main()
 
 	//Vertex data ranges, indices and offsets
 	const unsigned int numObjects = static_cast<const unsigned int>(renderObjs.size());
-	std::vector<unsigned int> trianglesPerShape;
-	for (unsigned int i = 0; i < renderObjs.size(); i++) {
-		trianglesPerShape.push_back(static_cast<unsigned int>(renderObjs[i].shape.size()));
-	}
-	const unsigned int verticesPerTriangle = static_cast<unsigned int>(triangles[0].size());
 	std::vector<float>rawVertices;
 	std::vector<unsigned int> indices;
 	for (auto& s : renderObjs) {
@@ -261,7 +261,7 @@ int main()
 		glBindVertexArray(VAO[i]);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
 		//glBufferData(GL_ARRAY_BUFFER, sizeofmydata, myData, usage);
-		unsigned int dataSize = trianglesPerShape[i] * verticesPerTriangle * sizeof(Vertex);
+		unsigned int dataSize = renderObjs[i].trianglesPerShape * VERTICES_PER_TRIANGLE * sizeof(Vertex);
 		glBufferData(GL_ARRAY_BUFFER, dataSize, &rawVertices[dataOffset], GL_STATIC_DRAW);
 		dataOffset += dataSize/sizeof(float);
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -396,10 +396,11 @@ int main()
 			myShader[currentShader].setMat4("projection", projection);
 
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-			glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_TRIANGLE * trianglesPerShape[i]);	
+			glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_TRIANGLE * renderObjs[i].trianglesPerShape);	
 			glCheckError();
 		}
 		glBindVertexArray(0);
+
 		
 		// Swap Buffers
 		// ============
