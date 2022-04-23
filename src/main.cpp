@@ -66,22 +66,21 @@ int main()
 	//Points
 	//======
 	glm::vec3 pa{ -0.5f,  0.5f,  0.0f };
-	glm::vec3 pb{ 0.0f,  0.0f,  0.0f };
+	glm::vec3 pb{  0.0f,  0.0f,  0.0f };
 	glm::vec3 pc{ -1.0f,  0.0f,  0.0f };
-	glm::vec3 pd{ 0.5f,  0.5f,  0.0f };
-	glm::vec3 pe{ 1.0f,  0.0f,  0.0f };
-	glm::vec3 pf{ 0.0f,  1.0f,  0.0f };
-	glm::vec3 pg{ 0.5f, -0.5f,  0.0f };
+	glm::vec3 pd{  0.5f,  0.5f,  0.0f };
+	glm::vec3 pe{  1.0f,  0.0f,  0.0f };
+	glm::vec3 pf{  0.0f,  1.0f,  0.0f };
+	glm::vec3 pg{  0.5f, -0.5f,  0.0f };
 	glm::vec3 ph{ -0.5f, -0.5f,  0.0f };
-
 	glm::vec3 pi{ -0.5f, -0.5f, -0.5f };
 	glm::vec3 pj{ -0.5f, -0.5f,  0.5f };
 	glm::vec3 pk{ -0.5f,  0.5f, -0.5f };
 	glm::vec3 pl{ -0.5f,  0.5f,  0.5f };
-	glm::vec3 pm{ 0.5f, -0.5f, -0.5f };
-	glm::vec3 pn{ 0.5f, -0.5f,  0.5f };
-	glm::vec3 po{ 0.5f,  0.5f, -0.5f };
-	glm::vec3 pp{ 0.5f,  0.5f,  0.5f };
+	glm::vec3 pm{  0.5f, -0.5f, -0.5f };
+	glm::vec3 pn{  0.5f, -0.5f,  0.5f };
+	glm::vec3 po{  0.5f,  0.5f, -0.5f };
+	glm::vec3 pp{  0.5f,  0.5f,  0.5f };
 
 	//Colors
 	//======
@@ -90,6 +89,8 @@ int main()
 	glm::vec3 cc{ 0.0f, 0.0f, 1.0f };
 	glm::vec3 cd{ 1.0f, 1.0f, 0.0f };
 	glm::vec3 ce{ 0.0f, 0.0f, 0.0f };
+	glm::vec3 cf{ 1.0f, 0.5f, 0.2f };
+	glm::vec3 cwhite{ 1.0f, 1.0f, 1.0f };
 
 	//Texture coords
 	//==============
@@ -104,10 +105,24 @@ int main()
 		glm::vec3 pos;
 		glm::vec3 colorRGB;
 		glm::vec2 textureCoords;
+		glm::vec3 normals;
+		Vertex(glm::vec3 newPos, glm::vec3 newColorRGB, glm::vec2 newTextureCoords, glm::vec3 newNormals=glm::vec3(0.0f))
+			:pos(newPos), colorRGB(newColorRGB), textureCoords(newTextureCoords), normals(newNormals) {}
+		//NOTE: for now, normal vectors are not compared in a vertex equality comparison
 		inline bool operator==(const Vertex& rhs) {
-			return pos == rhs.pos && colorRGB == rhs.colorRGB && textureCoords == rhs.textureCoords;
+			return pos == rhs.pos
+				&& colorRGB == rhs.colorRGB
+				&& textureCoords == rhs.textureCoords;
 		}
 	};
+	//Normals
+	// ======
+	glm::vec3 n001{  0.0f,  0.0f,  1.0f };
+	glm::vec3 n010{  0.0f,  1.0f,  0.0f };
+	glm::vec3 n100{  1.0f,  0.0f,  0.0f };
+	glm::vec3 n00M{  0.0f,  0.0f, -1.0f };
+	glm::vec3 n0M0{  0.0f, -1.0f,  0.0f };
+	glm::vec3 nM00{ -1.0f,  0.0f,  0.0f };
 
 	Vertex va{ pa, ca, txa };
 	Vertex vb{ pb, cb, txa };
@@ -118,7 +133,7 @@ int main()
 	Vertex vg{ pd, ca, txd };
 	Vertex vh{ pg, cb, txc };
 	Vertex vi{ pa, cd, txb };
-	Vertex vj{ ph, cc, txa };
+	Vertex vj{ ph, ce, txa };
 	Vertex vk{ pi, ce, txa };
 	Vertex vl{ pi, ce, txb };
 	Vertex vm{ pj, ce, txa };
@@ -163,6 +178,19 @@ int main()
 	Triangle tq{ vy,vp,vn };
 	std::vector<Triangle> triangles{ ta,tb,tc,td,te,tf,tg,th,ti,tj,tk,tl,tm,tn,to,tp,tq };
 
+	//Rectangles
+	//==========
+	typedef std::vector<Triangle[2]> Rectangle;
+
+
+
+
+	//Cube
+	//====
+	typedef std::vector<Rectangle[6]> Cube;
+
+
+
 	//Shapes
 	//======
 	typedef std::vector<Triangle> Shape;
@@ -171,7 +199,6 @@ int main()
 	Shape triangle2{ tc };
 	Shape rectangle0{ td, te };
 	Shape cube0{ tf,tg,th,ti,tj,tk,tl,tm,tn,to,tp,tq };
-	Shape cube1{ tf,tg,th,ti,tj,tk,tl,tm,tn,to,tp,tq };
 
 	//Build and compile Shader Programs
 	std::vector<Shader> myShader{
@@ -179,6 +206,8 @@ int main()
 		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromFS.fs"),
 		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromUniform.fs"),
 		Shader(shaderDir + "posColorTexture.vs", shaderDir + "colorTextureFromVS.fs"),
+		Shader(shaderDir + "lighting.vs", shaderDir + "lighting.fs"),
+		Shader(shaderDir + "lighting.vs", shaderDir + "light.fs")
 	};
 	const unsigned int lastShaderIndex = static_cast<const unsigned int>(myShader.size() - 1);
 
@@ -198,15 +227,24 @@ int main()
 		{triangle2, 2},
 		{rectangle0, 3},
 		{cube0, 3},
-		{cube1, 3}};
+		{cube0, 4},
+		{cube0, 5}
+	};
 
 	//Vertex data ranges, indices and offsets
 	const unsigned int numObjects = static_cast<const unsigned int>(renderObjs.size());
 	std::vector<float>rawVertices;
 	std::vector<unsigned int> indices;
 	for (auto& s : renderObjs) {
+		//std::cout << "Shape\n";
 		for (unsigned int i = 0; i < s.shape.size(); i++) {
-			//loop through triangles in shape
+			//Determine the normal vector for this triangle
+			glm::vec3 v1 = s.shape[i][1].pos - s.shape[i][0].pos;
+			glm::vec3 v2 = s.shape[i][2].pos - s.shape[i][0].pos;
+			glm::vec3 normal = glm::normalize(glm::cross(v1, v2));
+
+			//std::cout << i << ": " << normal.x << ", " << normal.y << ", " << normal.z << std::endl;
+			//loop through all the triangles in shape
 			for (unsigned int j = 0; j < s.shape[i].size(); j++) {
 				//loop through vertices in each triangle
 				//Add vertex data to rawVertices
@@ -218,10 +256,13 @@ int main()
 				rawVertices.push_back(s.shape[i][j].colorRGB.z);
 				rawVertices.push_back(s.shape[i][j].textureCoords.x);
 				rawVertices.push_back(s.shape[i][j].textureCoords.y);
+				rawVertices.push_back(normal.x);
+				rawVertices.push_back(normal.y);
+				rawVertices.push_back(normal.z);
 				
 				bool found = false;
 				for (unsigned int k = 0; k < vertices.size(); k++) {
-					//Loop through vertices and capture the index of this vertex
+					//Loop through all vertices and capture the index of this vertex
 					if (s.shape[i][j] == vertices[k]) {
 						indices.push_back(k);
 						found = true;
@@ -270,6 +311,7 @@ int main()
 		GLuint location0{ 0 };
 		GLuint location1{ 1 };
 		GLuint location2{ 2 };
+		GLuint location3{ 3 };
 		// Set position attribute pointer
 		// glVertexAttribPointer(location, elements per attribute, type of data, bool, sizeof vertex, pointer to first data element)
 		//glVertexAttribPointer(location0, posElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float), (void*)0);
@@ -286,6 +328,11 @@ int main()
 		glVertexAttribPointer(location2, va.textureCoords.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
 			(void*)offsetof(Vertex, textureCoords));
 		glEnableVertexAttribArray(location2); //relates to the locations declared in the vertex shader
+		
+		// Set normals attribute pointer
+		glVertexAttribPointer(location3, va.normals.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+			(void*)offsetof(Vertex, normals));
+		glEnableVertexAttribArray(location3); //relates to the locations declared in the vertex shader
 	}
 	// The call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex 
 	// buffer object so afterwards we can safely unbind.
@@ -302,6 +349,8 @@ int main()
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
+
+	glm::vec3 lightSourcePos(1.2f, 1.0f, 2.0f);
 	// Render Loop
 	// ===========
 	// We don’t want the application to draw a single image and then immediately quit and close the
@@ -336,7 +385,7 @@ int main()
 		// filled with the color as	configured by glClearColor.
 		// glClearColor is a state-setting function
 		// glClear is a state-using function
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.02f, 0.03f, 0.03f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// Draw objects
@@ -349,43 +398,62 @@ int main()
 			//Bind VAO for this shape
 			glBindVertexArray(VAO[i]);
 			
-			
 			//Model and view matrices
 			glm::mat4 model = glm::mat4(1.0f);
 			glm::mat4 view = glm::mat4(1.0f);
 			glm::mat4 projection = glm::mat4(1.0f);
 			
+			//Set common uniforms
+			float greenValue;
+			myShader[currentShader].setVec3("lightPos", lightSourcePos);
+			myShader[currentShader].setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+			myShader[currentShader].setFloat("ambientStrength", 0.4);
+			
 			//Update model matrix
 			float timeValue = static_cast<float>(glfwGetTime());
-			if (i < 3) {
-				if (i == 2) {
-					//Set the color of the third triangle using a uniform value
-					float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-					myShader[currentShader].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
-				}
+			switch (i) {
+			case 0:
+			case 1:
 				model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
+				break;
+			case 2:
+				model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
+				//Set the color of the third triangle using a uniform value
+				greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+				myShader[currentShader].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
+				break;
+			case 3:
+				//Rectangle
+				model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+				model = glm::translate(model, glm::vec3(-1.5f, 0.0f, 0.0f));
+				//Set textures in rectangle and cube
+				myShader[currentShader].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
+				myShader[currentShader].setInt("texture1", 1);
+				break;
+			case 4:
+				//Cube
+				model = glm::translate(model, glm::vec3(-0.5f, -1.5f, 0.0f));
+				model = glm::rotate(model, timeValue * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+				//Set textures in rectangle and cube
+				myShader[currentShader].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
+				myShader[currentShader].setInt("texture1", 1);
+				break;
+			case 5:
+				//Cube
+				model = glm::translate(model, glm::vec3(2.0f, -1.0f, 0.0f));
+				model = glm::rotate(model, -timeValue * glm::radians((i - 3) * 17.0f), glm::vec3(-0.5f, 1.0f, 0.0f));
+				myShader[currentShader].setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+				break;
+			case 6:
+				//Cube - Light source
+				model = glm::translate(model, lightSourcePos);
+				model = glm::scale(model, glm::vec3(0.2f));
+				model = glm::rotate(model, -timeValue * glm::radians((i - 3) * 17.0f), glm::vec3(-0.5f, 1.0f, 0.0f));
+				break;
+			default:
+				break;
 			}
-			else {
-				if (i < 5) {
-					if (i == 3) {
-						//Rectangle
-						model = glm::translate(model, glm::vec3(-1.5f, 0.0f, 0.0f));
-						model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-					}
-					else if (i == 4) {
-						//Cube
-						model = glm::rotate(model, timeValue * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-					}
-					//Set textures in rectangle and cube
-					myShader[currentShader].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
-					myShader[currentShader].setInt("texture1", 1);
-				}
-				else {
-					//Cube
-					model = glm::translate(model, glm::vec3(1.5f, 0.0f, 0.0f));
-					model = glm::rotate(model, -timeValue * glm::radians(17.0f), glm::vec3(-0.5f, 1.0f, 0.0f));
-				}
-			}
+
 			//Update camera view
 			view = cam->lookAt();
 			projection = cam->perspective(SCR_WIDTH, SCR_HEIGHT, 0.1f, 100.0f);

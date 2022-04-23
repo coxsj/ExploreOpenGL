@@ -184,6 +184,7 @@
     <None Include="shaders\colorFromUniform.fs" />
     <None Include="shaders\colorFromVS.fs" />
     <None Include="shaders\colorTextureFromVS.fs" />
+    <None Include="shaders\light.fs" />
     <None Include="shaders\posColorTexture.vs" />
     <None Include="shaders\standardPosColor.vs" />
     <None Include="shaders\standardPosOnly.vs" />
@@ -191,6 +192,10 @@
   <ItemGroup>
     <Image Include="resources\awesomeface.png" />
     <Image Include="resources\container.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shaders\lighting.vs" />
+    <Text Include="shaders\lighting.fs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

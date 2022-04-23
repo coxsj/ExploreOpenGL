@@ -82,6 +82,9 @@
     <None Include="shaders\posColorTexture.vs">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\light.fs">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\container.jpg">
@@ -90,5 +93,13 @@
     <Image Include="resources\awesomeface.png">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shaders\lighting.vs">
+      <Filter>shaders</Filter>
+    </Text>
+    <Text Include="shaders\lighting.fs">
+      <Filter>shaders</Filter>
+    </Text>
   </ItemGroup>
 </Project>
