@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <conio.h>
 #include <iostream>
 #include <memory>
@@ -20,8 +21,9 @@
 
 //Project files
 #include "camera.h"
-#include "shader.h"
 #include "settings.h"
+#include "shader.h"
+#include "shapes.h"
 #include "utility.h"
 #include "window.h"
 
@@ -65,104 +67,88 @@ int main()
 	// ------------------------------------------------------------------
 	//Points
 	//======
-	glm::vec3 pa{ -0.5f,  0.5f,  0.0f };
-	glm::vec3 pb{  0.0f,  0.0f,  0.0f };
-	glm::vec3 pc{ -1.0f,  0.0f,  0.0f };
-	glm::vec3 pd{  0.5f,  0.5f,  0.0f };
-	glm::vec3 pe{  1.0f,  0.0f,  0.0f };
-	glm::vec3 pf{  0.0f,  1.0f,  0.0f };
-	glm::vec3 pg{  0.5f, -0.5f,  0.0f };
-	glm::vec3 ph{ -0.5f, -0.5f,  0.0f };
-	glm::vec3 pi{ -0.5f, -0.5f, -0.5f };
-	glm::vec3 pj{ -0.5f, -0.5f,  0.5f };
-	glm::vec3 pk{ -0.5f,  0.5f, -0.5f };
-	glm::vec3 pl{ -0.5f,  0.5f,  0.5f };
-	glm::vec3 pm{  0.5f, -0.5f, -0.5f };
-	glm::vec3 pn{  0.5f, -0.5f,  0.5f };
-	glm::vec3 po{  0.5f,  0.5f, -0.5f };
-	glm::vec3 pp{  0.5f,  0.5f,  0.5f };
+	Point pa{ -0.5f,  0.5f,  0.0f };
+	Point pb{  0.0f,  0.0f,  0.0f };
+	Point pc{ -1.0f,  0.0f,  0.0f };
+	Point pd{  0.5f,  0.5f,  0.0f };
+	Point pe{  1.0f,  0.0f,  0.0f };
+	Point pf{  0.0f,  1.0f,  0.0f };
+	Point pg{  0.5f, -0.5f,  0.0f };
+	Point ph{ -0.5f, -0.5f,  0.0f };
+	Point pi{ -0.5f, -0.5f, -0.5f };
+	Point pj{ -0.5f, -0.5f,  0.5f };
+	Point pk{ -0.5f,  0.5f, -0.5f };
+	Point pl{ -0.5f,  0.5f,  0.5f };
+	Point pm{  0.5f, -0.5f, -0.5f };
+	Point pn{  0.5f, -0.5f,  0.5f };
+	Point po{  0.5f,  0.5f, -0.5f };
+	Point pp{  0.5f,  0.5f,  0.5f };
 
 	//Colors
 	//======
-	glm::vec3 ca{ 1.0f, 0.0f, 0.0f };
-	glm::vec3 cb{ 0.0f, 1.0f, 0.0f };
-	glm::vec3 cc{ 0.0f, 0.0f, 1.0f };
-	glm::vec3 cd{ 1.0f, 1.0f, 0.0f };
-	glm::vec3 ce{ 0.0f, 0.0f, 0.0f };
-	glm::vec3 cf{ 1.0f, 0.5f, 0.2f };
-	glm::vec3 cwhite{ 1.0f, 1.0f, 1.0f };
+	ColorRGB ca{ 1.0f, 0.0f, 0.0f };
+	ColorRGB cb{ 0.0f, 1.0f, 0.0f };
+	ColorRGB cc{ 0.0f, 0.0f, 1.0f };
+	ColorRGB cd{ 1.0f, 1.0f, 0.0f };
+	ColorRGB ce{ 0.0f, 0.0f, 0.0f };
+	ColorRGB cf{ 1.0f, 0.5f, 0.2f };
+	ColorRGB cwhite{ 1.0f, 1.0f, 1.0f };
 
 	//Texture coords
 	//==============
-	glm::vec2 txa{ 0.0f, 0.0f };
-	glm::vec2 txb{ 0.0f, 1.0f };
-	glm::vec2 txc{ 1.0f, 0.0f };
-	glm::vec2 txd{ 1.0f, 1.0f };
+	TextureCoord txa{ 0.0f, 0.0f };
+	TextureCoord txb{ 0.0f, 1.0f };
+	TextureCoord txc{ 1.0f, 0.0f };
+	TextureCoord txd{ 1.0f, 1.0f };
 
 	//Vertices
 	//========
-	struct Vertex {
-		glm::vec3 pos;
-		glm::vec3 colorRGB;
-		glm::vec2 textureCoords;
-		glm::vec3 normals;
-		Vertex(glm::vec3 newPos, glm::vec3 newColorRGB, glm::vec2 newTextureCoords, glm::vec3 newNormals=glm::vec3(0.0f))
-			:pos(newPos), colorRGB(newColorRGB), textureCoords(newTextureCoords), normals(newNormals) {}
-		//NOTE: for now, normal vectors are not compared in a vertex equality comparison
-		inline bool operator==(const Vertex& rhs) {
-			return pos == rhs.pos
-				&& colorRGB == rhs.colorRGB
-				&& textureCoords == rhs.textureCoords;
-		}
-	};
-	//Normals
-	// ======
-	glm::vec3 n001{  0.0f,  0.0f,  1.0f };
-	glm::vec3 n010{  0.0f,  1.0f,  0.0f };
-	glm::vec3 n100{  1.0f,  0.0f,  0.0f };
-	glm::vec3 n00M{  0.0f,  0.0f, -1.0f };
-	glm::vec3 n0M0{  0.0f, -1.0f,  0.0f };
-	glm::vec3 nM00{ -1.0f,  0.0f,  0.0f };
-
-	Vertex va{ pa, ca, txa };
-	Vertex vb{ pb, cb, txa };
-	Vertex vc{ pc, cc, txa };
-	Vertex vd{ pd, ca, txa };
-	Vertex ve{ pe, cc, txa };
-	Vertex vf{ pf, ca, txa };
-	Vertex vg{ pd, ca, txd };
-	Vertex vh{ pg, cb, txc };
-	Vertex vi{ pa, cd, txb };
-	Vertex vj{ ph, ce, txa };
-	Vertex vk{ pi, ce, txa };
-	Vertex vl{ pi, ce, txb };
-	Vertex vm{ pj, ce, txa };
-	Vertex vn{ pk, ce, txb };
-	Vertex vo{ pk, ce, txd };
-	Vertex vp{ pl, ce, txa };
-	Vertex vq{ pl, ce, txb };
-	Vertex vr{ pl, ce, txc };
-	Vertex vs{ pm, ce, txb };
-	Vertex vt{ pm, ce, txc };
-	Vertex vu{ pm, ce, txd };
-	Vertex vv{ pn, ce, txa };
-	Vertex vw{ pn, ce, txc };
-	Vertex vx{ po, ce, txd };
-	Vertex vy{ pp, ce, txc };
-	Vertex vz{ pp, ce, txd };
+	Vertex va{ pa,ca,txa };
+	Vertex vb{ pb,cb,txa };
+	Vertex vc{ pc,cc,txa };
+	Vertex vd{ pd,ca,txa };
+	Vertex ve{ pe,cc,txa };
+	Vertex vf{ pf,ca,txa };
+	Vertex vg{ pd,ca,txd };
+	Vertex vh{ pg,cb,txc };
+	Vertex vi{ pa,cd,txb };
+	Vertex vj{ ph,ce,txa };
+	Vertex vk{ pi,ce,txa };
+	Vertex vl{ pi,ce,txb };
+	Vertex vm{ pj,ce,txa };
+	Vertex vn{ pk,ce,txb };
+	Vertex vo{ pk,ce,txd };
+	Vertex vp{ pl,ce,txa };
+	Vertex vq{ pl,ce,txb };
+	Vertex vr{ pl,ce,txc };
+	Vertex vs{ pm,ce,txb };
+	Vertex vt{ pm,ce,txc };
+	Vertex vu{ pm,ce,txd };
+	Vertex vv{ pn,ce,txa };
+	Vertex vw{ pn,ce,txc };
+	Vertex vx{ po,ce,txd };
+	Vertex vy{ pp,ce,txc };
+	Vertex vz{ pp,ce,txd };
 	std::vector<Vertex> vertices{ va,vb,vc,vd,ve,vf,vg,vh,vi,vj,vk,vl,vm,
 		vn,vo,vp,vq,vr,vs,vt,vu,vv,vw,vx,vy,vz };
 
+	//Normals
+	// ======
+	Normal n001{ 0.0f,  0.0f,  1.0f };
+	Normal n010{ 0.0f,  1.0f,  0.0f };
+	Normal n100{ 1.0f,  0.0f,  0.0f };
+	Normal n00M{ 0.0f,  0.0f, -1.0f };
+	Normal n0M0{ 0.0f, -1.0f,  0.0f };
+	Normal nM00{ -1.0f,  0.0f,  0.0f };
+
 	//Triangles
 	//=========
-	typedef std::vector<Vertex> Triangle;
-
-	Triangle ta{ va, vb, vc };
-	Triangle tb{ vd, ve, vb };
-	Triangle tc{ vf, va, vd };
+	Triangle ta{ va,vb,vc };
+	Triangle tb{ vd,ve,vb };
+	Triangle tc{ vf,va,vd };
 	//Rectangle: 2 triangles
-	Triangle td{ vg, vh, vi };
-	Triangle te{ vh, vj, vi };
+	Triangle td{ vg,vh,vi };
+	Triangle te{ vh,vj,vi };
 	//Cube: 12 triangles
 	Triangle tf{ vk,vt,vx };
 	Triangle tg{ vx,vn,vk };
@@ -180,25 +166,12 @@ int main()
 
 	//Rectangles
 	//==========
-	typedef std::vector<Triangle[2]> Rectangle;
-
-
-
-
-	//Cube
-	//====
-	typedef std::vector<Rectangle[6]> Cube;
-
-
-
-	//Shapes
-	//======
-	typedef std::vector<Triangle> Shape;
-	Shape triangle0{ ta };
-	Shape triangle1{ tb };
-	Shape triangle2{ tc };
-	Shape rectangle0{ td, te };
-	Shape cube0{ tf,tg,th,ti,tj,tk,tl,tm,tn,to,tp,tq };
+	NewRectangle ra{ tf, tg };
+	NewRectangle rb{ th, ti };
+	NewRectangle rc{ tj, tk };
+	NewRectangle rd{ tl, tm };
+	NewRectangle re{ tn, to };
+	NewRectangle rf{ tp, tq };
 
 	//Build and compile Shader Programs
 	std::vector<Shader> myShader{
@@ -210,6 +183,27 @@ int main()
 		Shader(shaderDir + "lighting.vs", shaderDir + "light.fs")
 	};
 	const unsigned int lastShaderIndex = static_cast<const unsigned int>(myShader.size() - 1);
+
+	//Shapes
+	//======
+	typedef std::vector<Triangle> Shape;
+	Shape triangle0{ ta };
+	Shape triangle1{ tb };
+	Shape triangle2{ tc };
+	Shape rectangle0{ td,te };
+	Shape cube0{ tf,tg,th,ti,tj,tk,tl,tm,tn,to,tp,tq };
+
+	//NewShapes
+	//=========
+	std::vector<std::shared_ptr<NewShape>> newShapes;
+	newShapes.emplace_back( std::make_shared<NewTriangle>( ta) );
+	newShapes.emplace_back( std::make_shared<NewTriangle>( tb ) );
+	newShapes.emplace_back( std::make_shared<NewTriangle>( tc ) );
+	newShapes.emplace_back( std::make_shared<NewRectangle>(td, te) );
+	newShapes.emplace_back( std::make_shared < NewCube>( 
+		NewRectangle {tf, tg}, NewRectangle {th, ti},
+		NewRectangle {tj, tk}, NewRectangle {tl, tm}, 
+		NewRectangle {tn, to}, NewRectangle {tp, tq} ));
 
 	struct RenderObj {
 		Shape& shape;
@@ -239,9 +233,10 @@ int main()
 		//std::cout << "Shape\n";
 		for (unsigned int i = 0; i < s.shape.size(); i++) {
 			//Determine the normal vector for this triangle
+			//TODO ensure normal points out of shape
 			glm::vec3 v1 = s.shape[i][1].pos - s.shape[i][0].pos;
 			glm::vec3 v2 = s.shape[i][2].pos - s.shape[i][0].pos;
-			glm::vec3 normal = glm::normalize(glm::cross(v1, v2));
+			glm::vec3 normal = glm::normalize(glm::cross(v2, v1));
 
 			//std::cout << i << ": " << normal.x << ", " << normal.y << ", " << normal.z << std::endl;
 			//loop through all the triangles in shape
@@ -407,7 +402,7 @@ int main()
 			float greenValue;
 			myShader[currentShader].setVec3("lightPos", lightSourcePos);
 			myShader[currentShader].setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-			myShader[currentShader].setFloat("ambientStrength", 0.4);
+			myShader[currentShader].setFloat("ambientStrength", 0.2f);
 			
 			//Update model matrix
 			float timeValue = static_cast<float>(glfwGetTime());
@@ -433,6 +428,7 @@ int main()
 			case 4:
 				//Cube
 				model = glm::translate(model, glm::vec3(-0.5f, -1.5f, 0.0f));
+				model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
 				model = glm::rotate(model, timeValue * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 				//Set textures in rectangle and cube
 				myShader[currentShader].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
@@ -448,11 +444,14 @@ int main()
 				//Cube - Light source
 				model = glm::translate(model, lightSourcePos);
 				model = glm::scale(model, glm::vec3(0.2f));
-				model = glm::rotate(model, -timeValue * glm::radians((i - 3) * 17.0f), glm::vec3(-0.5f, 1.0f, 0.0f));
+				model = glm::rotate(model, -timeValue * glm::radians(25.0f), glm::vec3(-0.5f, 1.0f, 1.0f));
 				break;
 			default:
 				break;
 			}
+
+			glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
+			myShader[currentShader].setMat3("normalMatrix", normalMatrix);
 
 			//Update camera view
 			view = cam->lookAt();
@@ -462,6 +461,7 @@ int main()
 			myShader[currentShader].setMat4("model", model);
 			myShader[currentShader].setMat4("view", view);
 			myShader[currentShader].setMat4("projection", projection);
+			myShader[currentShader].setVec3("viewPos", cam->getPos());
 
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_TRIANGLE * renderObjs[i].trianglesPerShape);	

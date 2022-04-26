@@ -4,6 +4,7 @@ layout (location = 1) in vec3 aColor;
 layout (location = 2) in vec2 aTexCoord;
 layout (location = 3) in vec3 aNormal;
 
+uniform mat3 normalMatrix;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
@@ -19,5 +20,5 @@ void main()
    fragPos = vec3(model * vec4(aPos, 1.0));
    vertexColor = vec4(aColor, 1.0);
    texCoord = aTexCoord;
-   normal = aNormal;
+   normal = normalMatrix * aNormal;
 };

@@ -32,6 +32,7 @@ public:
 	void newZoom(float yoffset);
 	glm::mat4 perspective(float width, float height, float front, float back) {
 		return glm::perspective(glm::radians(zoom), width / height, front, back);}
+	glm::vec3 getPos() {return cameraPos; }
 	void updateDirectionFromMouse(float xoffset, float yoffset);
 };
 

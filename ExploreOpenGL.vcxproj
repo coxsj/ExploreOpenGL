@@ -164,6 +164,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\External Libraries\Glad\src\glad.c" />
+    <ClCompile Include="src\shapes.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -173,6 +174,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\External Libraries\stb_image\stb_image.h" />
     <ClInclude Include="dependencies\include\util_console\util_console.h" />
+    <ClInclude Include="src\shapes.h" />
     <ClInclude Include="src\camera.h" />
     <ClInclude Include="src\settings.h" />
     <ClInclude Include="src\shader.h" />
