@@ -164,15 +164,6 @@ int main()
 	Triangle tq{ vy,vp,vn };
 	std::vector<Triangle> triangles{ ta,tb,tc,td,te,tf,tg,th,ti,tj,tk,tl,tm,tn,to,tp,tq };
 
-	//Rectangles
-	//==========
-	NewRectangle ra{ tf, tg };
-	NewRectangle rb{ th, ti };
-	NewRectangle rc{ tj, tk };
-	NewRectangle rd{ tl, tm };
-	NewRectangle re{ tn, to };
-	NewRectangle rf{ tp, tq };
-
 	//Build and compile Shader Programs
 	std::vector<Shader> myShader{
 		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromVS.fs"),
@@ -191,7 +182,7 @@ int main()
 	Shape triangle1{ tb };
 	Shape triangle2{ tc };
 	Shape rectangle0{ td,te };
-	Shape cube0{ tf,tg,th,ti,tj,tk,tl,tm,tn,to,tp,tq };
+	Shape cube0{ tf, tg, th, ti, tj, tk, tl, tm, tn, to, tp, tq };
 
 	//NewShapes
 	//=========
@@ -200,10 +191,14 @@ int main()
 	newShapes.emplace_back( std::make_unique<NewTriangle>( tb ) );
 	newShapes.emplace_back( std::make_unique<NewTriangle>( tc ) );
 	newShapes.emplace_back( std::make_unique<NewRectangle>(td, te) );
-	newShapes.emplace_back( std::make_unique < NewCube>(
-		NewRectangle {tf, tg}, NewRectangle {th, ti},
-		NewRectangle {tj, tk}, NewRectangle {tl, tm}, 
-		NewRectangle {tn, to}, NewRectangle {tp, tq} ));
+	std::vector<NewRectangle> rect{
+		NewRectangle{ tf, tg },
+		NewRectangle{ th, ti },
+		NewRectangle{ tj, tk },
+		NewRectangle{ tl, tm },
+		NewRectangle{ tn, to },
+		NewRectangle{ tp, tq } };
+	newShapes.emplace_back( std::make_unique < NewCube>(rect));
 
 	struct RenderObj {
 		Shape& shape;

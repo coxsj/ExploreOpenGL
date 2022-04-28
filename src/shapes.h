@@ -51,7 +51,7 @@ public:
 
 class NewTriangle : public NewShape {
 public:
-	NewTriangle(Triangle& t, Point refPoint=Point{0.0f, 0.0f, 0.0f}, 
+	NewTriangle(Triangle& t, Point refPoint=Point{0.0f, 0.0f, 0.0f },
 		const unsigned int newIndex = 0);
 	NewTriangle(Point pa, Point pb, Point pc, Point refPoint = Point{ 0.0f, 0.0f, 0.0f },
 		const unsigned int newIndex = 0);
@@ -62,7 +62,7 @@ private:
 
 class NewRectangle : public NewShape {
 public:
-	NewRectangle( NewTriangle& ta, NewTriangle& tb, Point refPoint,
+	NewRectangle(NewTriangle& ta, NewTriangle& tb, Point refPoint = Point{ 0.0f, 0.0f, 0.0f },
 		const unsigned int newIndex=0) { initRectangle(ta[0], tb[0], refPoint, newIndex);}
 	NewRectangle(Triangle ta, Triangle tb, Point refPoint = Point{ 0.0f, 0.0f, 0.0f },
 		const unsigned int newIndex = 0) { initRectangle(ta, tb, refPoint, newIndex);}
@@ -71,34 +71,29 @@ public:
 		const unsigned int newIndex = 0);
 private:
 	void initRectangle(Triangle& ta, Triangle& tb, Point refPoint, const unsigned int newIndex);
-	
 };
+
+// NewCube
+//*************************************
 class NewCube : public NewShape {
-	
 public:
-	NewCube(NewRectangle ta, NewRectangle tb, NewRectangle tc,
-		NewRectangle td, NewRectangle te, NewRectangle tf,
-		const unsigned int newIndex=0) {
-		maxTriangles_ = 12;
-		addTriangle(ta[0]); addTriangle(ta[1]);
-		addTriangle(tb[0]); addTriangle(tb[1]);
-		addTriangle(tc[0]); addTriangle(tc[1]);
-		addTriangle(td[0]); addTriangle(td[1]);
-		addTriangle(te[0]); addTriangle(te[1]);
-		addTriangle(tf[0]); addTriangle(tf[1]);
-		shaderIndex_ = newIndex;
-	}
-	
+	NewCube(std::vector<NewRectangle>& rect, Point refPoint = Point{ 0.0f, 0.0f, 0.0f },
+		const unsigned int newIndex = 0);
 };
 
 class Geometry {
 private:
 	Geometry();
 public:
-	static void assignNormals(Triangle& t, Point& refPoint); 
-	static bool extractTrianglesFromRectangle(Point pa, Point pb, Point pc, Point pd, Triangle& ta, Triangle& tb, Point refPoint);
+	static bool allPointsSamePlane(Point a, Point b, Point c, Point d);
+	static bool allPointsUnique(Point a, Point b, Point c);
+	static bool allPointsUnique(Triangle& t, Point refPoint);
+	static bool allPointsUnique(Point a, Point b, Point c, Point d);
+	static bool allPointsUnique(Point a, Point b, Point c, Point d, Point e);
+	static void assignNormals(Triangle& t, Point& refPoint);
+	static bool extractTrianglesFromRectangle(Point pa, Point pb, Point pc, Point pd, Triangle& ta, Triangle& tb);
+	static glm::vec3 getNormal(Point a, Point b, Point c);
 	static bool normalCorrect(Point p, Normal n, Point refPoint);
-	static bool refPtNotInTrianglePlane(Triangle& t, Point refPoint);
 	static bool verifyRectangle(Triangle& ta, Triangle& tb);
 	static bool verifyRectangle(Point a, Point b, Point c, Point d);
 };
