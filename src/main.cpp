@@ -96,10 +96,10 @@ int main()
 
 	//Texture coords
 	//==============
-	TextureCoord txa{ 0.0f, 0.0f };
-	TextureCoord txb{ 0.0f, 1.0f };
-	TextureCoord txc{ 1.0f, 0.0f };
-	TextureCoord txd{ 1.0f, 1.0f };
+	TextureCoord2D txa{ 0.0f, 0.0f };
+	TextureCoord2D txb{ 0.0f, 1.0f };
+	TextureCoord2D txc{ 1.0f, 0.0f };
+	TextureCoord2D txd{ 1.0f, 1.0f };
 
 	//Vertices
 	//========
@@ -195,12 +195,12 @@ int main()
 
 	//NewShapes
 	//=========
-	std::vector<std::shared_ptr<NewShape>> newShapes;
-	newShapes.emplace_back( std::make_shared<NewTriangle>( ta) );
-	newShapes.emplace_back( std::make_shared<NewTriangle>( tb ) );
-	newShapes.emplace_back( std::make_shared<NewTriangle>( tc ) );
-	newShapes.emplace_back( std::make_shared<NewRectangle>(td, te) );
-	newShapes.emplace_back( std::make_shared < NewCube>( 
+	std::vector<std::unique_ptr<NewShape>> newShapes;
+	newShapes.emplace_back( std::make_unique<NewTriangle>( ta ) );
+	newShapes.emplace_back( std::make_unique<NewTriangle>( tb ) );
+	newShapes.emplace_back( std::make_unique<NewTriangle>( tc ) );
+	newShapes.emplace_back( std::make_unique<NewRectangle>(td, te) );
+	newShapes.emplace_back( std::make_unique < NewCube>(
 		NewRectangle {tf, tg}, NewRectangle {th, ti},
 		NewRectangle {tj, tk}, NewRectangle {tl, tm}, 
 		NewRectangle {tn, to}, NewRectangle {tp, tq} ));
@@ -249,8 +249,8 @@ int main()
 				rawVertices.push_back(s.shape[i][j].colorRGB.x);
 				rawVertices.push_back(s.shape[i][j].colorRGB.y);
 				rawVertices.push_back(s.shape[i][j].colorRGB.z);
-				rawVertices.push_back(s.shape[i][j].textureCoords.x);
-				rawVertices.push_back(s.shape[i][j].textureCoords.y);
+				rawVertices.push_back(s.shape[i][j].textureCoord.x);
+				rawVertices.push_back(s.shape[i][j].textureCoord.y);
 				rawVertices.push_back(normal.x);
 				rawVertices.push_back(normal.y);
 				rawVertices.push_back(normal.z);
@@ -320,8 +320,8 @@ int main()
 		glEnableVertexAttribArray(location1); //relates to the locations declared in the vertex shader
 
 		// Set texture attribute pointer
-		glVertexAttribPointer(location2, va.textureCoords.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
-			(void*)offsetof(Vertex, textureCoords));
+		glVertexAttribPointer(location2, va.textureCoord.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+			(void*)offsetof(Vertex, textureCoord));
 		glEnableVertexAttribArray(location2); //relates to the locations declared in the vertex shader
 		
 		// Set normals attribute pointer

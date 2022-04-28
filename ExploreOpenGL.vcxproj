@@ -74,21 +74,29 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;$(VC_SourcePath)</SourcePath>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;$(VC_SourcePath)</SourcePath>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;$(VC_SourcePath)</SourcePath>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;$(VC_SourcePath)</SourcePath>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -172,6 +180,7 @@
     <ClCompile Include="src\window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\External Libraries\glm\glm.hpp" />
     <ClInclude Include="..\..\External Libraries\stb_image\stb_image.h" />
     <ClInclude Include="dependencies\include\util_console\util_console.h" />
     <ClInclude Include="src\shapes.h" />
