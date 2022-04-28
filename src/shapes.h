@@ -36,64 +36,42 @@ protected:
 	unsigned int shaderIndex_;
 	glm::vec3 refPoint_;
 public:
-	NewShape() : maxTriangles_(0), shaderIndex_(0), refPoint_(glm::vec3{ 0.0f, 0.0f, 0.0f }){}
-	bool  addTriangle(Triangle& t, Point refPoint=glm::vec3{0.0f, 0.0f, 0.0f});
-	bool  addTriangle(Point pa, Point bp, Point pc, Point refPoint = glm::vec3{ 0.0f, 0.0f, 0.0f });
+	NewShape() : maxTriangles_(0), shaderIndex_(0), refPoint_(Point{ 0.0f, 0.0f, 0.0f }){}
 	Triangle& operator[](const unsigned int index) {
-		assert(index < triangles_.size());
+		assert(index < triangles_.size() && triangles_.size() != 0);
 		return triangles_[index];
 	}
-	Vertex& vertex(const unsigned int index);
-	unsigned int shaderIndex() { return shaderIndex_; }
-	bool normalCorrect(Point p, Normal n, Point refPoint);
-private:
-	void assignNormals(Triangle& t, Point& refPoint);
+	bool			addTriangle(Triangle& t, Point refPoint=Point{0.0f, 0.0f, 0.0f});
+	bool			addTriangle(Point pa, Point bp, Point pc, Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
+	Vertex&			vertex(const unsigned int index);
+	unsigned int	shaderIndex() { return shaderIndex_; }
+	unsigned int	triangles() { return static_cast<unsigned int>(triangles_.size()); }	
 };
+
+
 class NewTriangle : public NewShape {
 public:
-	NewTriangle(Triangle& t, glm::vec3 refPoint=glm::vec3{0.0f, 0.0f, 0.0f}, const unsigned int newIndex = 0) {
-		maxTriangles_ = 1;
-		addTriangle(t, refPoint);
-		shaderIndex_ = newIndex;
-	}
-	NewTriangle(Point pa, Point pb, Point pc,
-		glm::vec3 refPoint = glm::vec3{ 0.0f, 0.0f, 0.0f }, const unsigned int newIndex = 0) {
-		maxTriangles_ = 1;
-		addTriangle(pa, pb, pc, refPoint);
-		shaderIndex_ = newIndex;
-	}
+	NewTriangle(Triangle& t, Point refPoint=Point{0.0f, 0.0f, 0.0f}, 
+		const unsigned int newIndex = 0);
+	NewTriangle(Point pa, Point pb, Point pc, Point refPoint = Point{ 0.0f, 0.0f, 0.0f },
+		const unsigned int newIndex = 0);
+private:
+	void initTriangle(Triangle& t, Point refPoint, const unsigned int newIndex);
 };
+
+
 class NewRectangle : public NewShape {
 public:
-	NewRectangle( NewTriangle& ta, NewTriangle& tb, glm::vec3 refPoint,
-		const unsigned int newIndex=0) {
-		maxTriangles_ = 2;
-		addTriangle(ta[0], refPoint);
-		addTriangle(tb[0], refPoint);
-		shaderIndex_ = newIndex;
-	}
-	NewRectangle(Triangle ta, Triangle tb, glm::vec3 refPoint=glm::vec3{0.0f, 0.0f, 0.0f},
-		const unsigned int newIndex = 0) {
-		maxTriangles_ = 2;
-		addTriangle(ta, refPoint);
-		addTriangle(tb, refPoint);
-		shaderIndex_ = newIndex;
-	}
+	NewRectangle( NewTriangle& ta, NewTriangle& tb, Point refPoint,
+		const unsigned int newIndex=0) { initRectangle(ta[0], tb[0], refPoint, newIndex);}
+	NewRectangle(Triangle ta, Triangle tb, Point refPoint = Point{ 0.0f, 0.0f, 0.0f },
+		const unsigned int newIndex = 0) { initRectangle(ta, tb, refPoint, newIndex);}
 	NewRectangle(Point pa, Point pb, Point pc, Point pd,
-		glm::vec3 refPoint = glm::vec3{ 0.0f, 0.0f, 0.0f },
-		const unsigned int newIndex = 0) {
-		Triangle ta, tb;
-		if (extractTriangles(pa, pb, pc, pd, ta, tb, refPoint)) {
-			addTriangle(ta, refPoint);
-			addTriangle(tb, refPoint);
-			maxTriangles_ = 2;
-			shaderIndex_ = newIndex;
-		}
-		assert(maxTriangles_ == 2);
-	}
+		Point refPoint = Point{ 0.0f, 0.0f, 0.0f },
+		const unsigned int newIndex = 0);
 private:
-	bool extractTriangles(Point pa, Point pb, Point pc, Point pd, 
-		Triangle& ta, Triangle& tb, glm::vec3 refPoint);
+	void initRectangle(Triangle& ta, Triangle& tb, Point refPoint, const unsigned int newIndex);
+	
 };
 class NewCube : public NewShape {
 	
@@ -113,3 +91,14 @@ public:
 	
 };
 
+class Geometry {
+private:
+	Geometry();
+public:
+	static void assignNormals(Triangle& t, Point& refPoint); 
+	static bool extractTrianglesFromRectangle(Point pa, Point pb, Point pc, Point pd, Triangle& ta, Triangle& tb, Point refPoint);
+	static bool normalCorrect(Point p, Normal n, Point refPoint);
+	static bool refPtNotInTrianglePlane(Triangle& t, Point refPoint);
+	static bool verifyRectangle(Triangle& ta, Triangle& tb);
+	static bool verifyRectangle(Point a, Point b, Point c, Point d);
+};
