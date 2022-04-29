@@ -26,6 +26,10 @@ struct Vertex {
 			&& textureCoord == rhs.textureCoord;
 			//Note: Does not compare normals as they are solid shape dependent
 	}
+	static unsigned int posLength() { return sizeof(pos)/sizeof(float); }
+	static unsigned int colorRGBLength() { return sizeof(colorRGB) / sizeof(float); }
+	static unsigned int textureCoordLength() { return sizeof(textureCoord) / sizeof(float); }
+	static unsigned int normalLength() { return sizeof(normals) / sizeof(float); }
 };
 typedef std::vector<Vertex> Triangle;
 

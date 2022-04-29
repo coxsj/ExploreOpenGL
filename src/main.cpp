@@ -300,22 +300,22 @@ int main()
 		// Set position attribute pointer
 		// glVertexAttribPointer(location, elements per attribute, type of data, bool, sizeof vertex, pointer to first data element)
 		//glVertexAttribPointer(location0, posElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float), (void*)0);
-		glVertexAttribPointer(location0, va.pos.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+		glVertexAttribPointer(location0, Vertex::posLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
 			(void*)offsetof(Vertex, pos));
 		glEnableVertexAttribArray(location0); //relates to the locations declared in the vertex shader
 
 		// Set color attribute pointer
-		glVertexAttribPointer(location1, va.colorRGB.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+		glVertexAttribPointer(location1, Vertex::colorRGBLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
 			(void*)offsetof(Vertex, colorRGB));
 		glEnableVertexAttribArray(location1); //relates to the locations declared in the vertex shader
 
 		// Set texture attribute pointer
-		glVertexAttribPointer(location2, va.textureCoord.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+		glVertexAttribPointer(location2, Vertex::textureCoordLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
 			(void*)offsetof(Vertex, textureCoord));
 		glEnableVertexAttribArray(location2); //relates to the locations declared in the vertex shader
 		
 		// Set normals attribute pointer
-		glVertexAttribPointer(location3, va.normals.length(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+		glVertexAttribPointer(location3, Vertex::normalLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
 			(void*)offsetof(Vertex, normals));
 		glEnableVertexAttribArray(location3); //relates to the locations declared in the vertex shader
 	}
