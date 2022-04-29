@@ -1,5 +1,8 @@
 #pragma once
+
+#include <iostream>
 #include <vector>
+#include <map>
 
 //External Dependencies
 #include <glm\glm.hpp>
@@ -12,6 +15,7 @@ typedef glm::vec3 Point;
 typedef glm::vec3 ColorRGB;
 typedef glm::vec2 TextureCoord2D;
 typedef glm::vec3 Normal;
+
 struct Vertex {
 	Point pos;
 	ColorRGB colorRGB;
@@ -28,13 +32,24 @@ struct Vertex {
 			&& textureCoord == rhs.textureCoord;
 			//Note: Does not compare normals as they are solid shape dependent
 	}
+	friend std::ostream& operator<<(std::ostream& os, const Vertex& v) {
+		os << "(" << v.pos.x << "," << v.pos.y << "," << v.pos.z <<")";
+		return os;
+	}
 	static unsigned int posLength() { return sizeof(pos)/sizeof(float); }
 	static unsigned int colorRGBLength() { return sizeof(colorRGB) / sizeof(float); }
 	static unsigned int textureCoordLength() { return sizeof(textureCoord) / sizeof(float); }
 	static unsigned int normalLength() { return sizeof(normals) / sizeof(float); }
 };
+
 typedef std::vector<Vertex> Triangle;
 
+enum class SHAPE_TYPE {
+	e_shape,
+	e_triangle,
+	e_rectangle,
+	e_cube
+};
 class NewShape {
 private:
 	std::vector<Triangle> triangles_;
@@ -42,58 +57,72 @@ protected:
 	unsigned int maxTriangles_;
 	unsigned int shaderIndex_;
 	Point refPoint_;
+	SHAPE_TYPE shapeType_;
+	std::string name_;
 public:
-	NewShape() : maxTriangles_(0), shaderIndex_(0), refPoint_(Point{ 0.0f, 0.0f, 0.0f }){}
+	NewShape() : maxTriangles_(0), shaderIndex_(0), refPoint_(Point{ 0.0f, 0.0f, 0.0f }),
+		shapeType_(SHAPE_TYPE::e_shape), name_("tbd") {}
 	Triangle& operator[](const unsigned int index) {
 		assert(index < triangles_.size() && triangles_.size() != 0);
 		return at(index);
 	}
 	bool			addTriangle(Triangle& t, Point refPoint=Point{0.0f, 0.0f, 0.0f});
-	bool			addTriangle(Point pa, Point bp, Point pc, Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
 	Triangle&		at(unsigned int index) {
 		assert(index < triangles_.size() && triangles_.size() != 0);
 		return triangles_[index];
 	}
-	Vertex&			vertex(const unsigned int index);
+	void			printName() {std::cout << name_;}
+	void			printNameln() { printName(); std::cout << std::endl; }
+	void			printShapeType();
+	void			printShapeTypeln() { printShapeType(); std::cout << std::endl; }
+	static void		printGLMVec3(const glm::vec3& v);
+	static void		printGLMVec3ln(const glm::vec3& v) { printGLMVec3(v); std::cout << std::endl; }
+	static void		printTriangle(const Triangle& t);
+	static void		printTriangleln(const Triangle& t) { printTriangle(t); std::cout << std::endl; }
 	unsigned int	shaderIndex() { return shaderIndex_; }
 	//unsigned int	triangles() { return static_cast<unsigned int>(triangles_.size()); }	
 	unsigned int	size() { return static_cast<unsigned int>(triangles_.size()); }
+	Vertex&			vertex(const unsigned int index);
 	unsigned int	vertexCount() { return size() * VERTICES_PER_TRIANGLE; }
 };
 
 
 class NewTriangle : public NewShape {
 public:
-	NewTriangle(Triangle& t, const unsigned int newIndex = 0,
-		Point refPoint=Point{0.0f, 0.0f, 0.0f });
-	NewTriangle(Point pa, Point pb, Point pc, const unsigned int newIndex = 0,
+	NewTriangle(Triangle& t, const std::string& name, const unsigned int newIndex = 0,
+		Point refPoint = Point{0.0f, 0.0f, 0.0f });
+	NewTriangle(Point pa, Point pb, Point pc, const std::string& name, const unsigned int newIndex = 0,
 		Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
 private:
-	void initTriangle(Triangle& t, Point refPoint, const unsigned int newIndex);
+	void initTriangle(Triangle& t, const std::string& name, const unsigned int newIndex, Point refPoint);
 };
 
 
 class NewRectangle : public NewShape {
 public:
-	NewRectangle(NewTriangle& ta, NewTriangle& tb, const unsigned int newIndex=0, 
-		Point refPoint = Point{ 0.0f, 0.0f, 0.0f }) { initRectangle(ta[0], tb[0], refPoint, newIndex);}
-	NewRectangle(Triangle ta, Triangle tb, const unsigned int newIndex = 0, 
-		Point refPoint = Point{ 0.0f, 0.0f, 0.0f }) { initRectangle(ta, tb, refPoint, newIndex);}
-	NewRectangle(Point pa, Point pb, Point pc, Point pd,
-		const unsigned int newIndex = 0,
-		Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
+	NewRectangle(NewTriangle& ta, NewTriangle& tb, const std::string& name,
+		const unsigned int newIndex=0, Point refPoint = Point{ 0.0f, 0.0f, 0.0f }) {
+		initRectangle(ta[0], tb[0], name, newIndex, refPoint);
+	}
+	NewRectangle(Triangle ta, Triangle tb, const std::string& name = "",
+		const unsigned int newIndex = 0, Point refPoint = Point{ 0.0f, 0.0f, 0.0f }) { 
+		initRectangle(ta, tb, name, newIndex, refPoint);
+	}
+	NewRectangle(Point pa, Point pb, Point pc, Point pd, const std::string& name,
+		const unsigned int newIndex = 0, Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
 private:
-	void initRectangle(Triangle& ta, Triangle& tb, Point refPoint, const unsigned int newIndex);
+	void initRectangle(Triangle& ta, Triangle& tb, const std::string& name, const unsigned int newIndex, Point refPoint);
 };
 
 // NewCube
 //*************************************
 class NewCube : public NewShape {
 public:
-	NewCube(std::vector<Triangle>& t, const unsigned int newIndex = 0, 
-		Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
-	NewCube(std::vector<NewRectangle>& rect, const unsigned int newIndex = 0,
-		Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
+	NewCube(std::vector<Triangle>& t, const std::string& name,
+		const unsigned int newIndex = 0, Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
+	NewCube(std::vector<NewRectangle>& rect, const std::string& name,
+		const unsigned int newIndex = 0, Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
+	void initCube(const unsigned int newIndex);
 };
 
 class Geometry {
@@ -105,7 +134,7 @@ public:
 	static bool allPointsUnique(Triangle& t, Point refPoint);
 	static bool allPointsUnique(Point a, Point b, Point c, Point d);
 	static bool allPointsUnique(Point a, Point b, Point c, Point d, Point e);
-	static void assignNormals(Triangle& t, Point& refPoint);
+	static void assignNormals(Triangle& t, Point& refPoint, const std::string& name);
 	static bool extractTrianglesFromRectangle(Point pa, Point pb, Point pc, Point pd, Triangle& ta, Triangle& tb);
 	static Normal getNormal(Point a, Point b, Point c);
 	static bool normalCorrect(Point p, Normal n, Point refPoint);

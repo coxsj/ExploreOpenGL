@@ -2,17 +2,31 @@
 
 #include "shapes.h"
 
-bool NewShape::addTriangle(Point pa, Point pb, Point pc, Point refPoint) {
-	assert(Geometry::allPointsUnique(pa, pb, pc));
-	Triangle t{ Vertex{pa}, Vertex{pb}, Vertex{pc} };
-	return addTriangle(t, refPoint);
-}
 bool NewShape::addTriangle(Triangle& t, Point refPoint) {
 	if (t.size() != 3 || triangles_.size() >= maxTriangles_) return false;
+	std::cout << "Adding triangle "; printTriangle(t); 
+	std::cout << " to " << name_ << "(";
+	printShapeType(); std::cout << ")\n";
 	refPoint_ = refPoint;
-	Geometry::assignNormals(t, refPoint);
+	Geometry::assignNormals(t, refPoint, name_);
 	triangles_.push_back(t);
 	return true;
+}
+void NewShape::printShapeType() {
+	switch (shapeType_) {
+	case SHAPE_TYPE::e_shape:		std::cout << "base_shape";		break;
+	case SHAPE_TYPE::e_triangle:	std::cout << "triangle";	break;
+	case SHAPE_TYPE::e_rectangle:	std::cout << "rectangle";	break;
+	case SHAPE_TYPE::e_cube:		std::cout << "cube";		break;
+	default:
+		break;
+	}
+}
+void NewShape::printGLMVec3(const glm::vec3& v) {
+	std::cout << v.x << "," << v.y << "," << v.z;
+}
+void NewShape::printTriangle(const Triangle& t) {
+	std::cout << "(" << t[0] << ", " << t[1] << ", " << t[2] << ")";
 }
 Vertex& NewShape::vertex(const unsigned int index) {
 	assert(index < 3 * triangles_.size());
@@ -21,68 +35,84 @@ Vertex& NewShape::vertex(const unsigned int index) {
 
 // NewTriangle Members
 // ===================
-NewTriangle::NewTriangle(Triangle& t, const unsigned int newIndex, Point refPoint) {
-	initTriangle(t, refPoint, newIndex);
+NewTriangle::NewTriangle(Triangle& t, const std::string& name, const unsigned int newIndex, Point refPoint) {
+	initTriangle(t, name, newIndex, refPoint);
 }
-NewTriangle::NewTriangle(Point pa, Point pb, Point pc, const unsigned int newIndex,
+NewTriangle::NewTriangle(Point pa, Point pb, Point pc, const std::string& name = "", const unsigned int newIndex,
 	Point refPoint) {
 	Vertex va{ pa };
 	Vertex vb{ pb };
 	Vertex vc{ pc };
 	Triangle t{ va, vb, vc };
-	initTriangle(t, refPoint, newIndex);
+	initTriangle(t, name, newIndex, refPoint);
 }
-void NewTriangle::initTriangle(Triangle& t, Point refPoint, const unsigned int newIndex) {
+void NewTriangle::initTriangle(Triangle& t, const std::string& name, const unsigned int newIndex, Point refPoint) {
+	name_ = name;
+	shapeType_ = SHAPE_TYPE::e_triangle; 
 	maxTriangles_ = 1;
 	addTriangle(t, refPoint);
 	assert(size() == 1);
 	shaderIndex_ = newIndex;
+	shapeType_ = SHAPE_TYPE::e_triangle;
 }
 
 // NewRectangle Members
 // ====================
-NewRectangle::NewRectangle(Point pa, Point pb, Point pc, Point pd, const unsigned int newIndex,
-	Point refPoint) {
+NewRectangle::NewRectangle(Point pa, Point pb, Point pc, Point pd, const std::string& name,
+	const unsigned int newIndex, Point refPoint) {
 	Triangle ta, tb;
+	//Create the two triangles that form this rectangle
 	assert(Geometry::extractTrianglesFromRectangle(pa, pb, pc, pd, ta, tb));
-	initRectangle(ta, tb, refPoint, newIndex);
+	initRectangle(ta, tb, name, newIndex, refPoint);
 }
-void NewRectangle::initRectangle(Triangle& ta, Triangle& tb, Point refPoint, const unsigned int newIndex) {
+void NewRectangle::initRectangle(Triangle& ta, Triangle& tb, const std::string& name, const unsigned int newIndex,
+	Point refPoint) {
 	if (Geometry::verifyRectangle(ta, tb)) {
+		name_ = name;
+		shapeType_ = SHAPE_TYPE::e_rectangle;
 		maxTriangles_ = 2;
 		addTriangle(ta, refPoint);
 		addTriangle(tb, refPoint);
 		assert(size() == 2);
 		shaderIndex_ = newIndex;
+		shapeType_ = SHAPE_TYPE::e_triangle;
 	}
 }
 
 
 // NewCube Members
 // ===============
-NewCube::NewCube(std::vector<Triangle>& t, const unsigned int newIndex,	Point refPoint) {
+NewCube::NewCube(std::vector<Triangle>& t, const std::string& name, 
+	const unsigned int newIndex, Point refPoint) {
 	assert(t.size() == 12);
 	assert(t[0].size() == 3 && t[1].size() == 3 && t[2].size() == 3
 		&& t[3].size() == 3 && t[4].size() == 3 && t[5].size() == 3
 		&& t[6].size() == 3 && t[7].size() == 3 && t[8].size() == 3
 		&& t[9].size() == 3 && t[10].size() == 3 && t[11].size() == 3);
+	name_ = name;
+	shapeType_ = SHAPE_TYPE::e_cube;
 	maxTriangles_ = 12;
 	for (Triangle& triangle : t) addTriangle(triangle, refPoint);
-	assert(size() == 12);
-	shaderIndex_ = newIndex;
+	initCube(newIndex);
 }
 
-NewCube::NewCube(std::vector<NewRectangle>& rect, const unsigned int newIndex, Point refPoint) {
+NewCube::NewCube(std::vector<NewRectangle>& rect, const std::string& name,
+	const unsigned int newIndex, Point refPoint) {
 	assert(rect.size() == 6);
 	assert(rect[0][0].size() == 3 && rect[0][1].size() == 3 && rect[1][0].size() == 3
 		&& rect[1][1].size() == 3 && rect[2][0].size() == 3 && rect[2][1].size() == 3
 		&& rect[3][0].size() == 3 && rect[3][1].size() == 3 && rect[4][0].size() == 3
 		&& rect[4][1].size() == 3 && rect[5][0].size() == 3 && rect[5][1].size() == 3);
+	name_ = name;
+	shapeType_ = SHAPE_TYPE::e_cube;
 	maxTriangles_ = 12;
 	for (NewRectangle& r : rect) {
 		addTriangle(r[0], refPoint);
 		addTriangle(r[1], refPoint);
 	}
+	initCube(newIndex);
+}
+void NewCube::initCube(const unsigned int newIndex) {
 	assert(size() == 12);
 	shaderIndex_ = newIndex;
 }
@@ -116,9 +146,15 @@ bool Geometry::allPointsUnique(Point a, Point b, Point c, Point d, Point e) {
 		|| c == d || c == e 
 		|| d == e );
 }
-void Geometry::assignNormals(Triangle& t, Point& refPoint) {
+void Geometry::assignNormals(Triangle& t, Point& refPoint, const std::string& name) {
 	//This assumes the refPoint is not in the plane of the triangle
-	//Normals will always be assigned to vertices in this routine
+	if (allPointsSamePlane(t[0].pos, t[1].pos, t[2].pos, refPoint)) {
+		std::cout << "Warning: refPoint (";
+		NewShape::printGLMVec3(refPoint);
+		std::cout << ") in plane of triangle ";
+		NewShape::printTriangleln(t);
+	}
+	//Normals are always assigned to vertices in this routine
 	glm::vec3 v1 = t[1].pos - t[0].pos;
 	glm::vec3 v2 = t[2].pos - t[0].pos;
 	glm::vec3 normal = getNormal(t[0].pos, t[1].pos, t[2].pos);
