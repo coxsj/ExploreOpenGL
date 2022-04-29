@@ -187,10 +187,10 @@ int main()
 	//NewShapes
 	//=========
 	std::vector<std::unique_ptr<NewShape>> newShapes;
-	newShapes.emplace_back( std::make_unique<NewTriangle>( ta ) );
-	newShapes.emplace_back( std::make_unique<NewTriangle>( tb ) );
-	newShapes.emplace_back( std::make_unique<NewTriangle>( tc ) );
-	newShapes.emplace_back( std::make_unique<NewRectangle>(td, te) );
+	newShapes.emplace_back( std::make_unique<NewTriangle>( ta, 0 ) );
+	newShapes.emplace_back( std::make_unique<NewTriangle>( tb, 1 ) );
+	newShapes.emplace_back( std::make_unique<NewTriangle>( tc, 2 ) );
+	newShapes.emplace_back( std::make_unique<NewRectangle>(td, te, 3) );
 	std::vector<NewRectangle> rect{
 		NewRectangle{ tf, tg },
 		NewRectangle{ th, ti },
@@ -198,7 +198,9 @@ int main()
 		NewRectangle{ tl, tm },
 		NewRectangle{ tn, to },
 		NewRectangle{ tp, tq } };
-	newShapes.emplace_back( std::make_unique < NewCube>(rect));
+	newShapes.emplace_back( std::make_unique < NewCube>(rect, 3));
+	newShapes.emplace_back(std::make_unique < NewCube>(rect, 4));
+	newShapes.emplace_back(std::make_unique < NewCube>(rect, 5));
 
 	struct RenderObj {
 		Shape& shape;

@@ -3,8 +3,8 @@
 
 //External Dependencies
 #include <glm\glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
+//#include <glm/gtc/type_ptr.hpp>
 
 typedef glm::vec3 Point;
 typedef glm::vec3 ColorRGB;
@@ -34,7 +34,7 @@ private:
 protected:
 	unsigned int maxTriangles_;
 	unsigned int shaderIndex_;
-	glm::vec3 refPoint_;
+	Point refPoint_;
 public:
 	NewShape() : maxTriangles_(0), shaderIndex_(0), refPoint_(Point{ 0.0f, 0.0f, 0.0f }){}
 	Triangle& operator[](const unsigned int index) {
@@ -51,10 +51,10 @@ public:
 
 class NewTriangle : public NewShape {
 public:
-	NewTriangle(Triangle& t, Point refPoint=Point{0.0f, 0.0f, 0.0f },
-		const unsigned int newIndex = 0);
-	NewTriangle(Point pa, Point pb, Point pc, Point refPoint = Point{ 0.0f, 0.0f, 0.0f },
-		const unsigned int newIndex = 0);
+	NewTriangle(Triangle& t, const unsigned int newIndex = 0,
+		Point refPoint=Point{0.0f, 0.0f, 0.0f });
+	NewTriangle(Point pa, Point pb, Point pc, const unsigned int newIndex = 0,
+		Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
 private:
 	void initTriangle(Triangle& t, Point refPoint, const unsigned int newIndex);
 };
@@ -62,13 +62,13 @@ private:
 
 class NewRectangle : public NewShape {
 public:
-	NewRectangle(NewTriangle& ta, NewTriangle& tb, Point refPoint = Point{ 0.0f, 0.0f, 0.0f },
-		const unsigned int newIndex=0) { initRectangle(ta[0], tb[0], refPoint, newIndex);}
-	NewRectangle(Triangle ta, Triangle tb, Point refPoint = Point{ 0.0f, 0.0f, 0.0f },
-		const unsigned int newIndex = 0) { initRectangle(ta, tb, refPoint, newIndex);}
+	NewRectangle(NewTriangle& ta, NewTriangle& tb, const unsigned int newIndex=0, 
+		Point refPoint = Point{ 0.0f, 0.0f, 0.0f }) { initRectangle(ta[0], tb[0], refPoint, newIndex);}
+	NewRectangle(Triangle ta, Triangle tb, const unsigned int newIndex = 0, 
+		Point refPoint = Point{ 0.0f, 0.0f, 0.0f }) { initRectangle(ta, tb, refPoint, newIndex);}
 	NewRectangle(Point pa, Point pb, Point pc, Point pd,
-		Point refPoint = Point{ 0.0f, 0.0f, 0.0f },
-		const unsigned int newIndex = 0);
+		const unsigned int newIndex = 0,
+		Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
 private:
 	void initRectangle(Triangle& ta, Triangle& tb, Point refPoint, const unsigned int newIndex);
 };
@@ -77,8 +77,8 @@ private:
 //*************************************
 class NewCube : public NewShape {
 public:
-	NewCube(std::vector<NewRectangle>& rect, Point refPoint = Point{ 0.0f, 0.0f, 0.0f },
-		const unsigned int newIndex = 0);
+	NewCube(std::vector<NewRectangle>& rect, const unsigned int newIndex = 0, 
+		Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
 };
 
 class Geometry {
@@ -92,7 +92,7 @@ public:
 	static bool allPointsUnique(Point a, Point b, Point c, Point d, Point e);
 	static void assignNormals(Triangle& t, Point& refPoint);
 	static bool extractTrianglesFromRectangle(Point pa, Point pb, Point pc, Point pd, Triangle& ta, Triangle& tb);
-	static glm::vec3 getNormal(Point a, Point b, Point c);
+	static Normal getNormal(Point a, Point b, Point c);
 	static bool normalCorrect(Point p, Normal n, Point refPoint);
 	static bool verifyRectangle(Triangle& ta, Triangle& tb);
 	static bool verifyRectangle(Point a, Point b, Point c, Point d);

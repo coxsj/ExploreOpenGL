@@ -11,7 +11,7 @@ bool NewShape::addTriangle(Triangle& t, Point refPoint) {
 	if (t.size() != 3 || triangles_.size() >= maxTriangles_) return false;
 	refPoint_ = refPoint;
 	Geometry::assignNormals(t, refPoint);
-	triangles_.push_back(std::move(t));
+	triangles_.push_back(t);
 	return true;
 }
 Vertex& NewShape::vertex(const unsigned int index) {
@@ -22,11 +22,11 @@ Vertex& NewShape::vertex(const unsigned int index) {
 
 // NewTriangle Members
 // ===================
-NewTriangle::NewTriangle(Triangle& t, Point refPoint, const unsigned int newIndex) {
+NewTriangle::NewTriangle(Triangle& t, const unsigned int newIndex, Point refPoint) {
 	initTriangle(t, refPoint, newIndex);
 }
-NewTriangle::NewTriangle(Point pa, Point pb, Point pc, Point refPoint,
-	const unsigned int newIndex) {
+NewTriangle::NewTriangle(Point pa, Point pb, Point pc, const unsigned int newIndex,
+	Point refPoint) {
 	Vertex va{ pa };
 	Vertex vb{ pb };
 	Vertex vc{ pc };
@@ -42,8 +42,8 @@ void NewTriangle::initTriangle(Triangle& t, Point refPoint, const unsigned int n
 
 // NewRectangle Members
 // ====================
-NewRectangle::NewRectangle(Point pa, Point pb, Point pc, Point pd, Point refPoint, 
-	const unsigned int newIndex) {
+NewRectangle::NewRectangle(Point pa, Point pb, Point pc, Point pd, const unsigned int newIndex,
+	Point refPoint) {
 	Triangle ta, tb;
 	assert(Geometry::extractTrianglesFromRectangle(pa, pb, pc, pd, ta, tb));
 	initRectangle(ta, tb, refPoint, newIndex);
@@ -61,8 +61,12 @@ void NewRectangle::initRectangle(Triangle& ta, Triangle& tb, Point refPoint, con
 
 // NewCube Members
 // ===============
-NewCube::NewCube(std::vector<NewRectangle>& rect, Point refPoint, const unsigned int newIndex) {
+NewCube::NewCube(std::vector<NewRectangle>& rect, const unsigned int newIndex, Point refPoint) {
 	assert(rect.size() == 6);
+	assert(rect[0][0].size() == 3 && rect[0][1].size() == 3 && rect[1][0].size() == 3,
+		&& rect[1][1].size() == 3 && rect[2][0].size() == 3 && rect[2][1].size() == 3
+		&& rect[3][0].size() == 3 && rect[3][1].size() == 3 && rect[4][0].size() == 3
+		&& rect[4][1].size() == 3 && rect[5][0].size() == 3 && rect[5][1].size() == 3);
 	maxTriangles_ = 12;
 	for (NewRectangle& r : rect) {
 		addTriangle(r[0], refPoint);
@@ -143,7 +147,7 @@ bool Geometry::extractTrianglesFromRectangle(Point pa, Point pb, Point pc, Point
 	else return false;
 	return true;
 }
-glm::vec3 Geometry::getNormal(Point a, Point b, Point c) {
+Normal Geometry::getNormal(Point a, Point b, Point c) {
 	glm::vec3 v1 = a - b;
 	glm::vec3 v2 = a - c;
 	return glm::normalize(glm::cross(v2, v1));
