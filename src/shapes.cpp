@@ -36,7 +36,7 @@ NewTriangle::NewTriangle(Point pa, Point pb, Point pc, const unsigned int newInd
 void NewTriangle::initTriangle(Triangle& t, Point refPoint, const unsigned int newIndex) {
 	maxTriangles_ = 1;
 	addTriangle(t, refPoint);
-	assert(triangles() == 1);
+	assert(size() == 1);
 	shaderIndex_ = newIndex;
 }
 
@@ -53,7 +53,7 @@ void NewRectangle::initRectangle(Triangle& ta, Triangle& tb, Point refPoint, con
 		maxTriangles_ = 2;
 		addTriangle(ta, refPoint);
 		addTriangle(tb, refPoint);
-		assert(triangles() == 2);
+		assert(size() == 2);
 		shaderIndex_ = newIndex;
 	}
 }
@@ -72,7 +72,7 @@ NewCube::NewCube(std::vector<NewRectangle>& rect, const unsigned int newIndex, P
 		addTriangle(r[0], refPoint);
 		addTriangle(r[1], refPoint);
 	}
-	assert(triangles() == 12);
+	assert(size() == 12);
 	shaderIndex_ = newIndex;
 }
 

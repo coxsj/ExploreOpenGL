@@ -24,6 +24,7 @@ struct Vertex {
 		return pos == rhs.pos
 			&& colorRGB == rhs.colorRGB
 			&& textureCoord == rhs.textureCoord;
+			//Note: Does not compare normals as they are solid shape dependent
 	}
 };
 typedef std::vector<Vertex> Triangle;
@@ -39,13 +40,18 @@ public:
 	NewShape() : maxTriangles_(0), shaderIndex_(0), refPoint_(Point{ 0.0f, 0.0f, 0.0f }){}
 	Triangle& operator[](const unsigned int index) {
 		assert(index < triangles_.size() && triangles_.size() != 0);
-		return triangles_[index];
+		return at(index);
 	}
 	bool			addTriangle(Triangle& t, Point refPoint=Point{0.0f, 0.0f, 0.0f});
 	bool			addTriangle(Point pa, Point bp, Point pc, Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
+	Triangle&		at(unsigned int index) {
+		assert(index < triangles_.size() && triangles_.size() != 0);
+		return triangles_[index];
+	}
 	Vertex&			vertex(const unsigned int index);
 	unsigned int	shaderIndex() { return shaderIndex_; }
-	unsigned int	triangles() { return static_cast<unsigned int>(triangles_.size()); }	
+	//unsigned int	triangles() { return static_cast<unsigned int>(triangles_.size()); }	
+	unsigned int	size() { return static_cast<unsigned int>(triangles_.size()); }
 };
 
 

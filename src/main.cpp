@@ -223,39 +223,32 @@ int main()
 	};
 
 	//Vertex data ranges, indices and offsets
-	const unsigned int numObjects = static_cast<const unsigned int>(renderObjs.size());
+	const unsigned int numObjects = static_cast<const unsigned int>(newShapes.size());
 	std::vector<float>rawVertices;
 	std::vector<unsigned int> indices;
-	for (auto& s : renderObjs) {
+	for (auto& s : newShapes) {
 		//std::cout << "Shape\n";
-		for (unsigned int i = 0; i < s.shape.size(); i++) {
-			//Determine the normal vector for this triangle
-			//TODO ensure normal points out of shape
-			glm::vec3 v1 = s.shape[i][1].pos - s.shape[i][0].pos;
-			glm::vec3 v2 = s.shape[i][2].pos - s.shape[i][0].pos;
-			glm::vec3 normal = glm::normalize(glm::cross(v2, v1));
-
-			//std::cout << i << ": " << normal.x << ", " << normal.y << ", " << normal.z << std::endl;
+		for (unsigned int i = 0; i < s->size(); i++) {
 			//loop through all the triangles in shape
-			for (unsigned int j = 0; j < s.shape[i].size(); j++) {
-				//loop through vertices in each triangle
+			for (unsigned int j = 0; j < s->at(i).size(); j++) {
+				//Loop through vertices in each triangle
 				//Add vertex data to rawVertices
-				rawVertices.push_back(s.shape[i][j].pos.x);
-				rawVertices.push_back(s.shape[i][j].pos.y);
-				rawVertices.push_back(s.shape[i][j].pos.z);
-				rawVertices.push_back(s.shape[i][j].colorRGB.x);
-				rawVertices.push_back(s.shape[i][j].colorRGB.y);
-				rawVertices.push_back(s.shape[i][j].colorRGB.z);
-				rawVertices.push_back(s.shape[i][j].textureCoord.x);
-				rawVertices.push_back(s.shape[i][j].textureCoord.y);
-				rawVertices.push_back(normal.x);
-				rawVertices.push_back(normal.y);
-				rawVertices.push_back(normal.z);
+				rawVertices.push_back(s->at(i)[j].pos.x);
+				rawVertices.push_back(s->at(i)[j].pos.y);
+				rawVertices.push_back(s->at(i)[j].pos.z);
+				rawVertices.push_back(s->at(i)[j].colorRGB.x);
+				rawVertices.push_back(s->at(i)[j].colorRGB.y);
+				rawVertices.push_back(s->at(i)[j].colorRGB.z);
+				rawVertices.push_back(s->at(i)[j].textureCoord.x);
+				rawVertices.push_back(s->at(i)[j].textureCoord.y);
+				rawVertices.push_back(s->at(i)[j].normals.x);
+				rawVertices.push_back(s->at(i)[j].normals.y);
+				rawVertices.push_back(s->at(i)[j].normals.z);
 				
+				//Loop through all vertices and capture the index of this vertex
 				bool found = false;
 				for (unsigned int k = 0; k < vertices.size(); k++) {
-					//Loop through all vertices and capture the index of this vertex
-					if (s.shape[i][j] == vertices[k]) {
+					if (s->at(i)[j] == vertices[k]) {
 						indices.push_back(k);
 						found = true;
 						break;
@@ -294,7 +287,7 @@ int main()
 		glBindVertexArray(VAO[i]);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
 		//glBufferData(GL_ARRAY_BUFFER, sizeofmydata, myData, usage);
-		unsigned int dataSize = renderObjs[i].trianglesPerShape * VERTICES_PER_TRIANGLE * sizeof(Vertex);
+		unsigned int dataSize = newShapes[i]->size() * VERTICES_PER_TRIANGLE * sizeof(Vertex);
 		glBufferData(GL_ARRAY_BUFFER, dataSize, &rawVertices[dataOffset], GL_STATIC_DRAW);
 		dataOffset += dataSize/sizeof(float);
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
