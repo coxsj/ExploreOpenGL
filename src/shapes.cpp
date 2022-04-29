@@ -15,9 +15,8 @@ bool NewShape::addTriangle(Triangle& t, Point refPoint) {
 	return true;
 }
 Vertex& NewShape::vertex(const unsigned int index) {
-	Vertex v;
 	assert(index < 3 * triangles_.size());
-	return triangles_[index % 3][index / 3];
+	return triangles_[index / 3][index % 3];
 }
 
 // NewTriangle Members
@@ -61,9 +60,21 @@ void NewRectangle::initRectangle(Triangle& ta, Triangle& tb, Point refPoint, con
 
 // NewCube Members
 // ===============
+NewCube::NewCube(std::vector<Triangle>& t, const unsigned int newIndex,	Point refPoint) {
+	assert(t.size() == 12);
+	assert(t[0].size() == 3 && t[1].size() == 3 && t[2].size() == 3
+		&& t[3].size() == 3 && t[4].size() == 3 && t[5].size() == 3
+		&& t[6].size() == 3 && t[7].size() == 3 && t[8].size() == 3
+		&& t[9].size() == 3 && t[10].size() == 3 && t[11].size() == 3);
+	maxTriangles_ = 12;
+	for (Triangle& triangle : t) addTriangle(triangle, refPoint);
+	assert(size() == 12);
+	shaderIndex_ = newIndex;
+}
+
 NewCube::NewCube(std::vector<NewRectangle>& rect, const unsigned int newIndex, Point refPoint) {
 	assert(rect.size() == 6);
-	assert(rect[0][0].size() == 3 && rect[0][1].size() == 3 && rect[1][0].size() == 3,
+	assert(rect[0][0].size() == 3 && rect[0][1].size() == 3 && rect[1][0].size() == 3
 		&& rect[1][1].size() == 3 && rect[2][0].size() == 3 && rect[2][1].size() == 3
 		&& rect[3][0].size() == 3 && rect[3][1].size() == 3 && rect[4][0].size() == 3
 		&& rect[4][1].size() == 3 && rect[5][0].size() == 3 && rect[5][1].size() == 3);

@@ -65,8 +65,8 @@ int main()
 
 	// Set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
-	//Points
-	//======
+	// Points
+	// ======
 	Point pa{ -0.5f,  0.5f,  0.0f };
 	Point pb{  0.0f,  0.0f,  0.0f };
 	Point pc{ -1.0f,  0.0f,  0.0f };
@@ -84,8 +84,8 @@ int main()
 	Point po{  0.5f,  0.5f, -0.5f };
 	Point pp{  0.5f,  0.5f,  0.5f };
 
-	//Colors
-	//======
+	// Colors
+	// ======
 	ColorRGB ca{ 1.0f, 0.0f, 0.0f };
 	ColorRGB cb{ 0.0f, 1.0f, 0.0f };
 	ColorRGB cc{ 0.0f, 0.0f, 1.0f };
@@ -94,15 +94,15 @@ int main()
 	ColorRGB cf{ 1.0f, 0.5f, 0.2f };
 	ColorRGB cwhite{ 1.0f, 1.0f, 1.0f };
 
-	//Texture coords
-	//==============
+	// Texture coords
+	// ==============
 	TextureCoord2D txa{ 0.0f, 0.0f };
 	TextureCoord2D txb{ 0.0f, 1.0f };
 	TextureCoord2D txc{ 1.0f, 0.0f };
 	TextureCoord2D txd{ 1.0f, 1.0f };
 
-	//Vertices
-	//========
+	// Vertices
+	// ========
 	Vertex va{ pa,ca,txa };
 	Vertex vb{ pb,cb,txa };
 	Vertex vc{ pc,cc,txa };
@@ -132,17 +132,8 @@ int main()
 	std::vector<Vertex> vertices{ va,vb,vc,vd,ve,vf,vg,vh,vi,vj,vk,vl,vm,
 		vn,vo,vp,vq,vr,vs,vt,vu,vv,vw,vx,vy,vz };
 
-	//Normals
-	// ======
-	Normal n001{ 0.0f,  0.0f,  1.0f };
-	Normal n010{ 0.0f,  1.0f,  0.0f };
-	Normal n100{ 1.0f,  0.0f,  0.0f };
-	Normal n00M{ 0.0f,  0.0f, -1.0f };
-	Normal n0M0{ 0.0f, -1.0f,  0.0f };
-	Normal nM00{ -1.0f,  0.0f,  0.0f };
-
-	//Triangles
-	//=========
+	// Triangles
+	// =========
 	Triangle ta{ va,vb,vc };
 	Triangle tb{ vd,ve,vb };
 	Triangle tc{ vf,va,vd };
@@ -162,8 +153,7 @@ int main()
 	Triangle to{ vw,vm,vl };
 	Triangle tp{ vn,vx,vy };
 	Triangle tq{ vy,vp,vn };
-	std::vector<Triangle> triangles{ ta,tb,tc,td,te,tf,tg,th,ti,tj,tk,tl,tm,tn,to,tp,tq };
-
+	
 	//Build and compile Shader Programs
 	std::vector<Shader> myShader{
 		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromVS.fs"),
@@ -175,15 +165,6 @@ int main()
 	};
 	const unsigned int lastShaderIndex = static_cast<const unsigned int>(myShader.size() - 1);
 
-	//Shapes
-	//======
-	typedef std::vector<Triangle> Shape;
-	Shape triangle0{ ta };
-	Shape triangle1{ tb };
-	Shape triangle2{ tc };
-	Shape rectangle0{ td,te };
-	Shape cube0{ tf, tg, th, ti, tj, tk, tl, tm, tn, to, tp, tq };
-
 	//NewShapes
 	//=========
 	std::vector<std::unique_ptr<NewShape>> newShapes;
@@ -191,76 +172,49 @@ int main()
 	newShapes.emplace_back( std::make_unique<NewTriangle>( tb, 1 ) );
 	newShapes.emplace_back( std::make_unique<NewTriangle>( tc, 2 ) );
 	newShapes.emplace_back( std::make_unique<NewRectangle>(td, te, 3) );
-	std::vector<NewRectangle> rect{
-		NewRectangle{ tf, tg },
-		NewRectangle{ th, ti },
-		NewRectangle{ tj, tk },
-		NewRectangle{ tl, tm },
-		NewRectangle{ tn, to },
-		NewRectangle{ tp, tq } };
+	std::vector<NewRectangle> rect{	NewRectangle{ tf, tg },NewRectangle{ th, ti },NewRectangle{ tj, tk },
+									NewRectangle{ tl, tm },NewRectangle{ tn, to },NewRectangle{ tp, tq } };
 	newShapes.emplace_back( std::make_unique < NewCube>(rect, 3));
-	newShapes.emplace_back(std::make_unique < NewCube>(rect, 4));
+	std::vector<Triangle> tri{tf, tg, th, ti, tj, tk, tl, tm, tn, to, tp, tq };
+	newShapes.emplace_back(std::make_unique < NewCube>(tri, 4));
 	newShapes.emplace_back(std::make_unique < NewCube>(rect, 5));
-
-	struct RenderObj {
-		Shape& shape;
-		unsigned int trianglesPerShape;
-		unsigned int shaderIndex;
-		RenderObj(Shape& newShape, unsigned int NewShaderIndex, unsigned int newTrianglesPerShape=1)
-			: shape(newShape), shaderIndex(NewShaderIndex) { 
-			trianglesPerShape = static_cast<unsigned int>(shape.size());
-		}
-	};
-
-	std::vector<RenderObj> renderObjs{ 
-		{triangle0, 0}, 
-		{triangle1, 1},
-		{triangle2, 2},
-		{rectangle0, 3},
-		{cube0, 3},
-		{cube0, 4},
-		{cube0, 5}
-	};
 
 	//Vertex data ranges, indices and offsets
 	const unsigned int numObjects = static_cast<const unsigned int>(newShapes.size());
-	std::vector<float>rawVertices;
+	std::vector<float>rawVertexData;
 	std::vector<unsigned int> indices;
 	for (auto& s : newShapes) {
 		//std::cout << "Shape\n";
-		for (unsigned int i = 0; i < s->size(); i++) {
-			//loop through all the triangles in shape
-			for (unsigned int j = 0; j < s->at(i).size(); j++) {
-				//Loop through vertices in each triangle
-				//Add vertex data to rawVertices
-				rawVertices.push_back(s->at(i)[j].pos.x);
-				rawVertices.push_back(s->at(i)[j].pos.y);
-				rawVertices.push_back(s->at(i)[j].pos.z);
-				rawVertices.push_back(s->at(i)[j].colorRGB.x);
-				rawVertices.push_back(s->at(i)[j].colorRGB.y);
-				rawVertices.push_back(s->at(i)[j].colorRGB.z);
-				rawVertices.push_back(s->at(i)[j].textureCoord.x);
-				rawVertices.push_back(s->at(i)[j].textureCoord.y);
-				rawVertices.push_back(s->at(i)[j].normals.x);
-				rawVertices.push_back(s->at(i)[j].normals.y);
-				rawVertices.push_back(s->at(i)[j].normals.z);
+		for (unsigned int i = 0; i < s->vertexCount(); i++) {
+			//Loop through vertices in each triangle
+			//Add vertex data to rawVertexData
+			rawVertexData.push_back(s->vertex(i).pos.x);
+			rawVertexData.push_back(s->vertex(i).pos.y);
+			rawVertexData.push_back(s->vertex(i).pos.z);
+			rawVertexData.push_back(s->vertex(i).colorRGB.x);
+			rawVertexData.push_back(s->vertex(i).colorRGB.y);
+			rawVertexData.push_back(s->vertex(i).colorRGB.z);
+			rawVertexData.push_back(s->vertex(i).textureCoord.x);
+			rawVertexData.push_back(s->vertex(i).textureCoord.y);
+			rawVertexData.push_back(s->vertex(i).normals.x);
+			rawVertexData.push_back(s->vertex(i).normals.y);
+			rawVertexData.push_back(s->vertex(i).normals.z);
 				
-				//Loop through all vertices and capture the index of this vertex
-				bool found = false;
-				for (unsigned int k = 0; k < vertices.size(); k++) {
-					if (s->at(i)[j] == vertices[k]) {
-						indices.push_back(k);
-						found = true;
-						break;
-					}
+			//Loop through all vertices and capture the index of this vertex
+			bool found = false;
+			for (unsigned int k = 0; k < vertices.size(); k++) {
+				if (s->vertex(i) == vertices[k]) {
+					indices.push_back(k);
+					found = true;
+					break;
 				}
-				assert(found);
 			}
+			assert(found);
 		}
 	}
-	//Print out rawVertices
+	//Print out rawVertexData
 	unsigned int ctr{ 0 };
-	for (auto a : rawVertices) {
+	for (auto a : rawVertexData) {
 		//std::cout << a << ",";
 		if (++ctr >= sizeof(Vertex)/sizeof(float)) {
 			//std::cout << "\n";
@@ -288,7 +242,7 @@ int main()
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
 		//glBufferData(GL_ARRAY_BUFFER, sizeofmydata, myData, usage);
 		unsigned int dataSize = newShapes[i]->size() * VERTICES_PER_TRIANGLE * sizeof(Vertex);
-		glBufferData(GL_ARRAY_BUFFER, dataSize, &rawVertices[dataOffset], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, dataSize, &rawVertexData[dataOffset], GL_STATIC_DRAW);
 		dataOffset += dataSize/sizeof(float);
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -375,9 +329,9 @@ int main()
 		
 		// Draw objects
 		//=============
-		for (unsigned int i = 0; i < renderObjs.size(); i++) {
+		for (unsigned int i = 0; i < newShapes.size(); i++) {
 			//Select and activate shader program
-			unsigned int currentShader = renderObjs[i].shaderIndex;
+			unsigned int currentShader = newShapes[i]->shaderIndex();
 			myShader[currentShader].use();
 
 			//Bind VAO for this shape
@@ -454,7 +408,7 @@ int main()
 			myShader[currentShader].setVec3("viewPos", cam->getPos());
 
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-			glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_TRIANGLE * renderObjs[i].trianglesPerShape);	
+			glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_TRIANGLE * newShapes[i]->size());	
 			glCheckError();
 		}
 		glBindVertexArray(0);

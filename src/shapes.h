@@ -6,6 +6,8 @@
 //#include <glm/gtc/matrix_transform.hpp>
 //#include <glm/gtc/type_ptr.hpp>
 
+#include "settings.h"
+
 typedef glm::vec3 Point;
 typedef glm::vec3 ColorRGB;
 typedef glm::vec2 TextureCoord2D;
@@ -56,6 +58,7 @@ public:
 	unsigned int	shaderIndex() { return shaderIndex_; }
 	//unsigned int	triangles() { return static_cast<unsigned int>(triangles_.size()); }	
 	unsigned int	size() { return static_cast<unsigned int>(triangles_.size()); }
+	unsigned int	vertexCount() { return size() * VERTICES_PER_TRIANGLE; }
 };
 
 
@@ -87,7 +90,9 @@ private:
 //*************************************
 class NewCube : public NewShape {
 public:
-	NewCube(std::vector<NewRectangle>& rect, const unsigned int newIndex = 0, 
+	NewCube(std::vector<Triangle>& t, const unsigned int newIndex = 0, 
+		Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
+	NewCube(std::vector<NewRectangle>& rect, const unsigned int newIndex = 0,
 		Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
 };
 
