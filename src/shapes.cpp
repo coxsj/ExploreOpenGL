@@ -111,11 +111,9 @@ void Geometry::assignNormals(Triangle& t, Point& refPoint) {
 	glm::vec3 v1 = t[1].pos - t[0].pos;
 	glm::vec3 v2 = t[2].pos - t[0].pos;
 	glm::vec3 normal = getNormal(t[0].pos, t[1].pos, t[2].pos);
-	
 	//Compare normal and a vertex to reference point to determine if normal points away from ref point
 	//If not, reverse normal
 	if (!normalCorrect(v1, normal, refPoint)) normal *= -1;
-
 	for (Vertex& v : t) v.normals = normal;
 }
 bool Geometry::extractTrianglesFromRectangle(Point pa, Point pb, Point pc, Point pd, Triangle& ta, Triangle& tb) {
@@ -127,22 +125,24 @@ bool Geometry::extractTrianglesFromRectangle(Point pa, Point pb, Point pc, Point
 	// Specify first triangle then determine points of second triangle
 	ta[0].pos = pa; ta[1].pos = pb; ta[2].pos = pc;
 	tb[2].pos = pd;
-
 	// Determine which are the two shared vertices
 	glm::vec3 vab = pb - pa;
 	glm::vec3 vbc = pc - pb;
 	glm::vec3 vca = pa - pc;
 	if (glm::dot(vab, vca) == 0) {
 		//a is rightangle
-		tb[0].pos = pb; tb[1].pos = pc;
+		tb[0].pos = pb; 
+		tb[1].pos = pc;
 	}
 	else if (glm::dot(vbc, vab) == 0) {
 		//b is rightangle
-		tb[0].pos = pa; tb[1].pos = pc;
+		tb[0].pos = pa; 
+		tb[1].pos = pc;
 	}
 	else if (glm::dot(vbc, vca) == 0) {
 		//c is rightangle
-		tb[0].pos = pa; tb[1].pos = pb;
+		tb[0].pos = pa; 
+		tb[1].pos = pb;
 	}
 	else return false;
 	return true;
@@ -161,24 +161,21 @@ bool Geometry::normalCorrect(Point p, Normal n, Point refPoint) {
 bool Geometry::verifyRectangle(Point a, Point b, Point c, Point d) {
 	//4 unique points
 	if (!allPointsUnique(a,b,c,d)) return false;
-
-	// 4 rightangles formed by sides
-	// And possibly one by the diagonals for a square
+	// All points all in same plane
+	if(!allPointsSamePlane(a, b, c, d)) return false;
+	// 4 rightangles formed by sides if rectangle
+	// 1 rightangle formed by the diagonals if a square
 	std::vector<glm::vec3> v{ a - b, a - c, a - d, b - c, b - d, c - d };
 	unsigned int rightAngleCt{ 0 };
 	for (int i = 0; i < v.size()-2; i++) {
 		for (int j = i+1; j < v.size(); j++) {
 			float current = glm::dot(v[i], v[j]);
 			if (current == 0) rightAngleCt++;
-			std::cout << current << ", ";
+			//std::cout << current << ", ";
 		}
 	}
-	std::cout << std::endl;
+	//std::cout << std::endl;
 	if (rightAngleCt < 4) return false;
-	
-	// All points all in same plane
-	if(!allPointsSamePlane(a, b, c, d)) return false;
-
 	return true;
 };
 bool Geometry::verifyRectangle(Triangle& ta, Triangle& tb) {
