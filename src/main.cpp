@@ -33,6 +33,7 @@ void cb_cursor_enter_callback(GLFWwindow* window, int entered);
 void cb_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void cb_mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void cb_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void printRawVertexData(const std::vector<float>& v);
 void processInput(GLFWwindow* window);
 void registerWindowCallbacks(GLFWwindow* window);
 void updateDeltaTime();
@@ -184,6 +185,8 @@ int main()
 	const unsigned int numObjects = static_cast<const unsigned int>(newShapes.size());
 	std::vector<float>rawVertexData;
 	std::vector<unsigned int> indices;
+
+
 	for (auto& s : newShapes) {
 		//std::cout << "Shape\n";
 		for (unsigned int i = 0; i < s->vertexCount(); i++) {
@@ -213,17 +216,7 @@ int main()
 			assert(found);
 		}
 	}
-	//Print out rawVertexData
-	unsigned int ctr{ 0 };
-	for (auto a : rawVertexData) {
-		//std::cout << a << ",";
-		if (++ctr >= sizeof(Vertex)/sizeof(float)) {
-			//std::cout << "\n";
-			ctr = 0;
-		}
-	}
-
-	//Print out indices
+	//printRawVertexData(rawVertexData);
 	//for (auto i : indices) std::cout << i << ", ";
 
 	//Vertex Buffers
@@ -505,6 +498,16 @@ void cb_mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 void cb_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 	if (!mouseHover) return;
 	cam->newZoom(static_cast<float>(yoffset));
+}
+void printRawVertexData(const std::vector<float>& v) {
+	unsigned int ctr{ 0 };
+	for (auto a : v) {
+		std::cout << a << ",";
+		if (++ctr >= sizeof(Vertex) / sizeof(float)) {
+			std::cout << "\n";
+			ctr = 0;
+		}
+	}
 }
 void processInput(GLFWwindow* window){
 	// Check if escape key pressed (if it’s not pressed, glfwGetKey returns GLFW_RELEASE)
