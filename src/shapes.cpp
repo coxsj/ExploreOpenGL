@@ -32,7 +32,16 @@ Vertex& NewShape::vertex(const unsigned int index) {
 	assert(index < 3 * triangles_.size());
 	return triangles_[index / 3][index % 3];
 }
-
+void NewShape::setMaxTriangles(SHAPE_TYPE s) {
+	switch (shapeType_) {
+	case SHAPE_TYPE::e_shape:		maxTriangles_ = 0;	break;
+	case SHAPE_TYPE::e_triangle:	maxTriangles_ = 1;	break;
+	case SHAPE_TYPE::e_rectangle:	maxTriangles_ = 2;	break;
+	case SHAPE_TYPE::e_cube:		maxTriangles_ = 12;	break;
+	default:
+		break;
+	}
+}
 // NewTriangle Members
 // ===================
 NewTriangle::NewTriangle(Triangle& t, const std::string& name, const unsigned int newIndex, Point refPoint) {
@@ -48,12 +57,10 @@ NewTriangle::NewTriangle(Point pa, Point pb, Point pc, const std::string& name =
 }
 void NewTriangle::initTriangle(Triangle& t, const std::string& name, const unsigned int newIndex, Point refPoint) {
 	name_ = name;
-	shapeType_ = SHAPE_TYPE::e_triangle; 
-	maxTriangles_ = 1;
+	newShapeType(SHAPE_TYPE::e_triangle);
 	addTriangle(t, refPoint);
 	assert(size() == 1);
 	shaderIndex_ = newIndex;
-	shapeType_ = SHAPE_TYPE::e_triangle;
 }
 
 // NewRectangle Members
@@ -69,13 +76,11 @@ void NewRectangle::initRectangle(Triangle& ta, Triangle& tb, const std::string& 
 	Point refPoint) {
 	if (Geometry::verifyRectangle(ta, tb)) {
 		name_ = name;
-		shapeType_ = SHAPE_TYPE::e_rectangle;
-		maxTriangles_ = 2;
+		newShapeType(SHAPE_TYPE::e_rectangle);
 		addTriangle(ta, refPoint);
 		addTriangle(tb, refPoint);
 		assert(size() == 2);
 		shaderIndex_ = newIndex;
-		shapeType_ = SHAPE_TYPE::e_triangle;
 	}
 }
 
@@ -90,8 +95,7 @@ NewCube::NewCube(std::vector<Triangle>& t, const std::string& name,
 		&& t[6].size() == 3 && t[7].size() == 3 && t[8].size() == 3
 		&& t[9].size() == 3 && t[10].size() == 3 && t[11].size() == 3);
 	name_ = name;
-	shapeType_ = SHAPE_TYPE::e_cube;
-	maxTriangles_ = 12;
+	newShapeType(SHAPE_TYPE::e_cube);
 	for (Triangle& triangle : t) addTriangle(triangle, refPoint);
 	initCube(newIndex);
 }
@@ -104,8 +108,7 @@ NewCube::NewCube(std::vector<NewRectangle>& rect, const std::string& name,
 		&& rect[3][0].size() == 3 && rect[3][1].size() == 3 && rect[4][0].size() == 3
 		&& rect[4][1].size() == 3 && rect[5][0].size() == 3 && rect[5][1].size() == 3);
 	name_ = name;
-	shapeType_ = SHAPE_TYPE::e_cube;
-	maxTriangles_ = 12;
+	newShapeType(SHAPE_TYPE::e_cube);
 	for (NewRectangle& r : rect) {
 		addTriangle(r[0], refPoint);
 		addTriangle(r[1], refPoint);
@@ -125,7 +128,6 @@ bool Geometry::allPointsSamePlane(Point a, Point b, Point c, Point d) {
 	// Normals will be same or opposite direction if same plane
 	glm::vec3 normal1 = getNormal(a, b, c);
 	glm::vec3 normal2 = getNormal(a, b, d);
-
 	return normal1 == normal2 || normal1 == -1.0f * normal2;
 }
 bool Geometry::allPointsUnique(Point a, Point b, Point c) {

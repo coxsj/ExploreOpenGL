@@ -53,15 +53,15 @@ enum class SHAPE_TYPE {
 class NewShape {
 private:
 	std::vector<Triangle> triangles_;
-protected:
+	SHAPE_TYPE shapeType_;
 	unsigned int maxTriangles_;
+protected:
 	unsigned int shaderIndex_;
 	Point refPoint_;
-	SHAPE_TYPE shapeType_;
 	std::string name_;
 public:
 	NewShape() : maxTriangles_(0), shaderIndex_(0), refPoint_(Point{ 0.0f, 0.0f, 0.0f }),
-		shapeType_(SHAPE_TYPE::e_shape), name_("tbd") {}
+		shapeType_(SHAPE_TYPE::e_shape), name_(UNNAMED) {}
 	Triangle& operator[](const unsigned int index) {
 		assert(index < triangles_.size() && triangles_.size() != 0);
 		return at(index);
@@ -71,6 +71,8 @@ public:
 		assert(index < triangles_.size() && triangles_.size() != 0);
 		return triangles_[index];
 	}
+	unsigned int	maxTriangles() { return maxTriangles_; }
+	void			newShapeType(SHAPE_TYPE s) { shapeType_ = s; setMaxTriangles(s); }
 	void			printName() {std::cout << name_;}
 	void			printNameln() { printName(); std::cout << std::endl; }
 	void			printShapeType();
@@ -79,17 +81,18 @@ public:
 	static void		printGLMVec3ln(const glm::vec3& v) { printGLMVec3(v); std::cout << std::endl; }
 	static void		printTriangle(const Triangle& t);
 	static void		printTriangleln(const Triangle& t) { printTriangle(t); std::cout << std::endl; }
-	unsigned int	shaderIndex() { return shaderIndex_; }
-	//unsigned int	triangles() { return static_cast<unsigned int>(triangles_.size()); }	
+	unsigned int	shaderIndex() { return shaderIndex_; }	
 	unsigned int	size() { return static_cast<unsigned int>(triangles_.size()); }
 	Vertex&			vertex(const unsigned int index);
 	unsigned int	vertexCount() { return size() * VERTICES_PER_TRIANGLE; }
-};
+private:
+	void			setMaxTriangles(SHAPE_TYPE s);
+	};
 
 
 class NewTriangle : public NewShape {
 public:
-	NewTriangle(Triangle& t, const std::string& name, const unsigned int newIndex = 0,
+	NewTriangle(Triangle& t, const std::string& name = UNNAMED, const unsigned int newIndex = 0,
 		Point refPoint = Point{0.0f, 0.0f, 0.0f });
 	NewTriangle(Point pa, Point pb, Point pc, const std::string& name, const unsigned int newIndex = 0,
 		Point refPoint = Point{ 0.0f, 0.0f, 0.0f });
@@ -100,11 +103,11 @@ private:
 
 class NewRectangle : public NewShape {
 public:
-	NewRectangle(NewTriangle& ta, NewTriangle& tb, const std::string& name,
+	NewRectangle(NewTriangle& ta, NewTriangle& tb, const std::string& name = UNNAMED,
 		const unsigned int newIndex=0, Point refPoint = Point{ 0.0f, 0.0f, 0.0f }) {
 		initRectangle(ta[0], tb[0], name, newIndex, refPoint);
 	}
-	NewRectangle(Triangle ta, Triangle tb, const std::string& name = "",
+	NewRectangle(Triangle ta, Triangle tb, const std::string& name = UNNAMED,
 		const unsigned int newIndex = 0, Point refPoint = Point{ 0.0f, 0.0f, 0.0f }) { 
 		initRectangle(ta, tb, name, newIndex, refPoint);
 	}
