@@ -194,9 +194,8 @@ int main()
 	extractRawVertexDataAndIndices(newShapes, vertices, rawVertexData, indices);
 
 	//Create Vertex Buffer and Vertex Array objects
-	const unsigned int numObjects = static_cast<const unsigned int>(newShapes.size());
-	std::vector<unsigned int> VAO(numObjects);
-	std::vector<unsigned int> VBO(numObjects);
+	std::vector<unsigned int> VAO(newShapes.size());
+	std::vector<unsigned int> VBO(newShapes.size());
 
 	createVAOAndVBOs(VAO, VBO, newShapes, rawVertexData);
 	glCheckError();
@@ -209,11 +208,7 @@ int main()
 	glm::vec3 lightSourcePos(1.2f, 1.0f, 2.0f);
 	// Render Loop
 	// ===========
-	// We don’t want the application to draw a single image and then immediately quit and close the
-	// window.
-	// We want the application to keep drawing images and handling user input until the program has
-	// been explicitly told to stop.
-	// For this reason we have to create a render loop that runs until we tell GLFW to stop.
+	// The render loop runs until we tell GLFW to stop.
 	// The glfwWindowShouldClose function checks at the start of each loop iteration if GLFW
 	// has been instructed to close.
 	con->cursorTo(2, 0);
@@ -230,18 +225,11 @@ int main()
 		
 		// Render Commands
 		// ===============
-
-		// First clear the screen’s color buffer using glClear where we pass in buffer bits 
-		// to specify which buffer we would like to clear.The possible bits we can set are 
-		// GL_COLOR_BUFFER_BIT, 
-		// GL_DEPTH_BUFFER_BIT and 
-		// GL_STENCIL_BUFFER_BIT.
-		// Note that we also specify the color to clear the screen with using glClearColor.
-		// Whenever we call glClear and clear the color buffer, the entire color buffer will be 
-		// filled with the color as	configured by glClearColor.
-		// glClearColor is a state-setting function
-		// glClear is a state-using function
+		// Set the color used by glClear to fill the color buffer.	
 		glClearColor(0.02f, 0.03f, 0.03f, 1.0f);
+		// Clear the screen buffer. Available bits we can set are 
+		// GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT and GL_STENCIL_BUFFER_BIT.
+		// glClearColor is a state-setting function. glClear is a state-using function
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// Draw objects
@@ -310,7 +298,6 @@ int main()
 			default:
 				break;
 			}
-
 			glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
 			myShader[currentShader].setMat3("normalMatrix", normalMatrix);
 
@@ -427,7 +414,7 @@ void createVAOAndVBOs(std::vector<unsigned int>& VAO, std::vector<unsigned int>&
 	std::vector<float>& rawVertexData) {
 
 	//unsigned int EBO;
-	unsigned int numObjects = VAO.size();
+	const unsigned int numObjects = static_cast<const unsigned int>(newShapes.size());
 	glGenVertexArrays(numObjects, &VAO[0]);
 	glGenBuffers(numObjects, &VBO[0]);
 	//glGenBuffers(1, &EBO);
