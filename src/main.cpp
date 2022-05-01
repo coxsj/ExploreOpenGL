@@ -33,6 +33,9 @@ void cb_cursor_enter_callback(GLFWwindow* window, int entered);
 void cb_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void cb_mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void cb_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void createVAOAndVBOs(std::vector<unsigned int>& VAO, std::vector<unsigned int>& VBO,
+	const std::vector<std::unique_ptr<NewShape>>& newShapes,
+	std::vector<float>& rawVertexData);
 void extractRawVertexDataAndIndices(const std::vector<std::unique_ptr<NewShape>>& newShapes,
 	std::vector<Vertex>& vertices, std::vector<float>& rawVertexData,
 	std::vector<unsigned int>& indices);
@@ -185,69 +188,17 @@ int main()
 	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "cc", 5));
 
 	//Vertex data ranges, indices and offsets
-	const unsigned int numObjects = static_cast<const unsigned int>(newShapes.size());
 	std::vector<float>rawVertexData;
 	std::vector<unsigned int> indices;
 
 	extractRawVertexDataAndIndices(newShapes, vertices, rawVertexData, indices);
 
-	//Vertex Buffers
+	//Create Vertex Buffer and Vertex Array objects
+	const unsigned int numObjects = static_cast<const unsigned int>(newShapes.size());
 	std::vector<unsigned int> VAO(numObjects);
 	std::vector<unsigned int> VBO(numObjects);
-	//unsigned int EBO;
-	glGenVertexArrays(numObjects, &VAO[0]);
-	glGenBuffers(numObjects, &VBO[0]);
-	//glGenBuffers(1, &EBO);
-	
-	//Create Vertex Buffer and Vertex Array objects
-	unsigned int dataOffset{ 0 };
-	for(unsigned int i = 0; i < numObjects; i++) {
-		// Bind the Vertex Array Object first, then bind vertex buffer(s),
-		// and then configure vertex attributes(s).
-		glBindVertexArray(VAO[i]);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
-		//glBufferData(GL_ARRAY_BUFFER, sizeofmydata, myData, usage);
-		unsigned int dataSize = newShapes[i]->size() * VERTICES_PER_TRIANGLE * sizeof(Vertex);
-		glBufferData(GL_ARRAY_BUFFER, dataSize, &rawVertexData[dataOffset], GL_STATIC_DRAW);
-		dataOffset += dataSize/sizeof(float);
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-		GLuint location0{ 0 };
-		GLuint location1{ 1 };
-		GLuint location2{ 2 };
-		GLuint location3{ 3 };
-		// Set position attribute pointer
-		// glVertexAttribPointer(location, elements per attribute, type of data, bool, sizeof vertex, pointer to first data element)
-		//glVertexAttribPointer(location0, posElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float), (void*)0);
-		glVertexAttribPointer(location0, Vertex::posLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
-			(void*)offsetof(Vertex, pos));
-		glEnableVertexAttribArray(location0); //relates to the locations declared in the vertex shader
-
-		// Set color attribute pointer
-		glVertexAttribPointer(location1, Vertex::colorRGBLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
-			(void*)offsetof(Vertex, colorRGB));
-		glEnableVertexAttribArray(location1); //relates to the locations declared in the vertex shader
-
-		// Set texture attribute pointer
-		glVertexAttribPointer(location2, Vertex::textureCoordLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
-			(void*)offsetof(Vertex, textureCoord));
-		glEnableVertexAttribArray(location2); //relates to the locations declared in the vertex shader
-		
-		// Set normals attribute pointer
-		glVertexAttribPointer(location3, Vertex::normalLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
-			(void*)offsetof(Vertex, normals));
-		glEnableVertexAttribArray(location3); //relates to the locations declared in the vertex shader
-	}
-	// The call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex 
-	// buffer object so afterwards we can safely unbind.
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, 
-	// but this rarely happens. Modifying other VAOs requires a call to glBindVertexArray 
-	// anyway, so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-	glBindVertexArray(0);
-
+	createVAOAndVBOs(VAO, VBO, newShapes, rawVertexData);
 	glCheckError();
 
 	// Uncomment this call to draw in wireframe polygons.
@@ -470,6 +421,64 @@ void cb_mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 void cb_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 	if (!mouseHover) return;
 	cam->newZoom(static_cast<float>(yoffset));
+}
+void createVAOAndVBOs(std::vector<unsigned int>& VAO, std::vector<unsigned int>& VBO,
+	const std::vector<std::unique_ptr<NewShape>>& newShapes,
+	std::vector<float>& rawVertexData) {
+
+	//unsigned int EBO;
+	unsigned int numObjects = VAO.size();
+	glGenVertexArrays(numObjects, &VAO[0]);
+	glGenBuffers(numObjects, &VBO[0]);
+	//glGenBuffers(1, &EBO);
+
+	unsigned int dataOffset{ 0 };
+	for (unsigned int i = 0; i < numObjects; i++) {
+		// Bind the Vertex Array Object first, then bind vertex buffer(s),
+		// and then configure vertex attributes(s).
+		glBindVertexArray(VAO[i]);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
+		//glBufferData(GL_ARRAY_BUFFER, sizeofmydata, myData, usage);
+		unsigned int dataSize = newShapes[i]->size() * VERTICES_PER_TRIANGLE * sizeof(Vertex);
+		glBufferData(GL_ARRAY_BUFFER, dataSize, &rawVertexData[dataOffset], GL_STATIC_DRAW);
+		dataOffset += dataSize / sizeof(float);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+		GLuint location0{ 0 };
+		GLuint location1{ 1 };
+		GLuint location2{ 2 };
+		GLuint location3{ 3 };
+		// Set position attribute pointer
+		// glVertexAttribPointer(location, elements per attribute, type of data, bool, sizeof vertex, pointer to first data element)
+		//glVertexAttribPointer(location0, posElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float), (void*)0);
+		glVertexAttribPointer(location0, Vertex::posLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+			(void*)offsetof(Vertex, pos));
+		glEnableVertexAttribArray(location0); //relates to the locations declared in the vertex shader
+
+		// Set color attribute pointer
+		glVertexAttribPointer(location1, Vertex::colorRGBLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+			(void*)offsetof(Vertex, colorRGB));
+		glEnableVertexAttribArray(location1); //relates to the locations declared in the vertex shader
+
+		// Set texture attribute pointer
+		glVertexAttribPointer(location2, Vertex::textureCoordLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+			(void*)offsetof(Vertex, textureCoord));
+		glEnableVertexAttribArray(location2); //relates to the locations declared in the vertex shader
+
+		// Set normals attribute pointer
+		glVertexAttribPointer(location3, Vertex::normalLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
+			(void*)offsetof(Vertex, normals));
+		glEnableVertexAttribArray(location3); //relates to the locations declared in the vertex shader
+	}
+	// The call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex 
+	// buffer object so afterwards we can safely unbind.
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, 
+	// but this rarely happens. Modifying other VAOs requires a call to glBindVertexArray 
+	// anyway, so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+	glBindVertexArray(0);
 }
 void extractRawVertexDataAndIndices(const std::vector<std::unique_ptr<NewShape>>& newShapes,
 	std::vector<Vertex>& vertices, std::vector<float>& rawVertexData,
