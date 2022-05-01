@@ -33,6 +33,9 @@ void cb_cursor_enter_callback(GLFWwindow* window, int entered);
 void cb_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void cb_mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void cb_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void extractRawVertexDataAndIndices(const std::vector<std::unique_ptr<NewShape>>& newShapes,
+	std::vector<Vertex>& vertices, std::vector<float>& rawVertexData,
+	std::vector<unsigned int>& indices);
 void printRawVertexData(const std::vector<float>& v);
 void processInput(GLFWwindow* window);
 void registerWindowCallbacks(GLFWwindow* window);
@@ -186,38 +189,7 @@ int main()
 	std::vector<float>rawVertexData;
 	std::vector<unsigned int> indices;
 
-
-	for (auto& s : newShapes) {
-		//std::cout << "Shape\n";
-		for (unsigned int i = 0; i < s->vertexCount(); i++) {
-			//Loop through vertices in each triangle
-			//Add vertex data to rawVertexData
-			rawVertexData.push_back(s->vertex(i).pos.x);
-			rawVertexData.push_back(s->vertex(i).pos.y);
-			rawVertexData.push_back(s->vertex(i).pos.z);
-			rawVertexData.push_back(s->vertex(i).colorRGB.x);
-			rawVertexData.push_back(s->vertex(i).colorRGB.y);
-			rawVertexData.push_back(s->vertex(i).colorRGB.z);
-			rawVertexData.push_back(s->vertex(i).textureCoord.x);
-			rawVertexData.push_back(s->vertex(i).textureCoord.y);
-			rawVertexData.push_back(s->vertex(i).normals.x);
-			rawVertexData.push_back(s->vertex(i).normals.y);
-			rawVertexData.push_back(s->vertex(i).normals.z);
-				
-			//Loop through all vertices and capture the index of this vertex
-			bool found = false;
-			for (unsigned int k = 0; k < vertices.size(); k++) {
-				if (s->vertex(i) == vertices[k]) {
-					indices.push_back(k);
-					found = true;
-					break;
-				}
-			}
-			assert(found);
-		}
-	}
-	//printRawVertexData(rawVertexData);
-	//for (auto i : indices) std::cout << i << ", ";
+	extractRawVertexDataAndIndices(newShapes, vertices, rawVertexData, indices);
 
 	//Vertex Buffers
 	std::vector<unsigned int> VAO(numObjects);
@@ -498,6 +470,41 @@ void cb_mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 void cb_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 	if (!mouseHover) return;
 	cam->newZoom(static_cast<float>(yoffset));
+}
+void extractRawVertexDataAndIndices(const std::vector<std::unique_ptr<NewShape>>& newShapes,
+	std::vector<Vertex>& vertices, std::vector<float>& rawVertexData,
+	std::vector<unsigned int>& indices) {
+	for (auto& s : newShapes) {
+		//std::cout << "Shape\n";
+		for (unsigned int i = 0; i < s->vertexCount(); i++) {
+			//Loop through vertices in each triangle
+			//Add vertex data to rawVertexData
+			rawVertexData.push_back(s->vertex(i).pos.x);
+			rawVertexData.push_back(s->vertex(i).pos.y);
+			rawVertexData.push_back(s->vertex(i).pos.z);
+			rawVertexData.push_back(s->vertex(i).colorRGB.x);
+			rawVertexData.push_back(s->vertex(i).colorRGB.y);
+			rawVertexData.push_back(s->vertex(i).colorRGB.z);
+			rawVertexData.push_back(s->vertex(i).textureCoord.x);
+			rawVertexData.push_back(s->vertex(i).textureCoord.y);
+			rawVertexData.push_back(s->vertex(i).normals.x);
+			rawVertexData.push_back(s->vertex(i).normals.y);
+			rawVertexData.push_back(s->vertex(i).normals.z);
+
+			//Loop through all vertices and capture the index of this vertex
+			bool found = false;
+			for (unsigned int k = 0; k < vertices.size(); k++) {
+				if (s->vertex(i) == vertices[k]) {
+					indices.push_back(k);
+					found = true;
+					break;
+				}
+			}
+			assert(found);
+		}
+	}
+	//printRawVertexData(rawVertexData);
+	//for (auto i : indices) std::cout << i << ", ";
 }
 void printRawVertexData(const std::vector<float>& v) {
 	unsigned int ctr{ 0 };
