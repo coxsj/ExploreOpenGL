@@ -289,17 +289,21 @@ int main()
 			default:
 				break;
 			}
-			//Set lighting uniforms
-			myShader[currentShader].setVec3("lightPos", lightSourcePos);
-			myShader[currentShader].setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-			myShader[currentShader].setFloat("ambientStrength", 0.1f);
-			myShader[currentShader].setFloat("opacity", 1.0f);
-			myShader[currentShader].setInt("shininess", 64);
-			myShader[currentShader].setFloat("specularStrength", 1.0f);
-
 			glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
 			myShader[currentShader].setMat3("normalMatrix", normalMatrix);
-			
+			//Set lighting uniforms
+			glm::vec3 lightSourceColor{ 1.0f, 1.0f, 0.6f };
+			myShader[currentShader].setVec3("lightSourceColor", lightSourceColor);
+			myShader[currentShader].setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+			myShader[currentShader].setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darkened
+			myShader[currentShader].setVec3("light.specular", lightSourceColor);
+			myShader[currentShader].setVec3("light.position", lightSourcePos);
+			// Set up material uniforms
+			myShader[currentShader].setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+			myShader[currentShader].setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+			myShader[currentShader].setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+			myShader[currentShader].setFloat("material.shininess", 32.0f);
+			myShader[currentShader].setFloat("opacity", 1.0f);
 			//Update camera view
 			view = cam->lookAt();
 			projection = cam->perspective(SCR_WIDTH, SCR_HEIGHT, 0.1f, 100.0f);
