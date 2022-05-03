@@ -3,16 +3,16 @@ in vec3 fragPos;
 in vec3 normal;
 
 struct Material {
-vec3 ambient;
-vec3 diffuse;
-vec3 specular;
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
 float shininess;
 };
 struct Light {
-vec3 position;
-vec3 ambient;
-vec3 diffuse;
-vec3 specular;
+	vec3 position;
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
 };
 uniform Light light;
 uniform Material material;

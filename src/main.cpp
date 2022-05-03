@@ -66,9 +66,18 @@ int main()
 	registerWindowCallbacks(win.window());
 
 	//Set up texture data
-	unsigned int texture0, texture1;
-	createTextures(resourceDir + "container.jpg", &texture0, false, GL_TEXTURE0, GL_RGB);
-	createTextures(resourceDir + "awesomeface.png", &texture1, true, GL_TEXTURE1, GL_RGBA);
+	const std::vector<TextureFileData> textureFiles{
+		{"container.jpg", false, GL_RGB},
+		{"awesomeface.png", true, GL_RGBA},
+		{"container2.png", false, GL_RGBA},
+		{"container2_specular.png", false, GL_RGBA} };
+	std::vector<unsigned int> textureIDs(textureFiles.size());
+	createTextures(textureFiles, textureIDs);
+	
+	//createTextures("container.jpg", &texture[0], false, GL_TEXTURE0, GL_RGB);
+	//createTextures("awesomeface.png", &texture[1], true, GL_TEXTURE1, GL_RGBA);
+	//createTextures("container2.png", &texture[2], true, GL_TEXTURE2, GL_RGBA);
+	//createTextures("container2_specular.png", &texture[3], true, GL_TEXTURE3, GL_RGBA);
 
 	// Set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------

@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iostream>
 #include <string>
+#include <vector>
 
 //External lib
 #include "glad\glad.h"
@@ -16,30 +17,31 @@
 #include "settings.h"
 #include "utility.h"
 
-void createTextures(const std::string& textureStr, GLuint *textureID, bool flipImage, GLenum activeTextureUnit, GLenum format) {
-	unsigned int numTexturesToLoad = 1;
-	glGenTextures(numTexturesToLoad, textureID);
-	glActiveTexture(activeTextureUnit);	// Activate texture unit first. Note that GL_TEXTURE0 is always active
-									// If you glActiveateTexture without binding a texture unit
-									// it will be bound to GL_TEXTURE0 by default
-	glBindTexture(GL_TEXTURE_2D, *textureID);
-	// set the texture wrapping/filtering options (on currently bound texture)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load and generate the texture
-	if(flipImage) stbi_set_flip_vertically_on_load(true);
-	int width, height, nrChannels;
-	unsigned char* data = stbi_load(textureStr.c_str(), &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
+void createTextures(const std::vector<TextureFileData>& textureFiles, std::vector<unsigned int>& textureIDs,
+	const std::string resDir) {
+	unsigned int numTexturesToLoad = static_cast<unsigned int>(textureFiles.size());
+	glGenTextures(numTexturesToLoad, &textureIDs[0]);
+	for (unsigned int i = 0; i < numTexturesToLoad; i++) {
+		glActiveTexture(GL_TEXTURE0 + i);	// Activate texture unit first. Note that GL_TEXTURE0 is always active
+										// If you glActiveateTexture without binding a texture unit
+										// it will be bound to GL_TEXTURE0 by default
+		glBindTexture(GL_TEXTURE_2D, textureIDs[i]);
+		// set the texture wrapping/filtering options (on currently bound texture)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// load and generate the texture
+		if (textureFiles[i].flipImage) stbi_set_flip_vertically_on_load(true);
+		int width, height, nrChannels;
+		unsigned char* data = stbi_load((resDir + textureFiles[i].filename).c_str(), &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, textureFiles[i].format,
+				GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else std::cout << "Failed to load texture " << textureFiles[i].filename << std::endl;
 	}
 }
 GLenum glCheckError_(const char* file, int line) {

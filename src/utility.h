@@ -4,7 +4,8 @@
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 
-void createTextures(const std::string& textureStr, GLuint *textureID, bool flipImage = true, GLenum activeTextureUnit= GL_TEXTURE0, GLenum format = GL_RGB);
+void createTextures(const std::vector<TextureFileData>& textureFiles, std::vector<unsigned int>& textureIDs,
+	const std::string resDir = RESOURCE_DIR);
 GLenum glCheckError_(const char* file, int line);
 bool loadGLFWFunctionPointers();
 void printFrameRate();
