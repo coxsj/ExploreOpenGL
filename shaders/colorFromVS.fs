@@ -6,6 +6,9 @@ in vec3 fragPos;
 uniform float ambientStrength;
 uniform vec3 lightPos;
 uniform vec3 lightColor;
+uniform float opacity;
+uniform int shininess;
+uniform float specularStrength;
 uniform vec3 viewPos;
 
 out vec4 FragColor;
@@ -21,14 +24,11 @@ void main()
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = diff * lightColor;
 	//Specular
-	float specularStrength = 0.5;
 	vec3 viewDir = normalize(viewPos - fragPos);
 	vec3 reflectDir = reflect(-lightDir, norm);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
 	vec3 specular = specularStrength * spec * lightColor;
 	//Commbined Phong lighting effect
 	vec3 result = (ambient + diffuse + specular) * vec3(vertexColor.x, vertexColor.y, vertexColor.z);
-	FragColor = vec4(result, 1.0);
-
-	//FragColor = vertexColor;
+	FragColor = vec4(result, opacity);
 };

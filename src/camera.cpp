@@ -26,7 +26,7 @@ void Camera::keyInput(int GLFW_key, float deltaTime) {
 void Camera::newZoom(float yoffset) {
 	zoom -= yoffset;
 	if (zoom < 1.0f) zoom = 1.0f;
-	else if (zoom > 45.0f) zoom = 45.0f;
+	else if (zoom > 150.0f) zoom = 150.0f;
 }
 void Camera::updateDirectionFromMouse(float xoffset, float yoffset) {
 	xoffset *= sensitivity;

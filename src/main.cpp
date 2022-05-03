@@ -175,7 +175,7 @@ int main()
 	//NewShapes
 	//=========
 	std::vector<std::unique_ptr<NewShape>> newShapes;
-	newShapes.emplace_back( std::make_unique<NewTriangle>( ta, "ta", 0 ));
+	newShapes.emplace_back(std::make_unique<NewTriangle> ( ta, "ta", 0, Point{ 0.0f, 0.0f, -0.5 }) );
 	newShapes.emplace_back( std::make_unique<NewTriangle>( tb, "tb", 1, Point{ 0.0f, 0.0f, -0.5 }) );
 	newShapes.emplace_back( std::make_unique<NewTriangle>( tc, "tc", 2, Point{ 0.0f, 0.0f, -0.5 }) );
 	newShapes.emplace_back( std::make_unique<NewRectangle>(td, te, "ra", 3, Point{ 0.0f, 0.0f, -0.5 }) );
@@ -190,13 +190,10 @@ int main()
 	//Vertex data ranges, indices and offsets
 	std::vector<float>rawVertexData;
 	std::vector<unsigned int> indices;
-
 	extractRawVertexDataAndIndices(newShapes, vertices, rawVertexData, indices);
-
 	//Create Vertex Buffer and Vertex Array objects
 	std::vector<unsigned int> VAO(newShapes.size());
 	std::vector<unsigned int> VBO(newShapes.size());
-
 	createVAOAndVBOs(VAO, VBO, newShapes, rawVertexData);
 	glCheckError();
 
@@ -205,7 +202,6 @@ int main()
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
 
-	glm::vec3 lightSourcePos(1.2f, 1.0f, 2.0f);
 	// Render Loop
 	// ===========
 	// The render loop runs until we tell GLFW to stop.
@@ -238,23 +234,17 @@ int main()
 			//Select and activate shader program
 			unsigned int currentShader = newShapes[i]->shaderIndex();
 			myShader[currentShader].use();
-
 			//Bind VAO for this shape
 			glBindVertexArray(VAO[i]);
-			
 			//Model and view matrices
 			glm::mat4 model = glm::mat4(1.0f);
 			glm::mat4 view = glm::mat4(1.0f);
 			glm::mat4 projection = glm::mat4(1.0f);
-			
-			//Set common uniforms
-			float greenValue;
-			myShader[currentShader].setVec3("lightPos", lightSourcePos);
-			myShader[currentShader].setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-			myShader[currentShader].setFloat("ambientStrength", 0.2f);
-			
 			//Update model matrix
 			float timeValue = static_cast<float>(glfwGetTime());
+			float greenValue;
+			glm::vec3 lightSourcePos(1.5f * glm::cos(timeValue/10.0), 1.5f * glm::sin(timeValue/10.0), 4.0f);
+
 			switch (i) {
 			case 0:
 			case 1:
@@ -275,17 +265,18 @@ int main()
 				myShader[currentShader].setInt("texture1", 1);
 				break;
 			case 4:
-				//Cube
-				model = glm::translate(model, glm::vec3(-0.5f, -1.5f, 0.0f));
+				//Cube with textures
+				model = glm::translate(model, glm::vec3(-1.0f, -1.5f, 0.0f));
 				model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
 				model = glm::rotate(model, timeValue * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-				//Set textures in rectangle and cube
+				//Set textures in cube
 				myShader[currentShader].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
 				myShader[currentShader].setInt("texture1", 1);
 				break;
 			case 5:
 				//Cube
 				model = glm::translate(model, glm::vec3(2.0f, -1.0f, 0.0f));
+				model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
 				model = glm::rotate(model, -timeValue * glm::radians((i - 3) * 17.0f), glm::vec3(-0.5f, 1.0f, 0.0f));
 				myShader[currentShader].setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 				break;
@@ -298,25 +289,30 @@ int main()
 			default:
 				break;
 			}
+			//Set lighting uniforms
+			myShader[currentShader].setVec3("lightPos", lightSourcePos);
+			myShader[currentShader].setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+			myShader[currentShader].setFloat("ambientStrength", 0.1f);
+			myShader[currentShader].setFloat("opacity", 1.0f);
+			myShader[currentShader].setInt("shininess", 256);
+			myShader[currentShader].setFloat("specularStrength", 1.0f);
+
 			glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
 			myShader[currentShader].setMat3("normalMatrix", normalMatrix);
-
+			
 			//Update camera view
 			view = cam->lookAt();
 			projection = cam->perspective(SCR_WIDTH, SCR_HEIGHT, 0.1f, 100.0f);
-			
 			//Apply current transformation matrices to shader uniforms
 			myShader[currentShader].setMat4("model", model);
 			myShader[currentShader].setMat4("view", view);
 			myShader[currentShader].setMat4("projection", projection);
 			myShader[currentShader].setVec3("viewPos", cam->getPos());
-
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_TRIANGLE * newShapes[i]->size());	
 			glCheckError();
 		}
 		glBindVertexArray(0);
-
 		
 		// Swap Buffers
 		// ============

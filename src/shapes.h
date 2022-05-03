@@ -132,15 +132,19 @@ class Geometry {
 private:
 	Geometry();
 public:
-	static bool allPointsSamePlane(Point a, Point b, Point c, Point d);
-	static bool allPointsUnique(Point a, Point b, Point c);
-	static bool allPointsUnique(Triangle& t, Point refPoint);
-	static bool allPointsUnique(Point a, Point b, Point c, Point d);
-	static bool allPointsUnique(Point a, Point b, Point c, Point d, Point e);
-	static void assignNormals(Triangle& t, Point& refPoint, const std::string& name);
-	static bool extractTrianglesFromRectangle(Point pa, Point pb, Point pc, Point pd, Triangle& ta, Triangle& tb);
-	static Normal getNormal(Point a, Point b, Point c);
-	static bool normalCorrect(Point p, Normal n, Point refPoint);
-	static bool verifyRectangle(Triangle& ta, Triangle& tb);
-	static bool verifyRectangle(Point a, Point b, Point c, Point d);
+	static bool allPointsSamePlane(const Point& a, const Point& b, const Point& c, const Point& d);
+	static bool allPointsUnique(const Point& a, const Point& b);
+	static bool allPointsUnique(const Point& a, const Point& b, const Point& c);
+	static bool allPointsUnique(const Triangle& t, const Point& refPoint);
+	static bool allPointsUnique(const Point& a, const Point& b, const Point& c, const Point& d);
+	static bool allPointsUnique(const Point& a, const Point& b, const Point& c, const Point& d,
+		const Point& e);
+	static void assignNormals(Triangle& t, const Point& refPoint);
+	static bool extractTrianglesFromRectangle(const Point& pa, const Point& pb, const Point& pc,
+		const Point& pd, Triangle& ta, Triangle& tb);
+	static Normal getNormal(const Point& a, const Point& b, const Point& c);
+	static bool normalCorrect(const Point& p, const Normal& n, const Point& refPoint);
+	static void printShapePlane(const Triangle& t);
+	static bool verifyRectangle(const Triangle& ta, const Triangle& tb);
+	static bool verifyRectangle(const Point& a, const Point& b, const Point& c, const Point& d);
 };

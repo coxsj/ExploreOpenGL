@@ -3,10 +3,10 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 layout (location = 3) in vec3 aNormal;
 
-uniform mat3 normalMatrix;
 uniform mat4 model;
-uniform mat4 view;
+uniform mat3 normalMatrix;
 uniform mat4 projection;
+uniform mat4 view;
 
 out vec4 vertexColor; // specify a color output to the fragment shader
 out vec3 normal;

@@ -4,11 +4,12 @@
 
 bool NewShape::addTriangle(Triangle& t, Point refPoint) {
 	if (t.size() != 3 || triangles_.size() >= maxTriangles_) return false;
+	refPoint_ = refPoint;
 	std::cout << "Adding triangle "; printTriangle(t); 
+	std::cout << " with refPoint: "; NewShape::printGLMVec3(refPoint_);
 	std::cout << " to " << name_ << "(";
 	printShapeType(); std::cout << ")\n";
-	refPoint_ = refPoint;
-	Geometry::assignNormals(t, refPoint, name_);
+	Geometry::assignNormals(t, refPoint);
 	triangles_.push_back(t);
 	return true;
 }
@@ -123,34 +124,44 @@ void NewCube::initCube(const unsigned int newIndex) {
 
 // Geometry Class Member Methods
 //==============================
-bool Geometry::allPointsSamePlane(Point a, Point b, Point c, Point d) {
+bool Geometry::allPointsSamePlane(const Point& a, const Point& b, const Point& c, const Point& d){
 	//Compare normals of two different triangles sharing two points
 	// Normals will be same or opposite direction if same plane
 	glm::vec3 normal1 = getNormal(a, b, c);
 	glm::vec3 normal2 = getNormal(a, b, d);
-	return normal1 == normal2 || normal1 == -1.0f * normal2;
+	return normal1 == normal2 || normal1 == ( - 1.0f * normal2);
 }
-bool Geometry::allPointsUnique(Point a, Point b, Point c) {
+bool Geometry::allPointsUnique(const Point& a, const Point& b) {
 	//3 unique points
-	return !(a == b || a == c || b == c);
+	return !(a.x == b.x && a.y == b.y && a.z == b.z);
 }
-bool Geometry::allPointsUnique(Triangle& t, Point refPoint) {
+bool Geometry::allPointsUnique(const Point& a, const Point& b, const Point& c) {
+	//3 unique points
+	return allPointsUnique(a, b) && allPointsUnique(a,c) && allPointsUnique(b, c);
+}
+bool Geometry::allPointsUnique(const Triangle& t, const Point& refPoint) {
 	return allPointsUnique(t[0].pos, t[1].pos, t[2].pos, refPoint);
 }
-bool Geometry::allPointsUnique(Point a, Point b, Point c, Point d) {
+bool Geometry::allPointsUnique(const Point& a, const Point& b, const Point& c, const Point& d) {
 	//4 unique points
-	return !(a == b || a == c || a == d || b == c || b == d || c == d);
+	return allPointsUnique(a, b, c) 
+		&& allPointsUnique(a, d) && allPointsUnique(b, d) && allPointsUnique(c, d);
 }
-bool Geometry::allPointsUnique(Point a, Point b, Point c, Point d, Point e) {
+bool Geometry::allPointsUnique(const Point& a, const Point& b, const Point& c, const Point& d
+	, const Point& e) {
 	//5 unique points
-	return !(a == b || a == c || a == d || a == e 
-		|| b == c || b == d || b == e 
-		|| c == d || c == e 
-		|| d == e );
+	return allPointsUnique(a, b, c, d)
+		&& allPointsUnique(a, e) && allPointsUnique(b, e) 
+		&& allPointsUnique(c, e) && allPointsUnique(d, e);
 }
-void Geometry::assignNormals(Triangle& t, Point& refPoint, const std::string& name) {
-	//This assumes the refPoint is not in the plane of the triangle
-	if (allPointsSamePlane(t[0].pos, t[1].pos, t[2].pos, refPoint)) {
+void Geometry::assignNormals(Triangle& t, const Point& refPoint) {
+	//The refPoint should not be in the plane of the triangle
+	// Make sure the ref poin is not the same as the vertices
+
+	if (allPointsSamePlane(t[0].pos, t[1].pos, t[2].pos, refPoint)
+		|| !allPointsUnique(t[0].pos, refPoint)
+		|| !allPointsUnique(t[1].pos, refPoint) 
+		|| !allPointsUnique(t[2].pos, refPoint)) {
 		std::cout << "Warning: refPoint (";
 		NewShape::printGLMVec3(refPoint);
 		std::cout << ") in plane of triangle ";
@@ -159,13 +170,19 @@ void Geometry::assignNormals(Triangle& t, Point& refPoint, const std::string& na
 	//Normals are always assigned to vertices in this routine
 	glm::vec3 v1 = t[1].pos - t[0].pos;
 	glm::vec3 v2 = t[2].pos - t[0].pos;
-	glm::vec3 normal = getNormal(t[0].pos, t[1].pos, t[2].pos);
+	glm::vec3 normal = glm::normalize(glm::cross(v2, v1));
 	//Compare normal and a vertex to reference point to determine if normal points away from ref point
 	//If not, reverse normal
-	if (!normalCorrect(v1, normal, refPoint)) normal *= -1;
+	if (!normalCorrect(t[0].pos, normal, refPoint)) {
+		normal *= -1;
+		std::cout << "(Corrected) ";
+	}
 	for (Vertex& v : t) v.normals = normal;
+	std::cout << "Normal: "; NewShape::printGLMVec3(normal);
+	std::cout << " "; printShapePlane(t); std::cout << std::endl;
 }
-bool Geometry::extractTrianglesFromRectangle(Point pa, Point pb, Point pc, Point pd, Triangle& ta, Triangle& tb) {
+bool Geometry::extractTrianglesFromRectangle(const Point& pa, const Point& pb, const Point& pc,
+	const Point& pd, Triangle& ta, Triangle& tb) {
 	//Determine the two conjoined rightangle triangles
 
 	// Points must specify a rectangle
@@ -196,18 +213,28 @@ bool Geometry::extractTrianglesFromRectangle(Point pa, Point pb, Point pc, Point
 	else return false;
 	return true;
 }
-Normal Geometry::getNormal(Point a, Point b, Point c) {
+Normal Geometry::getNormal(const Point& a, const Point& b, const Point& c) {
 	glm::vec3 v1 = a - b;
 	glm::vec3 v2 = a - c;
 	return glm::normalize(glm::cross(v2, v1));
 }
-bool Geometry::normalCorrect(Point p, Normal n, Point refPoint) {
+bool Geometry::normalCorrect(const Point& p, const Normal& n, const Point& refPoint) {
 	glm::vec3 pointToRef = refPoint - p;
 	//a.b = ||a||*||b||cos(theta) where theta is the angle between a and b
 	//If a.b is negative, the vectors point away from each other
 	return glm::dot(pointToRef, n) <= 0;
 }
-bool Geometry::verifyRectangle(Point a, Point b, Point c, Point d) {
+void Geometry::printShapePlane(const Triangle& t) {
+	std::cout << "Object plane: ";
+	if ((t[0].pos.x == t[1].pos.x) && (t[0].pos.x == t[2].pos.x))
+		std::cout << "x = " << t[0].pos.x;
+	else if ((t[0].pos.y == t[1].pos.y) && (t[0].pos.y == t[2].pos.y))
+		std::cout << "y=" << t[0].pos.y;
+	else if ((t[0].pos.z == t[1].pos.z) && (t[0].pos.z == t[2].pos.z))
+		std::cout << "z=" << t[0].pos.z;
+	else std::cout << " not calculated";
+}
+bool Geometry::verifyRectangle(const Point& a, const Point& b, const Point& c, const Point& d) {
 	//4 unique points
 	if (!allPointsUnique(a,b,c,d)) return false;
 	// All points all in same plane
@@ -227,7 +254,7 @@ bool Geometry::verifyRectangle(Point a, Point b, Point c, Point d) {
 	if (rightAngleCt < 4) return false;
 	return true;
 };
-bool Geometry::verifyRectangle(Triangle& ta, Triangle& tb) {
+bool Geometry::verifyRectangle(const Triangle& ta, const Triangle& tb) {
 	// Triangles must have three pts
 	if (ta.size() != 3 || tb.size() != 3) return false;
 	
