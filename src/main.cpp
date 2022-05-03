@@ -276,6 +276,7 @@ int main()
 				//Set textures in cube
 				myShader[currentShader].setInt("textureA", 2); //Tell OpenGL which texture unit each shader sampler belongs to
 				myShader[currentShader].setInt("textureB", 1);
+				myShader[currentShader].setInt("material.diffuse", 2);
 				break;
 			case 5:
 				//Cube
