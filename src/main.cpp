@@ -67,22 +67,15 @@ int main()
 
 	//Set up texture data
 	const std::vector<TextureFileData> textureFiles{
-		{"container.jpg", false, GL_RGB},
-		{"awesomeface.png", true, GL_RGBA},
-		{"container2.png", false, GL_RGBA},
+		{"container.jpg",			false, GL_RGB},
+		{"awesomeface.png",			true,  GL_RGBA},
+		{"container2.png",			false, GL_RGBA},
 		{"container2_specular.png", false, GL_RGBA} };
 	std::vector<unsigned int> textureIDs(textureFiles.size());
 	createTextures(textureFiles, textureIDs);
 	
-	//createTextures("container.jpg", &texture[0], false, GL_TEXTURE0, GL_RGB);
-	//createTextures("awesomeface.png", &texture[1], true, GL_TEXTURE1, GL_RGBA);
-	//createTextures("container2.png", &texture[2], true, GL_TEXTURE2, GL_RGBA);
-	//createTextures("container2_specular.png", &texture[3], true, GL_TEXTURE3, GL_RGBA);
-
 	// Set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
-	// Points
-	// ======
 	Point pa{ -0.5f,  0.5f,  0.0f };
 	Point pb{  0.0f,  0.0f,  0.0f };
 	Point pc{ -1.0f,  0.0f,  0.0f };
@@ -179,10 +172,10 @@ int main()
 		Shader(shaderDir + "lighting.vs", shaderDir + "lighting.fs"),
 		Shader(shaderDir + "lighting.vs", shaderDir + "light.fs")
 	};
-	const unsigned int lastShaderIndex = static_cast<const unsigned int>(myShader.size() - 1);
+	//const unsigned int lastShaderIndex = static_cast<const unsigned int>(myShader.size() - 1);
 
-	//NewShapes
-	//=========
+	// NewShapes
+	// =========
 	std::vector<std::unique_ptr<NewShape>> newShapes;
 	newShapes.emplace_back(std::make_unique<NewTriangle> ( ta, "ta", 0, Point{ 0.0f, 0.0f, -0.5 }) );
 	newShapes.emplace_back( std::make_unique<NewTriangle>( tb, "tb", 1, Point{ 0.0f, 0.0f, -0.5 }) );
@@ -196,11 +189,11 @@ int main()
 	newShapes.emplace_back(std::make_unique < NewCube>(triVec, "cb", 4));
 	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "cc", 5));
 
-	//Vertex data ranges, indices and offsets
+	// Vertex data ranges, indices and offsets
 	std::vector<float>rawVertexData;
 	std::vector<unsigned int> indices;
 	extractRawVertexDataAndIndices(newShapes, vertices, rawVertexData, indices);
-	//Create Vertex Buffer and Vertex Array objects
+	// Create Vertex Buffer and Vertex Array objects
 	std::vector<unsigned int> VAO(newShapes.size());
 	std::vector<unsigned int> VBO(newShapes.size());
 	createVAOAndVBOs(VAO, VBO, newShapes, rawVertexData);
@@ -252,7 +245,8 @@ int main()
 			//Update model matrix
 			float timeValue = static_cast<float>(glfwGetTime());
 			float greenValue;
-			glm::vec3 lightSourcePos(1.5f * glm::cos(timeValue/10.0), 1.5f * glm::sin(timeValue/10.0), 4.0f);
+			glm::vec3 lightSourcePos(1.5f * glm::cos(timeValue/10.0), 
+				1.5f * glm::sin(timeValue/10.0), 4.0f);
 
 			switch (i) {
 			case 0:
@@ -270,30 +264,32 @@ int main()
 				model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 				model = glm::translate(model, glm::vec3(-1.5f, 0.0f, 0.0f));
 				//Set textures in rectangle and cube
-				myShader[currentShader].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
-				myShader[currentShader].setInt("texture1", 1);
+				myShader[currentShader].setInt("textureA", 0); //Tell OpenGL which texture unit each shader sampler belongs to
+				myShader[currentShader].setInt("textureB", 1);
 				break;
 			case 4:
 				//Cube with textures
 				model = glm::translate(model, glm::vec3(-1.0f, -1.5f, 0.0f));
 				model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
-				model = glm::rotate(model, timeValue * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+				model = glm::rotate(model, timeValue * glm::radians(50.0f), 
+					glm::vec3(0.5f, 1.0f, 0.0f));
 				//Set textures in cube
-				myShader[currentShader].setInt("texture0", 0); //Tell OpenGL which texture unit each shader sampler belongs to
-				myShader[currentShader].setInt("texture1", 1);
+				myShader[currentShader].setInt("textureA", 2); //Tell OpenGL which texture unit each shader sampler belongs to
+				myShader[currentShader].setInt("textureB", 1);
 				break;
 			case 5:
 				//Cube
 				model = glm::translate(model, glm::vec3(2.0f, -1.0f, 0.0f));
 				model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-				model = glm::rotate(model, -timeValue * glm::radians((i - 3) * 17.0f), glm::vec3(-0.5f, 1.0f, 0.0f));
-				myShader[currentShader].setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+				model = glm::rotate(model, -timeValue * glm::radians((i - 3) * 17.0f), 
+					glm::vec3(-0.5f, 1.0f, 0.0f));
 				break;
 			case 6:
 				//Cube - Light source
 				model = glm::translate(model, lightSourcePos);
 				model = glm::scale(model, glm::vec3(0.2f));
-				model = glm::rotate(model, -timeValue * glm::radians(25.0f), glm::vec3(-0.5f, 1.0f, 1.0f));
+				model = glm::rotate(model, -timeValue * glm::radians(25.0f), 
+					glm::vec3(-0.5f, 1.0f, 1.0f));
 				break;
 			default:
 				break;

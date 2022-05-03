@@ -19,8 +19,8 @@ vec3 specular;
 uniform Light light;
 uniform Material material;
 uniform float opacity;
-uniform sampler2D texture0;
-uniform sampler2D texture1;
+uniform sampler2D textureA;
+uniform sampler2D textureB;
 uniform vec3 viewPos;
 
 out vec4 FragColor;
@@ -28,7 +28,7 @@ out vec4 FragColor;
 void main()
 {
 	//Object color
-	vec4 objectColor = mix(texture(texture0, texCoord), texture(texture1, vec2(texCoord.x, texCoord.y)), 0.2);
+	vec4 objectColor = mix(texture(textureA, texCoord), texture(textureB, vec2(texCoord.x, texCoord.y)), 0.2);
 	//Lighting
 	//Ambient
 	vec3 ambient = light.ambient * material.ambient;
