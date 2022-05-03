@@ -294,7 +294,7 @@ int main()
 			myShader[currentShader].setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 			myShader[currentShader].setFloat("ambientStrength", 0.1f);
 			myShader[currentShader].setFloat("opacity", 1.0f);
-			myShader[currentShader].setInt("shininess", 256);
+			myShader[currentShader].setInt("shininess", 64);
 			myShader[currentShader].setFloat("specularStrength", 1.0f);
 
 			glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
