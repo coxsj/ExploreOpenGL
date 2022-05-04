@@ -1,13 +1,15 @@
 #version 330 core
+const int e_VertexColor = 0;
+const int e_ObjectColor = 1;
+const int e_TextureColor = 2;
+const int e_LightMapColor = 3;
+
 in vec4 vertexColor;
 in vec2 texCoord;
 in vec3 normal;
 in vec3 fragPos;
 
 struct Material {
-	bool useLightMaps;
-	bool useTextures;
-	bool useVertexColor;
 	int colorType;
 	vec4 objectColor;
 	sampler2D diffuse;
@@ -22,10 +24,6 @@ struct Light {
 	vec3 diffuse;
 	vec3 specular;
 };
-const int e_VertexColor = 0;
-const int e_ObjectColor = 1;
-const int e_TextureColor = 2;
-const int e_LightMapColor = 3;
 uniform Light light;
 uniform Material material;
 uniform float opacity;
