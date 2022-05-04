@@ -173,8 +173,7 @@ int main()
 		Shader{"lighting.vs", "light.fs"},
 		Shader{"standard.vs", "standard.fs"}
 	};
-	//const unsigned int lastShaderIndex = static_cast<const unsigned int>(myShader.size() - 1);
-
+	
 	// NewShapes
 	// =========
 	std::vector<std::unique_ptr<NewShape>> newShapes;
@@ -212,7 +211,6 @@ int main()
 	// has been instructed to close.
 	con->cursorTo(2, 0);
 	std::cout << "Any key to exit...\n";
-
 	while (!glfwWindowShouldClose(win.window()))
 	{
 		// An iteration of the render loop is more commonly called a frame.
@@ -253,23 +251,17 @@ int main()
 			switch (i) {
 			case 0:
 				model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
-				myShader[currentShader].setBool("material.useLightMaps", false);
-				myShader[currentShader].setBool("material.useTextures", false);
-				myShader[currentShader].setBool("material.useVertexColor", true);
+				myShader[currentShader].setInt("material.colorType", VERTEX_COLOR);
 				break;
 			case 1:
 				model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
-				myShader[currentShader].setBool("material.useLightMaps", false);
-				myShader[currentShader].setBool("material.useTextures", false);
-				myShader[currentShader].setBool("material.useVertexColor", false);
+				myShader[currentShader].setInt("material.colorType", OBJECT_COLOR);
 				myShader[currentShader].setFloat4("material.objectColor", 0.75f, 0.75f, 0.0f, 1.0f);
 				break;
 			case 2:
 				model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
 				//Set the color of the third triangle using a uniform value
-				myShader[currentShader].setBool("material.useLightMaps", false);
-				myShader[currentShader].setBool("material.useTextures", false);
-				myShader[currentShader].setBool("material.useVertexColor", false);
+				myShader[currentShader].setInt("material.colorType", OBJECT_COLOR);
 				greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 				myShader[currentShader].setFloat4("material.objectColor", 0.0f, greenValue, 0.0f, 1.0f);
 				break;
@@ -278,9 +270,7 @@ int main()
 				model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 				model = glm::translate(model, glm::vec3(-1.5f, 0.0f, 0.0f));
 				//Set textures in rectangle and cube
-				myShader[currentShader].setBool("material.useLightMaps", false);
-				myShader[currentShader].setBool("material.useTextures", true);
-				myShader[currentShader].setBool("material.useVertexColor", false);				
+				myShader[currentShader].setInt("material.colorType", TEXTURE_COLOR);
 				myShader[currentShader].setInt("material.tA", 0);
 				myShader[currentShader].setInt("material.tB", 1);
 				break;
@@ -291,9 +281,7 @@ int main()
 				model = glm::rotate(model, timeValue * glm::radians(50.0f), 
 					glm::vec3(0.5f, 1.0f, 0.0f));
 				//Set textures in cube
-				myShader[currentShader].setBool("material.useLightMaps", true);
-				myShader[currentShader].setBool("material.useTextures", false);
-				myShader[currentShader].setBool("material.useVertexColor", false);
+				myShader[currentShader].setInt("material.colorType", LIGHTMAP_COLOR);
 				myShader[currentShader].setInt("material.diffuse", 2);
 				myShader[currentShader].setInt("material.specular", 3);
 				break;
@@ -304,9 +292,7 @@ int main()
 				model = glm::rotate(model, -timeValue * glm::radians((i - 3) * 17.0f), 
 					glm::vec3(-0.5f, 1.0f, 0.0f));
 				//Set object color
-				myShader[currentShader].setBool("material.useLightMaps", false);
-				myShader[currentShader].setBool("material.useTextures", false);
-				myShader[currentShader].setBool("material.useVertexColor", false);
+				myShader[currentShader].setInt("material.colorType", OBJECT_COLOR);
 				myShader[currentShader].setFloat4("material.objectColor", 1.0f, 0.5f, 0.0f, 1.0f);
 				break;
 			case 6:

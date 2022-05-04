@@ -8,6 +8,7 @@ struct Material {
 	bool useLightMaps;
 	bool useTextures;
 	bool useVertexColor;
+	int colorType;
 	vec4 objectColor;
 	sampler2D diffuse;
 	sampler2D specular;
@@ -21,31 +22,42 @@ struct Light {
 	vec3 diffuse;
 	vec3 specular;
 };
+const int e_VertexColor = 0;
+const int e_ObjectColor = 1;
+const int e_TextureColor = 2;
+const int e_LightMapColor = 3;
 uniform Light light;
 uniform Material material;
 uniform float opacity;
 uniform vec3 viewPos;
-
 out vec4 FragColor;
 
 void main()
 {
 	//Lighting
 	//Base object color
-	vec3 objectAmbientDiffuseColor = vec3(material.objectColor.x, material.objectColor.y, material.objectColor.z);
-	vec3 objectSpecularColor = vec3(material.objectColor.x, material.objectColor.y, material.objectColor.z);
-	if(material.useVertexColor){
-		objectAmbientDiffuseColor = vec3(vertexColor.x, vertexColor.y, vertexColor.z);
-		objectSpecularColor = objectAmbientDiffuseColor;
-	}
-	if(material.useTextures){
-		vec4 textColor = mix(texture(material.tA, texCoord), texture(material.tB, vec2(texCoord.x, texCoord.y)), 0.2);
-		objectAmbientDiffuseColor = vec3(textColor.x, textColor.y, textColor.z);
-		objectSpecularColor = objectAmbientDiffuseColor;
-	}
-	if(material.useLightMaps) {
-		objectAmbientDiffuseColor = vec3(texture(material.diffuse, texCoord));
-		objectSpecularColor = vec3(texture(material.specular, texCoord));
+	vec3 objectAmbientDiffuseColor;
+	vec3 objectSpecularColor;
+	switch(material.colorType){
+		case e_VertexColor:
+			objectAmbientDiffuseColor = vec3(vertexColor.x, vertexColor.y, vertexColor.z);
+			objectSpecularColor = objectAmbientDiffuseColor;
+			break;
+		case e_ObjectColor:
+			objectAmbientDiffuseColor = vec3(material.objectColor.x, material.objectColor.y, material.objectColor.z);
+			objectSpecularColor = vec3(material.objectColor.x, material.objectColor.y, material.objectColor.z);
+			break;
+		case e_TextureColor:
+			vec4 textColor = mix(texture(material.tA, texCoord), texture(material.tB, vec2(texCoord.x, texCoord.y)), 0.2);
+			objectAmbientDiffuseColor = vec3(textColor.x, textColor.y, textColor.z);
+			objectSpecularColor = objectAmbientDiffuseColor;
+			break;
+		case e_LightMapColor:
+			objectAmbientDiffuseColor = vec3(texture(material.diffuse, texCoord));
+			objectSpecularColor = vec3(texture(material.specular, texCoord));
+			break;
+		default:
+		break;
 	}
 	//Ambient
 	vec3 ambient = light.ambient * objectAmbientDiffuseColor;
