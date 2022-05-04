@@ -8,6 +8,8 @@
 #include <glad/glad.h> // include glad to get the required OpenGL headers
 #include <glm/glm.hpp>
 
+#include "settings.h"
+
 class Shader
 {
 private:
@@ -16,7 +18,8 @@ private:
 
 public:
 	// constructor reads and builds the shader
-	Shader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath = "");
+	Shader(const std::string& vertexPath, const std::string& fragmentPath, 
+		const std::string& geometryPath = "", const std::string& shaderDir = SHADER_DIR);
 	// use/activate the shader
 	void use();
 	// utility uniform functions

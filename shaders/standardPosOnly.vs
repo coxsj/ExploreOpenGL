@@ -14,6 +14,6 @@ void main()
 {
 	gl_Position = projection * view * model * vec4(aPos, 1.0);
 	fragPos = vec3(model * vec4(aPos, 1.0));
-	vertexColor = vec4(1.0, 0.0, 0.0, 1.0); // output variable to dark-red
+	vertexColor = vec4(1.0, 0.0, 0.0, 1.0); // output variable to red
 	normal = normalMatrix * aNormal;
 };

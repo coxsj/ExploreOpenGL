@@ -94,6 +94,12 @@
     <None Include="shaders\light.fs">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\standard.vs">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\standard.fs">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\container.jpg">

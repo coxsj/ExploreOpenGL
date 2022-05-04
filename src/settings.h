@@ -12,7 +12,7 @@ struct TextureFileData {
 constexpr unsigned int SCR_WIDTH = 1800;
 constexpr unsigned int SCR_HEIGHT = 1600;
 
-const std::string shaderDir("C:\\Users\\coxst\\OneDrive\\Documents\\Repos\\OpenGL\\ExploreOpenGL\\shaders\\");
+const std::string SHADER_DIR("C:\\Users\\coxst\\OneDrive\\Documents\\Repos\\OpenGL\\ExploreOpenGL\\shaders\\");
 const std::string RESOURCE_DIR("C:\\Users\\coxst\\OneDrive\\Documents\\Repos\\OpenGL\\ExploreOpenGL\\resources\\");
 
 //Magic numbers

@@ -165,28 +165,29 @@ int main()
 	
 	//Build and compile Shader Programs
 	std::vector<Shader> myShader{
-		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromVS.fs"),
-		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromFS.fs"),
-		Shader(shaderDir + "standardPosColor.vs", shaderDir + "colorFromUniform.fs"),
-		Shader(shaderDir + "posColorTexture.vs", shaderDir + "colorTextureFromVS.fs"),
-		Shader(shaderDir + "lighting.vs", shaderDir + "lighting.fs"),
-		Shader(shaderDir + "lighting.vs", shaderDir + "light.fs")
+		Shader{"standardPosColor.vs", "colorFromVS.fs"},
+		Shader{"standardPosColor.vs", "colorFromFS.fs"},
+		Shader{"standardPosColor.vs", "colorFromUniform.fs" },
+		Shader{"posColorTexture.vs", "colorTextureFromVS.fs"},
+		Shader{"lighting.vs", "lighting.fs"},
+		Shader{"lighting.vs", "light.fs"},
+		Shader{"standard.vs", "standard.fs"}
 	};
 	//const unsigned int lastShaderIndex = static_cast<const unsigned int>(myShader.size() - 1);
 
 	// NewShapes
 	// =========
 	std::vector<std::unique_ptr<NewShape>> newShapes;
-	newShapes.emplace_back(std::make_unique<NewTriangle> ( ta, "ta", 0, Point{ 0.0f, 0.0f, -0.5 }) );
-	newShapes.emplace_back( std::make_unique<NewTriangle>( tb, "tb", 1, Point{ 0.0f, 0.0f, -0.5 }) );
-	newShapes.emplace_back( std::make_unique<NewTriangle>( tc, "tc", 2, Point{ 0.0f, 0.0f, -0.5 }) );
-	newShapes.emplace_back( std::make_unique<NewRectangle>(td, te, "ra", 3, Point{ 0.0f, 0.0f, -0.5 }) );
+	newShapes.emplace_back(std::make_unique<NewTriangle> ( ta, "ta", 6, Point{ 0.0f, 0.0f, -0.5 }) );
+	newShapes.emplace_back( std::make_unique<NewTriangle>( tb, "tb", 6, Point{ 0.0f, 0.0f, -0.5 }) );
+	newShapes.emplace_back( std::make_unique<NewTriangle>( tc, "tc", 6, Point{ 0.0f, 0.0f, -0.5 }) );
+	newShapes.emplace_back( std::make_unique<NewRectangle>(td, te, "ra", 6, Point{ 0.0f, 0.0f, -0.5 }) );
 	std::vector<NewRectangle> rectVec{	
 		NewRectangle{ tf, tg }, NewRectangle{ th, ti }, NewRectangle{ tj, tk },
 		NewRectangle{ tl, tm }, NewRectangle{ tn, to }, NewRectangle{ tp, tq } };
-	newShapes.emplace_back( std::make_unique < NewCube>(rectVec, "ca", 3));
+	newShapes.emplace_back( std::make_unique < NewCube>(rectVec, "ca", 6));
 	std::vector<Triangle> triVec{tf, tg, th, ti, tj, tk, tl, tm, tn, to, tp, tq };
-	newShapes.emplace_back(std::make_unique < NewCube>(triVec, "cb", 4));
+	newShapes.emplace_back(std::make_unique < NewCube>(triVec, "cb", 6));
 	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "cc", 5));
 
 	// Vertex data ranges, indices and offsets
@@ -235,6 +236,7 @@ int main()
 		for (unsigned int i = 0; i < newShapes.size(); i++) {
 			//Select and activate shader program
 			unsigned int currentShader = newShapes[i]->shaderIndex();
+			assert(currentShader < myShader.size());
 			myShader[currentShader].use();
 			//Bind VAO for this shape
 			glBindVertexArray(VAO[i]);
@@ -247,36 +249,53 @@ int main()
 			float greenValue;
 			glm::vec3 lightSourcePos(1.5f * glm::cos(timeValue/10.0), 
 				1.5f * glm::sin(timeValue/10.0), 4.0f);
-
+			glm::vec3 lightSourceColor{ 1.0f, 1.0f, 1.0f };
 			switch (i) {
 			case 0:
+				model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
+				myShader[currentShader].setBool("material.useLightMaps", false);
+				myShader[currentShader].setBool("material.useTextures", false);
+				myShader[currentShader].setBool("material.useVertexColor", true);
+				break;
 			case 1:
 				model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
+				myShader[currentShader].setBool("material.useLightMaps", false);
+				myShader[currentShader].setBool("material.useTextures", false);
+				myShader[currentShader].setBool("material.useVertexColor", false);
+				myShader[currentShader].setFloat4("material.objectColor", 0.75f, 0.75f, 0.0f, 1.0f);
 				break;
 			case 2:
 				model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
 				//Set the color of the third triangle using a uniform value
+				myShader[currentShader].setBool("material.useLightMaps", false);
+				myShader[currentShader].setBool("material.useTextures", false);
+				myShader[currentShader].setBool("material.useVertexColor", false);
 				greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-				myShader[currentShader].setFloat4("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
+				myShader[currentShader].setFloat4("material.objectColor", 0.0f, greenValue, 0.0f, 1.0f);
 				break;
 			case 3:
 				//Rectangle
 				model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 				model = glm::translate(model, glm::vec3(-1.5f, 0.0f, 0.0f));
 				//Set textures in rectangle and cube
-				myShader[currentShader].setInt("textureA", 0); //Tell OpenGL which texture unit each shader sampler belongs to
-				myShader[currentShader].setInt("textureB", 1);
+				myShader[currentShader].setBool("material.useLightMaps", false);
+				myShader[currentShader].setBool("material.useTextures", true);
+				myShader[currentShader].setBool("material.useVertexColor", false);				
+				myShader[currentShader].setInt("material.tA", 0);
+				myShader[currentShader].setInt("material.tB", 1);
 				break;
 			case 4:
-				//Cube with textures
+				//Cube with difuse and specular maps
 				model = glm::translate(model, glm::vec3(-1.0f, -1.5f, 0.0f));
 				model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
 				model = glm::rotate(model, timeValue * glm::radians(50.0f), 
 					glm::vec3(0.5f, 1.0f, 0.0f));
 				//Set textures in cube
-				myShader[currentShader].setInt("textureA", 2); //Tell OpenGL which texture unit each shader sampler belongs to
-				myShader[currentShader].setInt("textureB", 1);
+				myShader[currentShader].setBool("material.useLightMaps", true);
+				myShader[currentShader].setBool("material.useTextures", false);
+				myShader[currentShader].setBool("material.useVertexColor", false);
 				myShader[currentShader].setInt("material.diffuse", 2);
+				myShader[currentShader].setInt("material.specular", 3);
 				break;
 			case 5:
 				//Cube
@@ -284,6 +303,11 @@ int main()
 				model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
 				model = glm::rotate(model, -timeValue * glm::radians((i - 3) * 17.0f), 
 					glm::vec3(-0.5f, 1.0f, 0.0f));
+				//Set object color
+				myShader[currentShader].setBool("material.useLightMaps", false);
+				myShader[currentShader].setBool("material.useTextures", false);
+				myShader[currentShader].setBool("material.useVertexColor", false);
+				myShader[currentShader].setFloat4("material.objectColor", 1.0f, 0.5f, 0.0f, 1.0f);
 				break;
 			case 6:
 				//Cube - Light source
@@ -291,23 +315,20 @@ int main()
 				model = glm::scale(model, glm::vec3(0.2f));
 				model = glm::rotate(model, -timeValue * glm::radians(25.0f), 
 					glm::vec3(-0.5f, 1.0f, 1.0f));
+				myShader[currentShader].setVec3("lightSourceColor", lightSourceColor);
 				break;
 			default:
+				assert(0);
 				break;
 			}
 			glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
 			myShader[currentShader].setMat3("normalMatrix", normalMatrix);
 			//Set lighting uniforms
-			glm::vec3 lightSourceColor{ 1.0f, 1.0f, 0.6f };
-			myShader[currentShader].setVec3("lightSourceColor", lightSourceColor);
 			myShader[currentShader].setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-			myShader[currentShader].setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darkened
+			myShader[currentShader].setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
 			myShader[currentShader].setVec3("light.specular", lightSourceColor);
 			myShader[currentShader].setVec3("light.position", lightSourcePos);
 			// Set up material uniforms
-			myShader[currentShader].setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-			myShader[currentShader].setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-			myShader[currentShader].setVec3("material.specular", 0.5f, 0.5f, 0.5f);
 			myShader[currentShader].setFloat("material.shininess", 32.0f);
 			myShader[currentShader].setFloat("opacity", 1.0f);
 			//Update camera view

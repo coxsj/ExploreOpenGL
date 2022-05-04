@@ -14,9 +14,9 @@ struct Light {
 	vec3 diffuse;
 	vec3 specular;
 };
+uniform float opacity;
 uniform Light light;
 uniform Material material;
-uniform float opacity;
 uniform vec3 viewPos;
 
 out vec4 FragColor;
