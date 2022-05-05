@@ -1,5 +1,5 @@
 #version 330 core
-
+// Constant (enum) values
 const int e_VertexColor = 0;
 const int e_ObjectColor = 1;
 const int e_TextureColor = 2;
@@ -16,8 +16,6 @@ struct DirLight {
 	vec3 diffuse;
 	vec3 specular;
 };
-uniform DirLight dirLight;
-
 struct PointLight {
 	vec3 position;
 	float constant;
@@ -27,9 +25,6 @@ struct PointLight {
 	vec3 diffuse;
 	vec3 specular;
 };
-#define NR_POINT_LIGHTS 4
-uniform PointLight pointLights[NR_POINT_LIGHTS];
-
 struct Material {
 	int colorType;
 	vec4 objectColor;
@@ -40,8 +35,12 @@ struct Material {
 	float shininess;
 };
 
+// Uniforms
+uniform DirLight dirLight;
 uniform Material material;
 uniform float opacity;
+#define NR_POINT_LIGHTS 4
+uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform vec3 viewPos;
 
 out vec4 FragColor;
