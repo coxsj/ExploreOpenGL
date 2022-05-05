@@ -100,6 +100,9 @@
     <None Include="shaders\standard.fs">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\standardfxn.fs">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\container.jpg">

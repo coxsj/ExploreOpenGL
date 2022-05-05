@@ -8,7 +8,7 @@
 //External lib
 #include "glad\glad.h"
 #include "GLFW\glfw3.h"
-#include "KHR\khrplatform.h"
+//#include "KHR\khrplatform.h"
 #include "glm\glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -171,23 +171,33 @@ int main()
 		Shader{"posColorTexture.vs", "colorTextureFromVS.fs"},
 		Shader{"lighting.vs", "lighting.fs"},
 		Shader{"lighting.vs", "light.fs"},
-		Shader{"standard.vs", "standard.fs"}
+		Shader{"standard.vs", "standard.fs"},
+		Shader{"standard.vs", "standardfxn.fs"}
 	};
 	
 	// NewShapes
 	// =========
 	std::vector<std::unique_ptr<NewShape>> newShapes;
-	newShapes.emplace_back(std::make_unique<NewTriangle> ( ta, "ta", 6, Point{ 0.0f, 0.0f, -0.5 }) );
-	newShapes.emplace_back( std::make_unique<NewTriangle>( tb, "tb", 6, Point{ 0.0f, 0.0f, -0.5 }) );
-	newShapes.emplace_back( std::make_unique<NewTriangle>( tc, "tc", 6, Point{ 0.0f, 0.0f, -0.5 }) );
-	newShapes.emplace_back( std::make_unique<NewRectangle>(td, te, "ra", 6, Point{ 0.0f, 0.0f, -0.5 }) );
+	newShapes.emplace_back(std::make_unique<NewTriangle> ( ta, "ta", 7, Point{ 0.0f, 0.0f, -0.5 }) );
+	newShapes.emplace_back( std::make_unique<NewTriangle>( tb, "tb", 7, Point{ 0.0f, 0.0f, -0.5 }) );
+	newShapes.emplace_back( std::make_unique<NewTriangle>( tc, "tc", 7, Point{ 0.0f, 0.0f, -0.5 }) );
+	newShapes.emplace_back( std::make_unique<NewRectangle>(td, te, "ra", 7, Point{ 0.0f, 0.0f, -0.5 }) );
 	std::vector<NewRectangle> rectVec{	
 		NewRectangle{ tf, tg }, NewRectangle{ th, ti }, NewRectangle{ tj, tk },
 		NewRectangle{ tl, tm }, NewRectangle{ tn, to }, NewRectangle{ tp, tq } };
-	newShapes.emplace_back( std::make_unique < NewCube>(rectVec, "ca", 6));
+	newShapes.emplace_back( std::make_unique < NewCube>(rectVec, "ca", 7));
 	std::vector<Triangle> triVec{tf, tg, th, ti, tj, tk, tl, tm, tn, to, tp, tq };
-	newShapes.emplace_back(std::make_unique < NewCube>(triVec, "cb", 6));
-	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "cc", 5));
+	newShapes.emplace_back(std::make_unique < NewCube>(triVec, "cb", 7));
+	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "Mobile light", 5));
+	std::vector<glm::vec3> pointLightPositions{	
+		Point{ 0.7f, 1.2f, 0.0f },
+		Point{ 2.3f, -3.3f, 1.0f },
+		Point{ -4.0f, 2.0f, 2.0f },
+		Point{ 0.0f, 0.0f, 3.0f }};
+	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "Point light A", 5));
+	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "Point light B", 5));
+	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "Point light C", 5));
+	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "Point light D", 5));
 
 	// Vertex data ranges, indices and offsets
 	std::vector<float>rawVertexData;
@@ -248,6 +258,7 @@ int main()
 			glm::vec3 lightSourcePos(1.5f * glm::cos(timeValue/10.0), 
 				1.5f * glm::sin(timeValue/10.0), 4.0f);
 			glm::vec3 lightSourceColor{ 1.0f, 1.0f, 1.0f };
+			unsigned int pos{0};
 			switch (i) {
 			case 0:
 				model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
@@ -303,6 +314,13 @@ int main()
 					glm::vec3(-0.5f, 1.0f, 1.0f));
 				myShader[currentShader].setVec3("lightSourceColor", lightSourceColor);
 				break;
+			case 7: case 8: case 9: case 10:
+				pos = i % 7;
+				assert(pos < pointLightPositions.size());
+				model = glm::translate(model, pointLightPositions[pos]);
+				model = glm::scale(model, glm::vec3(0.15f));
+				myShader[currentShader].setVec3("lightSourceColor", lightSourceColor);
+				break;
 			default:
 				assert(0);
 				break;
@@ -310,6 +328,49 @@ int main()
 			glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
 			myShader[currentShader].setMat3("normalMatrix", normalMatrix);
 			//Set lighting uniforms
+			//=====================
+			myShader[currentShader].setVec3("viewPos", cam->getPos());
+
+			if (currentShader == 7) {
+				//Directional (sun)
+				myShader[currentShader].setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+				myShader[currentShader].setVec3("dirLight.ambient", 0.2f, 0.2f, 0.2f);
+				myShader[currentShader].setVec3("dirLight.diffuse", 0.5f, 0.5f, 0.5f);
+				myShader[currentShader].setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
+				// point light 1
+				myShader[currentShader].setVec3("pointLights[0].position", pointLightPositions[0]);
+				myShader[currentShader].setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
+				myShader[currentShader].setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
+				myShader[currentShader].setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+				myShader[currentShader].setFloat("pointLights[0].constant", 1.0f);
+				myShader[currentShader].setFloat("pointLights[0].linear", 0.09f);
+				myShader[currentShader].setFloat("pointLights[0].quadratic", 0.032f);
+				// point light 2
+				myShader[currentShader].setVec3("pointLights[1].position", pointLightPositions[1]);
+				myShader[currentShader].setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
+				myShader[currentShader].setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
+				myShader[currentShader].setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
+				myShader[currentShader].setFloat("pointLights[1].constant", 1.0f);
+				myShader[currentShader].setFloat("pointLights[1].linear", 0.09f);
+				myShader[currentShader].setFloat("pointLights[1].quadratic", 0.032f);
+				// point light 3
+				myShader[currentShader].setVec3("pointLights[2].position", pointLightPositions[2]);
+				myShader[currentShader].setVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
+				myShader[currentShader].setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
+				myShader[currentShader].setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
+				myShader[currentShader].setFloat("pointLights[2].constant", 1.0f);
+				myShader[currentShader].setFloat("pointLights[2].linear", 0.09f);
+				myShader[currentShader].setFloat("pointLights[2].quadratic", 0.032f);
+				// point light 4
+				myShader[currentShader].setVec3("pointLights[3].position", pointLightPositions[3]);
+				myShader[currentShader].setVec3("pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
+				myShader[currentShader].setVec3("pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
+				myShader[currentShader].setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
+				myShader[currentShader].setFloat("pointLights[3].constant", 1.0f);
+				myShader[currentShader].setFloat("pointLights[3].linear", 0.09f);
+				myShader[currentShader].setFloat("pointLights[3].quadratic", 0.032f);
+			}
+
 			myShader[currentShader].setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
 			myShader[currentShader].setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
 			myShader[currentShader].setVec3("light.specular", lightSourceColor);
@@ -324,7 +385,6 @@ int main()
 			myShader[currentShader].setMat4("model", model);
 			myShader[currentShader].setMat4("view", view);
 			myShader[currentShader].setMat4("projection", projection);
-			myShader[currentShader].setVec3("viewPos", cam->getPos());
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_TRIANGLE * newShapes[i]->size());	
 			glCheckError();
