@@ -5,19 +5,21 @@
 #include <string>
 #include <vector>
 
+#include <windows.h> //Eliminates the APIENTRY macro redefinition warning.
+
 //External lib
 #include "glad\glad.h"
-#include "GLFW\glfw3.h"
-//#include "KHR\khrplatform.h"
-#include "glm\glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
+#include "glfw-3.3.6\include\GLFW\glfw3.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "glm\glm.hpp"
+#include "glm\gtc\matrix_transform.hpp"
+#include "glm\gtc\type_ptr.hpp"
+
 //Local lib
-#include "util_console/util_console.h"
+#include "util_console\util_console.h"
 
 //Project files
 #include "camera.h"

@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "GLFW\glfw3.h"
+#include "glfw-3.3.6\include\GLFW\glfw3.h"
 
 //Structs
 struct TextureFileData {

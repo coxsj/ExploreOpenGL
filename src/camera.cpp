@@ -1,5 +1,5 @@
 #include "camera.h"
-#include "GLFW\glfw3.h"
+#include "glfw-3.3.6\include\GLFW\glfw3.h"
 #include "glm\glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"

@@ -3,7 +3,7 @@
 
 //External Libraries
 #include "glad\glad.h"
-#include "GLFW\glfw3.h"
+#include "glfw-3.3.6\include\GLFW\glfw3.h"
 
 class Window {
 private:
