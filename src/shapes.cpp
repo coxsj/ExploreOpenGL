@@ -2,6 +2,20 @@
 
 #include "shapes.h"
 
+void Vertex::add(std::vector<float>& v) {
+
+	v.push_back(pos.x);
+	v.push_back(pos.y);
+	v.push_back(pos.z);
+	v.push_back(colorRGB.x);
+	v.push_back(colorRGB.y);
+	v.push_back(colorRGB.z);
+	v.push_back(textureCoord.x);
+	v.push_back(textureCoord.y);
+	v.push_back(normals.x);
+	v.push_back(normals.y);
+	v.push_back(normals.z);
+}
 bool NewShape::addTriangle(Triangle& t, Point refPoint) {
 	if (t.size() != 3 || triangles_.size() >= maxTriangles_) return false;
 	refPoint_ = refPoint;

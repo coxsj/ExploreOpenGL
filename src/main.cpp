@@ -515,22 +515,22 @@ void createVAOAndVBOs(std::vector<unsigned int>& VAO, std::vector<unsigned int>&
 		// glVertexAttribPointer(location, elements per attribute, type of data, bool, sizeof vertex, pointer to first data element)
 		//glVertexAttribPointer(location0, posElementsPerAttribute, GL_FLOAT, GL_FALSE, numArrayElementsPerVertex * sizeof(float), (void*)0);
 		glVertexAttribPointer(location0, Vertex::posLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
-			(void*)offsetof(Vertex, pos));
+			(void*)OFFSET_POS);
 		glEnableVertexAttribArray(location0); //relates to the locations declared in the vertex shader
 
 		// Set color attribute pointer
 		glVertexAttribPointer(location1, Vertex::colorRGBLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
-			(void*)offsetof(Vertex, colorRGB));
+			(void*)OFFSET_COLORRGB);
 		glEnableVertexAttribArray(location1); //relates to the locations declared in the vertex shader
 
 		// Set texture attribute pointer
 		glVertexAttribPointer(location2, Vertex::textureCoordLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
-			(void*)offsetof(Vertex, textureCoord));
+			(void*)OFFSET_TEXTURECOORD);
 		glEnableVertexAttribArray(location2); //relates to the locations declared in the vertex shader
 
 		// Set normals attribute pointer
 		glVertexAttribPointer(location3, Vertex::normalLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
-			(void*)offsetof(Vertex, normals));
+			(void*)OFFSET_NORMALS);
 		glEnableVertexAttribArray(location3); //relates to the locations declared in the vertex shader
 	}
 	// The call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex 
@@ -550,6 +550,7 @@ void extractRawVertexDataAndIndices(const std::vector<std::unique_ptr<NewShape>>
 		for (unsigned int i = 0; i < s->vertexCount(); i++) {
 			//Loop through vertices in each triangle
 			//Add vertex data to rawVertexData
+			s->vertex(i).add(rawVertexData);
 			rawVertexData.push_back(s->vertex(i).pos.x);
 			rawVertexData.push_back(s->vertex(i).pos.y);
 			rawVertexData.push_back(s->vertex(i).pos.z);

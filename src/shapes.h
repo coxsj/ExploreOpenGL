@@ -21,7 +21,7 @@ struct Vertex {
 	ColorRGB colorRGB;
 	TextureCoord2D textureCoord;
 	Normal normals;
-	Vertex() :pos(0, 0, 0), colorRGB(0, 0, 0), textureCoord(0, 0), normals(0, 0, 0) {}
+	//Vertex() :pos(0, 0, 0), colorRGB(0, 0, 0), textureCoord(0, 0), normals(0, 0, 0) {}
 	Vertex(Point newPos) :pos(newPos), colorRGB(0, 0, 0), textureCoord(0, 0), normals(0, 0, 0) {}
 	Vertex(Point newPos, ColorRGB newColorRGB, TextureCoord2D newTextureCoord, Normal newNormals = Normal(0.0f))
 		:pos(newPos), colorRGB(newColorRGB), textureCoord(newTextureCoord), normals(newNormals) {}
@@ -33,14 +33,19 @@ struct Vertex {
 			//Note: Does not compare normals as they are solid shape dependent
 	}
 	friend std::ostream& operator<<(std::ostream& os, const Vertex& v) {
-		os << "(" << v.pos.x << "," << v.pos.y << "," << v.pos.z <<")";
+		os << "(" << v.pos.x << "," << v.pos.y << "," << v.pos.z << ")";
 		return os;
 	}
+	void add(std::vector<float>& v);
 	static unsigned int posLength() { return sizeof(pos)/sizeof(float); }
 	static unsigned int colorRGBLength() { return sizeof(colorRGB) / sizeof(float); }
 	static unsigned int textureCoordLength() { return sizeof(textureCoord) / sizeof(float); }
 	static unsigned int normalLength() { return sizeof(normals) / sizeof(float); }
 };
+constexpr unsigned int OFFSET_POS = offsetof(Vertex, pos);
+constexpr unsigned int OFFSET_COLORRGB = offsetof(Vertex, colorRGB);
+constexpr unsigned int OFFSET_TEXTURECOORD = offsetof(Vertex, textureCoord);
+constexpr unsigned int OFFSET_NORMALS = offsetof(Vertex, normals);
 
 typedef std::vector<Vertex> Triangle;
 
