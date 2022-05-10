@@ -18,9 +18,9 @@ typedef glm::vec3 Normal;
 
 struct Vertex {
 	Point pos;
-	ColorRGB colorRGB;
-	TextureCoord2D textureCoord;
 	Normal normals;
+	TextureCoord2D textureCoord;
+	ColorRGB colorRGB;
 	//Vertex() :pos(0, 0, 0), colorRGB(0, 0, 0), textureCoord(0, 0), normals(0, 0, 0) {}
 	Vertex(Point newPos) :pos(newPos), colorRGB(0, 0, 0), textureCoord(0, 0), normals(0, 0, 0) {}
 	Vertex(Point newPos, ColorRGB newColorRGB, TextureCoord2D newTextureCoord, Normal newNormals = Normal(0.0f))

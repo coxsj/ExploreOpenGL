@@ -551,18 +551,6 @@ void extractRawVertexDataAndIndices(const std::vector<std::unique_ptr<NewShape>>
 			//Loop through vertices in each triangle
 			//Add vertex data to rawVertexData
 			s->vertex(i).add(rawVertexData);
-			rawVertexData.push_back(s->vertex(i).pos.x);
-			rawVertexData.push_back(s->vertex(i).pos.y);
-			rawVertexData.push_back(s->vertex(i).pos.z);
-			rawVertexData.push_back(s->vertex(i).colorRGB.x);
-			rawVertexData.push_back(s->vertex(i).colorRGB.y);
-			rawVertexData.push_back(s->vertex(i).colorRGB.z);
-			rawVertexData.push_back(s->vertex(i).textureCoord.x);
-			rawVertexData.push_back(s->vertex(i).textureCoord.y);
-			rawVertexData.push_back(s->vertex(i).normals.x);
-			rawVertexData.push_back(s->vertex(i).normals.y);
-			rawVertexData.push_back(s->vertex(i).normals.z);
-
 			//Loop through all vertices and capture the index of this vertex
 			bool found = false;
 			for (unsigned int k = 0; k < vertices.size(); k++) {
