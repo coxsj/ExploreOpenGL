@@ -9,3 +9,4 @@ void createTextures(const std::vector<TextureFileData>& textureFiles, std::vecto
 GLenum glCheckError_(const char* file, int line);
 bool loadGLFWFunctionPointers();
 void printFrameRate();
+unsigned int textureFromFile(const char* path, const std::string& directory, bool gamma = false);

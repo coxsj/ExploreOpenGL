@@ -42,7 +42,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath,
     catch (std::ifstream::failure& e)
     {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << e.what() << std::endl;
-        assert(0);
+        assert(false);
     }
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();

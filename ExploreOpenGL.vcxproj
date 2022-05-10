@@ -72,28 +72,28 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\include\;$(SolutionDir)dependencies\include\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\assimp\assimp\include;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\include\;$(SolutionDir)dependencies\include\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\assimp\assimp\include\assimp;$(VC_SourcePath)</SourcePath>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\include\;$(SolutionDir)dependencies\include\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\assimp\assimp\include;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\include\;$(SolutionDir)dependencies\include\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\assimp\assimp\include\assimp;$(VC_SourcePath)</SourcePath>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\include\;$(SolutionDir)dependencies\include\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\assimp\assimp\include;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\include\;$(SolutionDir)dependencies\include\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\assimp\assimp\include\assimp;$(VC_SourcePath)</SourcePath>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\include\;$(SolutionDir)dependencies\include\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\assimp\assimp\include;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\include\;$(SolutionDir)dependencies\include\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\stb_image;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\Glad\src\;C:\Users\coxst\OneDrive\Documents\Repos\External Libraries\assimp\assimp\include\assimp;$(VC_SourcePath)</SourcePath>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\intermediate\$(Platform)\$(Configuration)\</IntDir>
@@ -176,6 +176,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\External Libraries\Glad\src\glad.c" />
+    <ClCompile Include="src\model.cpp" />
     <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\shapes.cpp" />
     <ClCompile Include="src\camera.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="..\..\External Libraries\glm\glm.hpp" />
     <ClInclude Include="..\..\External Libraries\stb_image\stb_image.h" />
     <ClInclude Include="dependencies\include\util_console\util_console.h" />
+    <ClInclude Include="src\model.h" />
     <ClInclude Include="src\mesh.h" />
     <ClInclude Include="src\settings.h" />
     <ClInclude Include="src\shapes.h" />

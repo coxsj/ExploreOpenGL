@@ -4,7 +4,7 @@
 
 #include "window.h"
 
-void Mesh::draw(Shader& shader){
+void Mesh::draw(const Shader& shader){
 	unsigned int diffuseCt = 1;
 	unsigned int specularCt = 1;
 	for (unsigned int i = 0; i < textures.size(); i++) {

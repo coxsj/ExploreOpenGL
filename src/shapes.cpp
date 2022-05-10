@@ -10,11 +10,6 @@ void Vertex::add(std::vector<float>& v) {
 			v.push_back(pos.y);
 			v.push_back(pos.z);
 			break;
-		case OFFSET_COLORRGB / sizeof(float) :
-			v.push_back(colorRGB.x);
-			v.push_back(colorRGB.y);
-			v.push_back(colorRGB.z);
-			break;
 		case OFFSET_TEXTURECOORD / sizeof(float) :
 			v.push_back(textureCoord.x);
 			v.push_back(textureCoord.y);

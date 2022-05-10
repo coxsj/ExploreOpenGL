@@ -20,15 +20,13 @@ struct Vertex {
 	Point pos;
 	Normal normals;
 	TextureCoord2D textureCoord;
-	ColorRGB colorRGB;
 	//Vertex() :pos(0, 0, 0), colorRGB(0, 0, 0), textureCoord(0, 0), normals(0, 0, 0) {}
-	Vertex(Point newPos) :pos(newPos), colorRGB(0, 0, 0), textureCoord(0, 0), normals(0, 0, 0) {}
-	Vertex(Point newPos, ColorRGB newColorRGB, TextureCoord2D newTextureCoord, Normal newNormals = Normal(0.0f))
-		:pos(newPos), colorRGB(newColorRGB), textureCoord(newTextureCoord), normals(newNormals) {}
+	Vertex(Point newPos) :pos(newPos), textureCoord(0, 0), normals(0, 0, 0) {}
+	Vertex(Point newPos, TextureCoord2D newTextureCoord, Normal newNormals = Normal(0.0f))
+		:pos(newPos), textureCoord(newTextureCoord), normals(newNormals) {}
 	//NOTE: for now, normal vectors are not compared in a vertex equality comparison
 	inline bool operator==(const Vertex& rhs) {
 		return pos == rhs.pos
-			&& colorRGB == rhs.colorRGB
 			&& textureCoord == rhs.textureCoord;
 			//Note: Does not compare normals as they are solid shape dependent
 	}
@@ -38,22 +36,20 @@ struct Vertex {
 	}
 	void add(std::vector<float>& v);
 	static unsigned int posLength() { return sizeof(pos)/sizeof(float); }
-	static unsigned int colorRGBLength() { return sizeof(colorRGB) / sizeof(float); }
 	static unsigned int textureCoordLength() { return sizeof(textureCoord) / sizeof(float); }
 	static unsigned int normalLength() { return sizeof(normals) / sizeof(float); }
 };
 constexpr unsigned int OFFSET_POS = offsetof(Vertex, pos);
-constexpr unsigned int OFFSET_COLORRGB = offsetof(Vertex, colorRGB);
 constexpr unsigned int OFFSET_TEXTURECOORD = offsetof(Vertex, textureCoord);
 constexpr unsigned int OFFSET_NORMALS = offsetof(Vertex, normals);
 
 struct Texture {
 	unsigned int id;
 	std::string type;
+	std::string path; // store path of texture to compare with other textures
 };
 
 typedef std::vector<Vertex> Triangle;
-
 
 enum class SHAPE_TYPE {
 	e_shape,

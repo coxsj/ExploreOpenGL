@@ -12,9 +12,9 @@ public:
 	std::vector<unsigned int>	indices;
 	std::vector<Texture>		textures;
 
-	Mesh(const std::vector<Vertex>& v, const std::vector<unsigned int>& i,
-		const std::vector<Texture>& t) : vertices(v), indices(i), textures(t) {	setupMesh(); }
-	void draw(Shader& shader);
+	Mesh(std::vector<Vertex>& v, std::vector<unsigned int>& i,
+		std::vector<Texture>& t) : vertices(v), indices(i), textures(t) {	setupMesh(); }
+	void draw(const Shader& shader);
 private:
 	//Render data
 	unsigned int VAO, VBO, EBO;

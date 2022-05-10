@@ -76,95 +76,6 @@ int main()
 	std::vector<unsigned int> textureIDs(textureFiles.size());
 	createTextures(textureFiles, textureIDs);
 	
-	// Set up vertex data (and buffer(s)) and configure vertex attributes
-	// ------------------------------------------------------------------
-	Point pa{ -0.5f,  0.5f,  0.0f };
-	Point pb{  0.0f,  0.0f,  0.0f };
-	Point pc{ -1.0f,  0.0f,  0.0f };
-	Point pd{  0.5f,  0.5f,  0.0f };
-	Point pe{  1.0f,  0.0f,  0.0f };
-	Point pf{  0.0f,  1.0f,  0.0f };
-	Point pg{  0.5f, -0.5f,  0.0f };
-	Point ph{ -0.5f, -0.5f,  0.0f };
-	Point pi{ -0.5f, -0.5f, -0.5f };
-	Point pj{ -0.5f, -0.5f,  0.5f };
-	Point pk{ -0.5f,  0.5f, -0.5f };
-	Point pl{ -0.5f,  0.5f,  0.5f };
-	Point pm{  0.5f, -0.5f, -0.5f };
-	Point pn{  0.5f, -0.5f,  0.5f };
-	Point po{  0.5f,  0.5f, -0.5f };
-	Point pp{  0.5f,  0.5f,  0.5f };
-
-	// Colors
-	// ======
-	ColorRGB ca{ 1.0f, 0.0f, 0.0f };
-	ColorRGB cb{ 0.0f, 1.0f, 0.0f };
-	ColorRGB cc{ 0.0f, 0.0f, 1.0f };
-	ColorRGB cd{ 1.0f, 1.0f, 0.0f };
-	ColorRGB ce{ 0.0f, 0.0f, 0.0f };
-	ColorRGB cf{ 1.0f, 0.5f, 0.2f };
-	ColorRGB cwhite{ 1.0f, 1.0f, 1.0f };
-
-	// Texture coords
-	// ==============
-	TextureCoord2D txa{ 0.0f, 0.0f };
-	TextureCoord2D txb{ 0.0f, 1.0f };
-	TextureCoord2D txc{ 1.0f, 0.0f };
-	TextureCoord2D txd{ 1.0f, 1.0f };
-
-	// Vertices
-	// ========
-	Vertex va{ pa,ca,txa };
-	Vertex vb{ pb,cb,txa };
-	Vertex vc{ pc,cc,txa };
-	Vertex vd{ pd,ca,txa };
-	Vertex ve{ pe,cc,txa };
-	Vertex vf{ pf,ca,txa };
-	Vertex vg{ pd,ca,txd };
-	Vertex vh{ pg,cb,txc };
-	Vertex vi{ pa,cd,txb };
-	Vertex vj{ ph,ce,txa };
-	Vertex vk{ pi,ce,txa };
-	Vertex vl{ pi,ce,txb };
-	Vertex vm{ pj,ce,txa };
-	Vertex vn{ pk,ce,txb };
-	Vertex vo{ pk,ce,txd };
-	Vertex vp{ pl,ce,txa };
-	Vertex vq{ pl,ce,txb };
-	Vertex vr{ pl,ce,txc };
-	Vertex vs{ pm,ce,txb };
-	Vertex vt{ pm,ce,txc };
-	Vertex vu{ pm,ce,txd };
-	Vertex vv{ pn,ce,txa };
-	Vertex vw{ pn,ce,txc };
-	Vertex vx{ po,ce,txd };
-	Vertex vy{ pp,ce,txc };
-	Vertex vz{ pp,ce,txd };
-	std::vector<Vertex> vertices{ va,vb,vc,vd,ve,vf,vg,vh,vi,vj,vk,vl,vm,
-		vn,vo,vp,vq,vr,vs,vt,vu,vv,vw,vx,vy,vz };
-
-	// Triangles
-	// =========
-	Triangle ta{ va,vb,vc };
-	Triangle tb{ vd,ve,vb };
-	Triangle tc{ vf,va,vd };
-	//Rectangle: 2 triangles
-	Triangle td{ vg,vh,vi };
-	Triangle te{ vh,vj,vi };
-	//Cube: 12 triangles
-	Triangle tf{ vk,vt,vx };
-	Triangle tg{ vx,vn,vk };
-	Triangle th{ vm,vw,vz };
-	Triangle ti{ vz,vq,vm };
-	Triangle tj{ vr,vo,vl };
-	Triangle tk{ vl,vm,vr };
-	Triangle tl{ vy,vx,vs };
-	Triangle tm{ vs,vv,vy };
-	Triangle tn{ vl,vu,vw };
-	Triangle to{ vw,vm,vl };
-	Triangle tp{ vn,vx,vy };
-	Triangle tq{ vy,vp,vn };
-	
 	//Build and compile Shader Programs
 	std::vector<Shader> myShader{
 		Shader{"standardPosColor.vs", "colorFromVS.fs"},
@@ -176,39 +87,9 @@ int main()
 		Shader{"standard.vs", "standard.fs"},
 		Shader{"standard.vs", "standardfxn.fs"}
 	};
-	
-	// NewShapes
-	// =========
-	std::vector<std::unique_ptr<NewShape>> newShapes;
-	newShapes.emplace_back(std::make_unique<NewTriangle> ( ta, "ta", 7, Point{ 0.0f, 0.0f, -0.5 }) );
-	newShapes.emplace_back( std::make_unique<NewTriangle>( tb, "tb", 7, Point{ 0.0f, 0.0f, -0.5 }) );
-	newShapes.emplace_back( std::make_unique<NewTriangle>( tc, "tc", 7, Point{ 0.0f, 0.0f, -0.5 }) );
-	newShapes.emplace_back( std::make_unique<NewRectangle>(td, te, "ra", 7, Point{ 0.0f, 0.0f, -0.5 }) );
-	std::vector<NewRectangle> rectVec{	
-		NewRectangle{ tf, tg }, NewRectangle{ th, ti }, NewRectangle{ tj, tk },
-		NewRectangle{ tl, tm }, NewRectangle{ tn, to }, NewRectangle{ tp, tq } };
-	newShapes.emplace_back( std::make_unique < NewCube>(rectVec, "ca", 7));
-	std::vector<Triangle> triVec{tf, tg, th, ti, tj, tk, tl, tm, tn, to, tp, tq };
-	newShapes.emplace_back(std::make_unique < NewCube>(triVec, "cb", 7));
-	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "Mobile light", 5));
-	std::vector<glm::vec3> pointLightPositions{	
-		Point{ 0.7f, 1.2f, 0.0f },
-		Point{ 2.3f, -3.3f, 1.0f },
-		Point{ -4.0f, 2.0f, 2.0f },
-		Point{ 0.0f, 0.0f, 3.0f }};
-	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "Point light A", 5));
-	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "Point light B", 5));
-	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "Point light C", 5));
-	newShapes.emplace_back(std::make_unique < NewCube>(rectVec, "Point light D", 5));
 
 	// Vertex data ranges, indices and offsets
-	std::vector<float>rawVertexData;
-	std::vector<unsigned int> indices;
-	extractRawVertexDataAndIndices(newShapes, vertices, rawVertexData, indices);
-	// Create Vertex Buffer and Vertex Array objects
-	std::vector<unsigned int> VAO(newShapes.size());
-	std::vector<unsigned int> VBO(newShapes.size());
-	createVAOAndVBOs(VAO, VBO, newShapes, rawVertexData);
+	
 	glCheckError();
 
 	// Uncomment this call to draw in wireframe polygons.
@@ -243,13 +124,13 @@ int main()
 		
 		// Draw objects
 		//=============
-		for (unsigned int i = 0; i < newShapes.size(); i++) {
+		for (unsigned int i = 0; i < 0; i++) {
 			//Select and activate shader program
-			unsigned int currentShader = newShapes[i]->shaderIndex();
-			assert(currentShader < myShader.size());
-			myShader[currentShader].use();
+			unsigned int currentShader = 0;
+			//assert(currentShader < myShader.size());
+			//myShader[currentShader].use();
 			//Bind VAO for this shape
-			glBindVertexArray(VAO[i]);
+			//glBindVertexArray(VAO[i]);
 			//Model and view matrices
 			glm::mat4 model = glm::mat4(1.0f);
 			glm::mat4 view = glm::mat4(1.0f);
@@ -317,14 +198,10 @@ int main()
 				myShader[currentShader].setVec3("lightSourceColor", lightSourceColor);
 				break;
 			case 7: case 8: case 9: case 10:
-				pos = i % 7;
-				assert(pos < pointLightPositions.size());
-				model = glm::translate(model, pointLightPositions[pos]);
-				model = glm::scale(model, glm::vec3(0.15f));
-				myShader[currentShader].setVec3("lightSourceColor", lightSourceColor);
+
 				break;
 			default:
-				assert(0);
+				assert(false);
 				break;
 			}
 			glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
@@ -333,53 +210,7 @@ int main()
 			//=====================
 			myShader[currentShader].setVec3("viewPos", cam->getPos());
 
-			if (currentShader == 7) {
-				//Directional (sun)
-				myShader[currentShader].setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-				myShader[currentShader].setVec3("dirLight.ambient", 0.2f, 0.2f, 0.2f);
-				myShader[currentShader].setVec3("dirLight.diffuse", 0.5f, 0.5f, 0.5f);
-				myShader[currentShader].setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
-				// point light 1
-				myShader[currentShader].setVec3("pointLights[0].position", pointLightPositions[0]);
-				myShader[currentShader].setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
-				myShader[currentShader].setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-				myShader[currentShader].setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-				myShader[currentShader].setFloat("pointLights[0].constant", 1.0f);
-				myShader[currentShader].setFloat("pointLights[0].linear", 0.09f);
-				myShader[currentShader].setFloat("pointLights[0].quadratic", 0.032f);
-				// point light 2
-				myShader[currentShader].setVec3("pointLights[1].position", pointLightPositions[1]);
-				myShader[currentShader].setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
-				myShader[currentShader].setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
-				myShader[currentShader].setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
-				myShader[currentShader].setFloat("pointLights[1].constant", 1.0f);
-				myShader[currentShader].setFloat("pointLights[1].linear", 0.09f);
-				myShader[currentShader].setFloat("pointLights[1].quadratic", 0.032f);
-				// point light 3
-				myShader[currentShader].setVec3("pointLights[2].position", pointLightPositions[2]);
-				myShader[currentShader].setVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
-				myShader[currentShader].setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
-				myShader[currentShader].setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
-				myShader[currentShader].setFloat("pointLights[2].constant", 1.0f);
-				myShader[currentShader].setFloat("pointLights[2].linear", 0.09f);
-				myShader[currentShader].setFloat("pointLights[2].quadratic", 0.032f);
-				// point light 4
-				myShader[currentShader].setVec3("pointLights[3].position", pointLightPositions[3]);
-				myShader[currentShader].setVec3("pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
-				myShader[currentShader].setVec3("pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
-				myShader[currentShader].setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
-				myShader[currentShader].setFloat("pointLights[3].constant", 1.0f);
-				myShader[currentShader].setFloat("pointLights[3].linear", 0.09f);
-				myShader[currentShader].setFloat("pointLights[3].quadratic", 0.032f);
-			}
-
-			myShader[currentShader].setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-			myShader[currentShader].setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-			myShader[currentShader].setVec3("light.specular", lightSourceColor);
-			myShader[currentShader].setVec3("light.position", lightSourcePos);
-			// Set up material uniforms
-			myShader[currentShader].setFloat("material.shininess", 32.0f);
-			myShader[currentShader].setFloat("opacity", 1.0f);
+			
 			//Update camera view
 			view = cam->lookAt();
 			projection = cam->perspective(SCR_WIDTH, SCR_HEIGHT, 0.1f, 100.0f);
@@ -388,7 +219,7 @@ int main()
 			myShader[currentShader].setMat4("view", view);
 			myShader[currentShader].setMat4("projection", projection);
 			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-			glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_TRIANGLE * newShapes[i]->size());	
+			//glDrawArrays(GL_TRIANGLES, 0, VERTICES_PER_TRIANGLE * newShapes[i]->size());	
 			glCheckError();
 		}
 		glBindVertexArray(0);
@@ -517,11 +348,6 @@ void createVAOAndVBOs(std::vector<unsigned int>& VAO, std::vector<unsigned int>&
 		glVertexAttribPointer(location0, Vertex::posLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
 			(void*)OFFSET_POS);
 		glEnableVertexAttribArray(location0); //relates to the locations declared in the vertex shader
-
-		// Set color attribute pointer
-		glVertexAttribPointer(location1, Vertex::colorRGBLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
-			(void*)OFFSET_COLORRGB);
-		glEnableVertexAttribArray(location1); //relates to the locations declared in the vertex shader
 
 		// Set texture attribute pointer
 		glVertexAttribPointer(location2, Vertex::textureCoordLength(), GL_FLOAT, GL_FALSE, sizeof(Vertex),
