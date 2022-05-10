@@ -47,7 +47,13 @@ constexpr unsigned int OFFSET_COLORRGB = offsetof(Vertex, colorRGB);
 constexpr unsigned int OFFSET_TEXTURECOORD = offsetof(Vertex, textureCoord);
 constexpr unsigned int OFFSET_NORMALS = offsetof(Vertex, normals);
 
+struct Texture {
+	unsigned int id;
+	std::string type;
+};
+
 typedef std::vector<Vertex> Triangle;
+
 
 enum class SHAPE_TYPE {
 	e_shape,

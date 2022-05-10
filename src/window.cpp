@@ -2,7 +2,7 @@
 
 #include "window.h"
 
-//Definiiton of static members must appear in the cpp file
+//Initialization of static members must appear in the cpp file
 bool Window::instantiated_=false;
 
 void Window::cb_framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -49,6 +49,11 @@ bool Window::createWindowObject() {
 	// Make the context of our window the main context on the current thread
 	glfwMakeContextCurrent(window_);
 	return true;
+}
+int Window::getOpenGLAttrbutes() {
+	int attributeCt;
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &attributeCt);
+	return attributeCt;
 }
 bool Window::initializeOpenGL() {
 	// First initialize GLFW
@@ -101,9 +106,7 @@ bool Window::loadGLFWFunctionPointers() {
 	return true;
 }
 void Window::printOpenGLAttributes() {
-	int nrAttributes;
-	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-	std::cout << "Maximum vertex attributes supported: " << nrAttributes << std::endl;
+	std::cout << "Maximum vertex attributes supported: " << getOpenGLAttrbutes() << std::endl;
 }
 void Window::registerGLFWCallbacks() {
 	//Resizing a window

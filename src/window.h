@@ -20,7 +20,8 @@ public:
 		instantiated_ = true;
 	}
 	~Window() { instantiated_ = false; }
-	bool init();
+	static int		getOpenGLAttrbutes();
+	bool	init();
 	GLFWwindow* window() { return window_; }
 private:
 	static void cb_framebuffer_size_callback(GLFWwindow* window, int width, int height);
