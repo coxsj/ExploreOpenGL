@@ -184,6 +184,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\utility.cpp" />
     <ClCompile Include="src\window.cpp" />
+    <ClCompile Include="src\texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\External Libraries\glm\glm.hpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="src\shader.h" />
     <ClInclude Include="src\utility.h" />
     <ClInclude Include="src\window.h" />
+    <ClInclude Include="src\texture.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\colorFromFS.fs" />
@@ -218,6 +220,8 @@
   <ItemGroup>
     <Text Include="shaders\lighting.vs" />
     <Text Include="shaders\lighting.fs" />
+    <Text Include="shaders\model.vs" />
+    <Text Include="shaders\model.fs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

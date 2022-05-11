@@ -3,7 +3,8 @@
 #include <vector>
 
 #include "shader.h"
-#include"shapes.h"
+#include "shapes.h"
+#include "texture.h"
 
 class Mesh
 {

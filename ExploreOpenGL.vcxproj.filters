@@ -45,6 +45,9 @@
     <ClCompile Include="src\model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\utility.h">
@@ -78,6 +81,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -131,5 +137,7 @@
     <Text Include="shaders\lighting.fs">
       <Filter>shaders</Filter>
     </Text>
+    <Text Include="shaders\model.vs" />
+    <Text Include="shaders\model.fs" />
   </ItemGroup>
 </Project>

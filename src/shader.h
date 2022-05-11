@@ -13,15 +13,11 @@
 class Shader
 {
 private:
-	// the program ID
 	unsigned int programID;
-
 public:
-	// constructor reads and builds the shader
+	// Constructor reads and builds the shader
 	Shader(const std::string& vertexPath, const std::string& fragmentPath, 
 		const std::string& geometryPath = "", const std::string& shaderDir = SHADER_DIR);
-	// use/activate the shader
-	void use();
 	// utility uniform functions
 	void setBool(const std::string& name, bool value) const;
 	void setUInt(const std::string& name, unsigned int value) const;
@@ -37,7 +33,7 @@ public:
 	void setVec3(const std::string& name, float x, float y, float z) const;
 	void setVec4(const std::string& name, const glm::vec4& value) const;
 	void setVec4(const std::string& name, float x, float y, float z, float w) const;
-
+	void use(); //To activate the shader
 private:
 	void checkCompileErrors(GLuint shader, std::string type);
 };

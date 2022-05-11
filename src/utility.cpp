@@ -9,6 +9,7 @@
 //External lib
 #include "glad\glad.h"
 #include "glfw-3.3.6\include\GLFW\glfw3.h"
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 //Local lib

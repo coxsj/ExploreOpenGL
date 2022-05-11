@@ -5,47 +5,43 @@
 #include "glm/gtc/type_ptr.hpp"
 
 void Camera::keyInput(int GLFW_key, float deltaTime) {
-	cameraSpeed = 2.5f * deltaTime;
-
-	if(GLFW_key == GLFW_KEY_W)	cameraPos += cameraSpeed * cameraFront;
-	if (GLFW_key == GLFW_KEY_S)	cameraPos -= cameraSpeed * cameraFront;
+	float velocity = cameraSpeed * deltaTime;
+	if(GLFW_key == GLFW_KEY_W)	cameraPos += cameraFront * velocity;
+	if (GLFW_key == GLFW_KEY_S)	cameraPos -= cameraFront * velocity;
 	if (GLFW_key == GLFW_KEY_A) 
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		cameraPos -= cameraRight * velocity;
 	if (GLFW_key == GLFW_KEY_D) 
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-	//FPV camera controls
-	if (GLFW_key == GLFW_KEY_UP)	cameraPos += cameraSpeed * cameraFront;
-	if (GLFW_key == GLFW_KEY_DOWN)	cameraPos -= cameraSpeed * cameraFront;
-	if (GLFW_key == GLFW_KEY_LEFT)
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-	if (GLFW_key == GLFW_KEY_RIGHT)
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-	// make sure the user stays at the ground level
-	cameraPos.y = 0.0f; // <-- this one-liner keeps the user at the ground level (xz plane)
+		cameraPos += cameraRight * velocity;
 }
 void Camera::newZoom(float yoffset) {
 	zoom -= yoffset;
 	if (zoom < 1.0f) zoom = 1.0f;
-	else if (zoom > 150.0f) zoom = 150.0f;
+	else if (zoom > 45.0f) zoom = 45.0f;
 }
-void Camera::updateDirectionFromMouse(float xoffset, float yoffset) {
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
+void Camera::updateCameraVectors() {
+	// calculates the front vector from the Camera's (updated) Euler Angles
+	// calculate the new Front vector
+	glm::vec3 front;
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(front);
+	// also re-calculate the Right and Up vector
+	cameraRight = glm::normalize(glm::cross(cameraFront, worldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
+}
+void Camera::updateDirectionFromMouse(float xoffset, float yoffset, bool constrainPitch) {
+	xoffset *= mouseSensitivity;
+	yoffset *= mouseSensitivity;
 
 	//Update pitch and yaw based on mouse changes
 	yaw += xoffset;
 	pitch += yoffset;
 
-	//Aply limits to prevent camera flip
-	if (pitch > 89.0f) pitch = 89.0f;
-	if (pitch < -89.0f) pitch = -89.0f;
-
-	//Calculate the new camera direction vector
-	glm::vec3 direction;
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.y = sin(glm::radians(pitch));
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-
-	//Update the global camera vector
-	cameraFront = glm::normalize(direction);
+	if (constrainPitch) {
+		//Apply limits to prevent camera flip
+		if (pitch > 89.0f) pitch = 89.0f;
+		if (pitch < -89.0f) pitch = -89.0f;
+	}
+	updateCameraVectors();
 }

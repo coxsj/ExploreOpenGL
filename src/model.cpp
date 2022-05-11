@@ -1,5 +1,3 @@
-
-
 #include "model.h"
 
 #include "stb_image.h"
@@ -7,6 +5,9 @@
 #include "mesh.h"
 #include "shapes.h"
 #include "utility.h"
+
+//Needed to avoid linker error LNK2001 unresolved external symbol
+std::vector<Texture> Model::textures_loaded;
 
 void Model::draw(const Shader& shader) {
 	for (unsigned int i = 0; i < meshes.size(); i++) {
@@ -19,24 +20,37 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
 		aiString str;
 		mat->GetTexture(type, i, &str);
-		Texture texture;
-		texture.id = textureFromFile(str.C_Str(), directory);
-		texture.type = typeName;
-		texture.path = str.C_Str();
-		textures.push_back(texture);
+		bool found = false;
+		for (unsigned int j = 0; j < textures_loaded.size(); j++) {
+			if (std::strcmp(textures_loaded[j].path.data(),
+				str.C_Str()) == 0) {
+				//Found match, load from textures_loaded
+				textures.push_back(textures_loaded[j]);
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			Texture texture;
+			texture.id = textureFromFile(str.C_Str(), directory);
+			texture.type = typeName;
+			texture.path = str.C_Str();
+			textures.push_back(texture);
+			textures_loaded.push_back(texture);
+		}
 	}
 	return textures;
 }
-void Model::loadModel(const std::string& path) {
+void Model::loadModel(const std::string& directoryPath, const std::string& filename) {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene* scene = importer.ReadFile(directoryPath + filename, aiProcess_Triangulate | aiProcess_FlipUVs);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
 		!scene->mRootNode) {
 		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
 		assert(false);
 		return;
 	}
-	directory = path;
+	directory = directoryPath;
 	// Extract meshes
 	processNode(scene->mRootNode, scene);
 }
@@ -46,9 +60,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 	std::vector<Texture> textures;
 
 	// Process vertices
-	for (int i = 0; i < mesh->mNumVertices; i++) {
-		Point point{ mesh[i].mVertices->x, mesh[i].mVertices->y, mesh[i].mVertices->z };
-		Normal normal{ mesh[i].mNormals->x, mesh[i].mNormals->y, mesh[i].mNormals->z };
+	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+		Point point{ mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z};
+		Normal normal{ mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z};
 
 		// Assimp allows a model to have up to 8 different texture coordinates per vertex.
 		// We only care about the first set of texture coordinates.
@@ -81,16 +95,15 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 			"texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
-
 	return Mesh(vertices, indices, textures);
 }
 void Model::processNode(aiNode* node, const aiScene* scene) {
-	for (int i = 0; i < node->mNumMeshes; i++) {
+	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		meshes.push_back(processMesh(mesh, scene));
 	}
 	// Now do the same thing for each of the node's children
-	for (int i = 0; i < node->mNumChildren; i++) {
+	for (unsigned int i = 0; i < node->mNumChildren; i++) {
 		processNode(node->mChildren[i], scene);
 	}
 }

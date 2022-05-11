@@ -39,15 +39,9 @@ struct Vertex {
 	static unsigned int textureCoordLength() { return sizeof(textureCoord) / sizeof(float); }
 	static unsigned int normalLength() { return sizeof(normals) / sizeof(float); }
 };
-constexpr unsigned int OFFSET_POS = offsetof(Vertex, pos);
-constexpr unsigned int OFFSET_TEXTURECOORD = offsetof(Vertex, textureCoord);
-constexpr unsigned int OFFSET_NORMALS = offsetof(Vertex, normals);
-
-struct Texture {
-	unsigned int id;
-	std::string type;
-	std::string path; // store path of texture to compare with other textures
-};
+constexpr unsigned long long int OFFSET_POS = offsetof(Vertex, pos);
+constexpr unsigned long long int OFFSET_TEXTURECOORD = offsetof(Vertex, textureCoord);
+constexpr unsigned long long int OFFSET_NORMALS = offsetof(Vertex, normals);
 
 typedef std::vector<Vertex> Triangle;
 
