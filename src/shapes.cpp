@@ -2,29 +2,6 @@
 
 #include "shapes.h"
 
-void Vertex::add(std::vector<float>& v) {
-	for (unsigned int i = 0; i < sizeof(Vertex) / sizeof(float); i++) {
-		switch (i) {
-		case OFFSET_POS / sizeof(float) :
-			v.push_back(pos.x);
-			v.push_back(pos.y);
-			v.push_back(pos.z);
-			break;
-		case OFFSET_TEXTURECOORD / sizeof(float) :
-			v.push_back(textureCoord.x);
-			v.push_back(textureCoord.y);
-			break;
-		case OFFSET_NORMALS / sizeof(float) :
-			v.push_back(normals.x);
-			v.push_back(normals.y);
-			v.push_back(normals.z);
-			break;
-		default:
-			continue;
-			break;
-		}
-	}
-}
 bool NewShape::addTriangle(Triangle& t, Point refPoint) {
 	if (t.size() != 3 || triangles_.size() >= maxTriangles_) return false;
 	refPoint_ = refPoint;

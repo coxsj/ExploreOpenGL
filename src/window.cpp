@@ -106,7 +106,7 @@ bool Window::loadGLFWFunctionPointers() {
 	return true;
 }
 void Window::printOpenGLAttributes() {
-	std::cout << "Maximum vertex attributes supported: " << getOpenGLAttrbutes() << std::endl;
+	std::cout << "Max vertex attributes: " << getOpenGLAttrbutes() << std::endl;
 }
 void Window::registerGLFWCallbacks() {
 	//Resizing a window

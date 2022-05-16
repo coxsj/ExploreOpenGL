@@ -20,7 +20,7 @@ struct Vertex {
 	Point pos;
 	Normal normals;
 	TextureCoord2D textureCoord;
-	//Vertex() :pos(0, 0, 0), colorRGB(0, 0, 0), textureCoord(0, 0), normals(0, 0, 0) {}
+	Vertex() :pos(0, 0, 0), textureCoord(0, 0), normals(0, 0, 0) {}
 	Vertex(Point newPos) :pos(newPos), textureCoord(0, 0), normals(0, 0, 0) {}
 	Vertex(Point newPos, TextureCoord2D newTextureCoord, Normal newNormals = Normal(0.0f))
 		:pos(newPos), textureCoord(newTextureCoord), normals(newNormals) {}
@@ -34,14 +34,13 @@ struct Vertex {
 		os << "(" << v.pos.x << "," << v.pos.y << "," << v.pos.z << ")";
 		return os;
 	}
-	void add(std::vector<float>& v);
 	static unsigned int posLength() { return sizeof(pos)/sizeof(float); }
-	static unsigned int textureCoordLength() { return sizeof(textureCoord) / sizeof(float); }
 	static unsigned int normalLength() { return sizeof(normals) / sizeof(float); }
+	static unsigned int textureCoordLength() { return sizeof(textureCoord) / sizeof(float); }
 };
-constexpr unsigned long long int OFFSET_POS = offsetof(Vertex, pos);
-constexpr unsigned long long int OFFSET_TEXTURECOORD = offsetof(Vertex, textureCoord);
-constexpr unsigned long long int OFFSET_NORMALS = offsetof(Vertex, normals);
+//constexpr unsigned long long int OFFSET_POS = offsetof(Vertex, pos);
+//constexpr unsigned long long int OFFSET_NORMALS = offsetof(Vertex, normals);
+//constexpr unsigned long long int OFFSET_TEXTURECOORD = offsetof(Vertex, textureCoord);
 
 typedef std::vector<Vertex> Triangle;
 
@@ -129,23 +128,20 @@ public:
 	void initCube(const unsigned int newIndex);
 };
 
-class Geometry {
-private:
-	Geometry();
-public:
-	static bool allPointsSamePlane(const Point& a, const Point& b, const Point& c, const Point& d);
-	static bool allPointsUnique(const Point& a, const Point& b);
-	static bool allPointsUnique(const Point& a, const Point& b, const Point& c);
-	static bool allPointsUnique(const Triangle& t, const Point& refPoint);
-	static bool allPointsUnique(const Point& a, const Point& b, const Point& c, const Point& d);
-	static bool allPointsUnique(const Point& a, const Point& b, const Point& c, const Point& d,
+namespace Geometry {
+	bool allPointsSamePlane(const Point& a, const Point& b, const Point& c, const Point& d);
+	bool allPointsUnique(const Point& a, const Point& b);
+	bool allPointsUnique(const Point& a, const Point& b, const Point& c);
+	bool allPointsUnique(const Triangle& t, const Point& refPoint);
+	bool allPointsUnique(const Point& a, const Point& b, const Point& c, const Point& d);
+	bool allPointsUnique(const Point& a, const Point& b, const Point& c, const Point& d,
 		const Point& e);
-	static void assignNormals(Triangle& t, const Point& refPoint);
-	static bool extractTrianglesFromRectangle(const Point& pa, const Point& pb, const Point& pc,
+	void assignNormals(Triangle& t, const Point& refPoint);
+	bool extractTrianglesFromRectangle(const Point& pa, const Point& pb, const Point& pc,
 		const Point& pd, Triangle& ta, Triangle& tb);
-	static Normal getNormal(const Point& a, const Point& b, const Point& c);
-	static bool normalCorrect(const Point& p, const Normal& n, const Point& refPoint);
-	static void printShapePlane(const Triangle& t);
-	static bool verifyRectangle(const Triangle& ta, const Triangle& tb);
-	static bool verifyRectangle(const Point& a, const Point& b, const Point& c, const Point& d);
+	Normal getNormal(const Point& a, const Point& b, const Point& c);
+	bool normalCorrect(const Point& p, const Normal& n, const Point& refPoint);
+	void printShapePlane(const Triangle& t);
+	bool verifyRectangle(const Triangle& ta, const Triangle& tb);
+	bool verifyRectangle(const Point& a, const Point& b, const Point& c, const Point& d);
 };

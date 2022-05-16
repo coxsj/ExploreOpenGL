@@ -66,21 +66,37 @@ GLenum glCheckError_(const char* file, int line) {
 }
 void printFrameRate() {
 	static long long loopCtr{ 0 };
+	loopCtr++;
+	//Moving Average
+	constexpr unsigned int averageLoopCount = 60;
+	static std::vector<double> movingSums(averageLoopCount, 0);
+	static unsigned int movingSumIndex{ 0 };
+	constexpr unsigned int fpsNumerator = 1000 * averageLoopCount;
 
 	static auto t_start{ std::chrono::high_resolution_clock::now() };
-	static auto t_end{ std::chrono::high_resolution_clock::now() };
-	static double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
-	CursorUtil con; 
-	con.cursorTo(1, 0);
-	t_end = std::chrono::high_resolution_clock::now();
-	elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+	auto t_end = std::chrono::high_resolution_clock::now();
+	double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count() + 1;
 	t_start = t_end;
-	std::cout << loopCtr++ << " " << 1000 / elapsed_time_ms;
+	static ConsoleTextBlock fps(1, 0, 1, 20);
+	//Moving average
+	if (movingSumIndex == 0) {
+		movingSums[movingSumIndex] = movingSums[averageLoopCount - 1] + elapsed_time_ms;
+	}
+	else movingSums[movingSumIndex] = movingSums[movingSumIndex - 1] + elapsed_time_ms;
+
+	if (movingSumIndex == averageLoopCount - 1) {
+		// At end of buffer. Subtract first element
+		double averageFPS = fpsNumerator / (movingSums[movingSumIndex] - movingSums[0]);
+		fps.cursorHome();
+		std::cout << "Frames: " << loopCtr << "\t" << averageFPS << "fps  ";
+	}
+	if (++movingSumIndex >= averageLoopCount) movingSumIndex = 0;
 }
 unsigned int textureFromFile(const char* path, const std::string& directory, bool gamma) {
 	//TODO factor improvements and adjustments from utility loadTexture
+	stbi_set_flip_vertically_on_load(true);
 	std::string filename = std::string(path);
-	filename = directory + '/' + filename;
+	filename = directory + filename;
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 	int width, height, nrComponents;

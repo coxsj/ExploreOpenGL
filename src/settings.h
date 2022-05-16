@@ -24,6 +24,8 @@ const std::string SHADER_DIR("C:\\Users\\coxst\\OneDrive\\Documents\\Repos\\Open
 const std::string RESOURCE_DIR("C:\\Users\\coxst\\OneDrive\\Documents\\Repos\\OpenGL\\ExploreOpenGL\\resources\\");
 const std::string TEXTURE_DIR("C:\\Users\\coxst\\OneDrive\\Documents\\Repos\\OpenGL\\ExploreOpenGL\\resources\\textures\\");
 const std::string TEXTURE_DIR_GUITAR_BACKPACK("C:\\Users\\coxst\\OneDrive\\Documents\\Repos\\OpenGL\\ExploreOpenGL\\resources\\textures\\guitar_backpack\\");
+const std::string TEXTURE_DIR_VIRUS_TUBE("C:\\Users\\coxst\\OneDrive\\Documents\\Repos\\OpenGL\\ExploreOpenGL\\resources\\textures\\VirusTube\\");
+const std::string TEXTURE_DIR_MOTORBIKE("C:\\Users\\coxst\\OneDrive\\Documents\\Repos\\OpenGL\\ExploreOpenGL\\resources\\textures\\motorbike\\");
 
 //Magic numbers
 constexpr unsigned int	VERTICES_PER_TRIANGLE = 3;

@@ -72,7 +72,10 @@ int main()
 
 	// Load our model
 	std::vector<Model> models{
-		Model{TEXTURE_DIR_GUITAR_BACKPACK, "backpack.obj"}
+		Model{TEXTURE_DIR_GUITAR_BACKPACK, "backpack.obj"},
+		//Model{TEXTURE_DIR_VIRUS_TUBE, "T_Virus.obj"},
+		//Model{TEXTURE_DIR_MOTORBIKE, "No money down.obj"},
+		
 	};
 	glCheckError();
 
@@ -85,7 +88,7 @@ int main()
 	// The render loop runs until we tell GLFW to stop.
 	// The glfwWindowShouldClose function checks at the start of each loop iteration if GLFW
 	// has been instructed to close.
-	con->cursorTo(2, 0);
+	con->cursorTo(3, 0);
 	std::cout << "Any key to exit...\n";
 	while (!glfwWindowShouldClose(win.window()))
 	{
@@ -99,7 +102,7 @@ int main()
 		// Render Commands
 		// ===============
 		// Set the color used by glClear to fill the color buffer.	
-		glClearColor(0.02f, 0.03f, 0.03f, 1.0f);
+		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		// Clear the screen buffer. Available bits we can set are 
 		// GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT and GL_STENCIL_BUFFER_BIT.
 		// glClearColor is a state-setting function. glClear is a state-using function
@@ -122,23 +125,20 @@ int main()
 			switch (i) {
 			case 0:
 				// translate it to the center of the scene
-				model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); 
+				model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f)); 
 				// Large model, scale it down
-				model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	
+				model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));	
+				model = glm::rotate(model, glm::radians(static_cast<float>(glfwGetTime())*10), 
+					glm::vec3(0.0f, 1.0f, 0.0f));
 				break;
 			case 1:
+				model = glm::translate(model, glm::vec3(-4.0f, 0.0f, -10.0f));
+				// Large model, scale it down
+				model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+				model = glm::rotate(model, glm::radians(static_cast<float>(glfwGetTime()) * -20), 
+					glm::vec3(0.0f, 1.0f, 0.0f));
 				break;
-			case 2:
-				break;
-			case 3:
-				break;
-			case 4:
-				break;
-			case 5:
-				break;
-			case 6:
-				break;
-			case 7: case 8: case 9: case 10:
+			case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10:
 				break;
 			default:
 				assert(false);

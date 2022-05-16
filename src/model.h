@@ -16,7 +16,7 @@ class Model
 private:
 	std::vector<Mesh> meshes;
 	std::string directory;
-	static std::vector<Texture> textures_loaded;
+	std::vector<Texture> textures_loaded;
 public:
 	Model(const std::string& directoryPath, const std::string& filename) { 
 		loadModel(directoryPath, filename); 

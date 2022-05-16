@@ -1,15 +1,17 @@
 #include <assert.h>
 
 #include "mesh.h"
-
 #include "window.h"
 
 void Mesh::draw(const Shader& shader){
 	unsigned int diffuseCt = 1;
 	unsigned int specularCt = 1;
+	unsigned int normalCt = 1;
+	unsigned heightCt = 1;
 	for (unsigned int i = 0; i < textures.size(); i++) {
 		assert(textures.size() <= Window::getOpenGLAttrbutes());
-		glActiveTexture(GL_TEXTURE0 + i); // activate texture unit first
+		// activate texture unit first
+		glActiveTexture(GL_TEXTURE0 + i); //Leave GL_TEXTURE0 for no texture
 		// Assumes naming convention: Each diffuse texture is named texture_diffuseN 
 		// and each specular texture is named texture_specularN,
 		// where N is any number ranging from 1 to the maximum number of texture samplers allowed.
@@ -20,7 +22,7 @@ void Mesh::draw(const Shader& shader){
 			number = std::to_string(diffuseCt++);
 		else if (name == "texture_specular")
 			number = std::to_string(specularCt++);
-		shader.setInt(("material." + name + number).c_str(), i);
+		shader.setInt((name + number).c_str(), i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 	glActiveTexture(GL_TEXTURE0);
@@ -36,10 +38,10 @@ void Mesh::setupMesh() {
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
-		&indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0],
+		GL_STATIC_DRAW);
 
 	//Vertex offset pointers
 	//Position
